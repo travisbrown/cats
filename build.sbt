@@ -1,4 +1,5 @@
 import com.typesafe.sbt.pgp.PgpKeys.publishSigned
+import org.scalastyle.sbt.ScalastylePlugin.scalastyle
 import sbtrelease.ReleaseStep
 import sbtrelease.ReleasePlugin.ReleaseKeys.releaseProcess
 import sbtrelease.ReleaseStateTransformations._
@@ -41,6 +42,12 @@ lazy val commonSettings = Seq(
   )
 )
 
+lazy val styleSettings = Seq(
+  mainScalastyle := scalastyle.in(Compile).toTask("").value,
+  testScalastyle := scalastyle.in(Test).toTask("").value,
+  (test in Test) <<= (test in Test).dependsOn(mainScalastyle, testScalastyle)
+)
+
 lazy val catsSettings = buildSettings ++ commonSettings ++ publishSettings ++ releaseSettings
 
 lazy val disciplineDependencies = Seq(
@@ -62,10 +69,12 @@ lazy val aggregate = project.in(file("."))
 lazy val core = project
   .settings(moduleName := "cats")
   .settings(catsSettings: _*)
+  .settings(styleSettings: _*)
 
 lazy val laws = project.dependsOn(core)
   .settings(moduleName := "cats-laws")
   .settings(catsSettings: _*)
+  .settings(styleSettings: _*)
   .settings(
     libraryDependencies ++= disciplineDependencies ++ Seq(
       "org.spire-math" %% "algebra-laws" % "0.2.0-SNAPSHOT" from "http://plastic-idolatry.com/jars/algebra-laws_2.11-0.2.0-SNAPSHOT.jar"
@@ -75,6 +84,7 @@ lazy val laws = project.dependsOn(core)
 lazy val std = project.dependsOn(core, laws)
   .settings(moduleName := "cats-std")
   .settings(catsSettings: _*)
+  .settings(styleSettings: _*)
   .settings(
     libraryDependencies += "org.spire-math" %% "algebra-std" % "0.2.0-SNAPSHOT" from "http://plastic-idolatry.com/jars/algebra-std_2.11-0.2.0-SNAPSHOT.jar"
   )
@@ -82,6 +92,7 @@ lazy val std = project.dependsOn(core, laws)
 lazy val tests = project.dependsOn(core, std, laws)
   .settings(moduleName := "cats-tests")
   .settings(catsSettings: _*)
+  .settings(styleSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
     libraryDependencies ++= disciplineDependencies ++ Seq(
@@ -92,11 +103,17 @@ lazy val tests = project.dependsOn(core, std, laws)
 lazy val data = project.dependsOn(core, laws)
   .settings(moduleName := "cats-data")
   .settings(catsSettings: _*)
+  .settings(styleSettings: _*)
 
 lazy val examples = project.dependsOn(core)
   .settings(moduleName := "cats-examples")
+  .settings(scalaSource in Compile := baseDirectory.value)
   .settings(catsSettings: _*)
+  .settings(styleSettings: _*)
   .settings(noPublishSettings: _*)
+
+lazy val mainScalastyle = taskKey[Unit]("mainScalastyle")
+lazy val testScalastyle = taskKey[Unit]("testScalastyle")
 
 lazy val publishSettings = Seq(
   homepage := Some(url("http://github.com/non/cats")),
