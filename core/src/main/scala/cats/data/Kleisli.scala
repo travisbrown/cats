@@ -21,7 +21,7 @@ final case class Kleisli[F[_], A, B](run: A => F[B]) { self =>
   def map[C](f: B => C)(implicit F: Functor[F]): Kleisli[F, A, C] =
     Kleisli(a => F.map(run(a))(f))
 
-  def mapF[N[_], C](f: F[B] => N[C]): Kleisli[N, A, C] =
+  def mapK[N[_], C](f: F[B] => N[C]): Kleisli[N, A, C] =
     Kleisli(run andThen f)
 
   def flatMap[C](f: B => Kleisli[F, A, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] =
