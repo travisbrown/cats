@@ -114,7 +114,6 @@ lazy val macros = crossProject.crossType(CrossType.Pure)
 lazy val macrosJVM = macros.jvm
 lazy val macrosJS = macros.js
 
-
 lazy val core = crossProject.crossType(CrossType.Pure)
   .dependsOn(macros)
   .settings(moduleName := "cats-core")
