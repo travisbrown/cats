@@ -1,10 +1,7 @@
 package cats
 
 import scala.annotation.tailrec
-import scala.util.control.NonFatal
-
 import cats.syntax.all._
-import cats.data.Xor
 
 /**
  * Eval is a monad which controls evaluation.
@@ -137,8 +134,7 @@ final case class Now[A](value: A) extends Eval[A] {
  * by the closure) will not be retained, and will be available for
  * garbage collection.
  */
-final class Later[A](f: () => A) extends Eval[A] { self =>
-
+final class Later[A](f: () => A) extends Eval[A] {
   private[this] var thunk: () => A = f
 
   // The idea here is that `f` may have captured very large
@@ -243,7 +239,7 @@ object Eval extends EvalInstances {
    * trampoline are not exposed. This allows a slightly more efficient
    * implementation of the .value method.
    */
-  sealed abstract class Compute[A] extends Eval[A] { self =>
+  sealed abstract class Compute[A] extends Eval[A] {
     type Start
     val start: () => Eval[Start]
     val run: Start => Eval[A]

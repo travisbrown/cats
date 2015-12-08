@@ -53,7 +53,7 @@ object Task {
   }
 
   private[cats] final case class Attempt[A](task: Task[A]) extends Task[Xor[Throwable, A]] {
-    override def run: Xor[Throwable, A] = Xor.catching(task.run)
+    override def run: Xor[Throwable, A] = Xor.catchNonFatal(task.run)
   }
 
   private[cats] final case class Async[A](complete: (A => Unit) => Unit) extends Task[A] {
