@@ -1,6 +1,8 @@
 package cats.kernel
 package instances
 
+import cats.kernel.instances.util.StaticMethods
+
 package object stream extends StreamInstances
 
 trait StreamInstances extends StreamInstances1 {
