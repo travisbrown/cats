@@ -47,7 +47,7 @@ import scala.util.Try
 }
 
 @suppressUnusedImportWarningForScalaVersionSpecific
-object Invariant extends DistributiveInstances {
+object Invariant extends ScalaVersionSpecificInvariantInstances with DistributiveInstances {
   implicit def catsInstancesForId: Distributive[Id] with Comonad[Id] = cats.catsInstancesForId
   implicit def catsComonadForTuple2[A]: Comonad[(A, *)] = cats.instances.tuple.catsStdInstancesForTuple2[A]
   implicit def catsMonadErrorForEither[A]: MonadError[Either[A, *], A] =
@@ -58,8 +58,6 @@ object Invariant extends DistributiveInstances {
     cats.instances.list.catsStdInstancesForList
   implicit def catsInstancesForVector: Monad[Vector] with Alternative[Vector] with CoflatMap[Vector] =
     cats.instances.vector.catsStdInstancesForVector
-  implicit def catsInstancesForStream: Monad[Stream] with Alternative[Stream] with CoflatMap[Stream] =
-    cats.instances.stream.catsStdInstancesForStream
 
   implicit def catsFlatMapForSortedMap[K: Order]: FlatMap[SortedMap[K, *]] =
     cats.instances.sortedMap.catsStdInstancesForSortedMap[K]

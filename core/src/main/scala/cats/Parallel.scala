@@ -1,7 +1,7 @@
 package cats
 
 import cats.arrow.FunctionK
-import cats.data.{Validated, ZipList, ZipStream, ZipVector}
+import cats.data.{Validated, ZipList, ZipVector}
 
 /**
  * Some types that form a FlatMap, are also capable of forming an Apply that supports parallel composition.
@@ -107,7 +107,7 @@ trait Parallel[M[_]] extends NonEmptyParallel[M] {
   }
 }
 
-object NonEmptyParallel {
+object NonEmptyParallel extends ScalaVersionSpecificParallelInstances {
   type Aux[M[_], F0[_]] = NonEmptyParallel[M] { type F[x] = F0[x] }
 
   def apply[M[_], F[_]](implicit P: NonEmptyParallel.Aux[M, F]): NonEmptyParallel.Aux[M, F] = P
@@ -121,9 +121,6 @@ object NonEmptyParallel {
 
   implicit def catsStdNonEmptyParallelForZipVector[A]: NonEmptyParallel.Aux[Vector, ZipVector] =
     cats.instances.parallel.catsStdNonEmptyParallelForZipVector[A]
-
-  implicit def catsStdParallelForZipStream[A]: Parallel.Aux[Stream, ZipStream] =
-    cats.instances.parallel.catsStdParallelForZipStream[A]
 }
 
 object Parallel extends ParallelArityFunctions2 {

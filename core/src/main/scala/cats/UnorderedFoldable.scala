@@ -51,7 +51,7 @@ import simulacrum.typeclass
   def size[A](fa: F[A]): Long = unorderedFoldMap(fa)(_ => 1L)
 }
 
-object UnorderedFoldable {
+object UnorderedFoldable extends ScalaVersionSpecificTraverseInstances {
   private val orEvalMonoid: CommutativeMonoid[Eval[Boolean]] = new CommutativeMonoid[Eval[Boolean]] {
     val empty: Eval[Boolean] = Eval.False
 
@@ -76,7 +76,6 @@ object UnorderedFoldable {
   implicit def catsTraverseForOption: Traverse[Option] = cats.instances.option.catsStdInstancesForOption
   implicit def catsTraverseForList: Traverse[List] = cats.instances.list.catsStdInstancesForList
   implicit def catsTraverseForVector: Traverse[Vector] = cats.instances.vector.catsStdInstancesForVector
-  implicit def catsTraverseForStream: Traverse[Stream] = cats.instances.stream.catsStdInstancesForStream
   implicit def catsUnorderedTraverseForSet: UnorderedTraverse[Set] = cats.instances.set.catsStdInstancesForSet
   implicit def catsFoldableForSortedSet: Foldable[SortedSet] = cats.instances.sortedSet.catsStdInstancesForSortedSet
   implicit def catsTraverseForSortedMap[K: Order]: Traverse[SortedMap[K, *]] =

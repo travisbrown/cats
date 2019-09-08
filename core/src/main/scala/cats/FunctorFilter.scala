@@ -74,6 +74,4 @@ object FunctorFilter {
   implicit def catsTraverseFilterForList: TraverseFilter[List] = cats.instances.list.catsStdTraverseFilterForList
   implicit def catsTraverseFilterForVector: TraverseFilter[Vector] =
     cats.instances.vector.catsStdTraverseFilterForVector
-  implicit def catsTraverseFilterForStream: TraverseFilter[Stream] =
-    cats.instances.stream.catsStdTraverseFilterForStream
 }

@@ -69,11 +69,10 @@ import simulacrum.typeclass
     }
 }
 
-object SemigroupK {
+object SemigroupK extends ScalaVersionSpecificMonoidKInstances {
   implicit def catsMonoidKForOption: MonoidK[Option] = cats.instances.option.catsStdInstancesForOption
   implicit def catsMonoidKForList: MonoidK[List] = cats.instances.list.catsStdInstancesForList
   implicit def catsMonoidKForVector: MonoidK[Vector] = cats.instances.vector.catsStdInstancesForVector
-  implicit def catsMonoidKForStream: MonoidK[Stream] = cats.instances.stream.catsStdInstancesForStream
   implicit def catsMonoidKForSet: MonoidK[Set] = cats.instances.set.catsStdInstancesForSet
   implicit def catsMonoidKForEndo: MonoidK[Endo] = cats.instances.function.catsStdMonoidKForFunction1
 }

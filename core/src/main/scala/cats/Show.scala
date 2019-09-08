@@ -16,7 +16,7 @@ trait Show[T] extends Show.ContravariantShow[T]
 /**
  * Hand rolling the type class boilerplate due to scala/bug#6260 and scala/bug#10458
  */
-object Show extends ShowInstances {
+object Show extends ScalaVersionSpecificShowInstances with ShowInstances {
 
   def apply[A](implicit instance: Show[A]): Show[A] = instance
 
@@ -81,7 +81,6 @@ object Show extends ShowInstances {
   implicit def catsShowForOption[A: Show]: Show[Option[A]] = cats.instances.option.catsStdShowForOption[A]
   implicit def catsShowForList[A: Show]: Show[List[A]] = cats.instances.list.catsStdShowForList[A]
   implicit def catsShowForVector[A: Show]: Show[Vector[A]] = cats.instances.vector.catsStdShowForVector[A]
-  implicit def catsShowForStream[A: Show]: Show[Stream[A]] = cats.instances.stream.catsStdShowForStream[A]
   implicit def catsShowForEither[A: Show, B: Show]: Show[Either[A, B]] =
     cats.instances.either.catsStdShowForEither[A, B]
   implicit def catsShowForTuple2[A: Show, B: Show]: Show[(A, B)] = cats.instances.tuple.catsStdShowForTuple2[A, B]
