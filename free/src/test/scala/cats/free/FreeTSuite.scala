@@ -6,7 +6,6 @@ import cats.arrow.FunctionK
 import cats.data._
 import cats.laws.discipline._
 import cats.tests.CatsSuite
-import cats.instances.option._
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 
 class FreeTSuite extends CatsSuite {
@@ -242,7 +241,6 @@ trait FreeTSuiteInstances {
 
   import FreeT._
   import IndexedStateT._
-  import cats.kernel.instances.option._
   import cats.tests.IndexedStateTSuite._
   import SemigroupalTests._
 

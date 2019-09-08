@@ -63,7 +63,7 @@ object Invariant extends DistributiveInstances {
 
   implicit def catsFlatMapForSortedMap[K: Order]: FlatMap[SortedMap[K, *]] =
     cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
-  implicit def catsDistributiveForFunction0: Distributive[Function0] = cats.instances.function.function0Distributive
+  implicit def catsBimonadForFunction0[I]: Bimonad[Function0] = cats.instances.function.catsStdBimonadForFunction0
   implicit def catsMonadForFunction1[I]: Monad[I => *] = cats.instances.function.catsStdMonadForFunction1[I]
   implicit val catsFunctorForPair: Functor[λ[P => (P, P)]] = cats.instances.tuple.catsDataFunctorForPair
 
@@ -155,6 +155,7 @@ object Invariant extends DistributiveInstances {
 }
 
 private[cats] trait DistributiveInstances {
+  implicit def catsDistributiveForFunction0: Distributive[Function0] = cats.instances.function.function0Distributive
   implicit def catsDistributiveForFunction1[I]: Distributive[I => *] =
     cats.instances.function.catsStdDistributiveForFunction1[I]
 }
