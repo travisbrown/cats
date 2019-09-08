@@ -112,6 +112,7 @@ abstract class SemigroupFunctions[S[T] <: Semigroup[T]] {
 
 object Semigroup
     extends SemigroupFunctions[Semigroup]
+    with ScalaVersionSpecificMonoidInstances
     with instances.TupleCommutativeGroupInstances
     with SemilatticeInstances {
 
@@ -159,8 +160,6 @@ object Semigroup
   implicit def catsKernelMonoidForList[A]: Monoid[List[A]] = cats.kernel.instances.list.catsKernelStdMonoidForList[A]
   implicit def catsKernelMonoidForVector[A]: Monoid[Vector[A]] =
     cats.kernel.instances.vector.catsKernelStdMonoidForVector[A]
-  implicit def catsKernelMonoidForStream[A]: Monoid[Stream[A]] =
-    cats.kernel.instances.stream.catsKernelStdMonoidForStream[A]
   implicit def catsKernelMonoidForQueue[A]: Monoid[Queue[A]] =
     cats.kernel.instances.queue.catsKernelStdMonoidForQueue[A]
 
