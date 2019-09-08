@@ -1,6 +1,7 @@
 package cats
 
 import cats.kernel.CommutativeMonoid
+import scala.collection.immutable.SortedSet
 import simulacrum.typeclass
 import cats.instances.long._
 
@@ -70,4 +71,12 @@ object UnorderedFoldable {
         case false => Eval.False
       }
   }
+
+  implicit def catsNonEmptyTraverseForId: NonEmptyTraverse[Id] = catsInstancesForId
+  implicit def catsTraverseForOption: Traverse[Option] = cats.instances.option.catsStdInstancesForOption
+  implicit def catsTraverseForList: Traverse[List] = cats.instances.list.catsStdInstancesForList
+  implicit def catsTraverseForVector: Traverse[Vector] = cats.instances.vector.catsStdInstancesForVector
+  implicit def catsTraverseForStream: Traverse[Stream] = cats.instances.stream.catsStdInstancesForStream
+  implicit def catsUnorderedTraverseForSet: UnorderedTraverse[Set] = cats.instances.set.catsStdInstancesForSet
+  implicit def catsFoldableForSortedSet: Foldable[SortedSet] = cats.instances.sortedSet.catsStdInstancesForSortedSet
 }

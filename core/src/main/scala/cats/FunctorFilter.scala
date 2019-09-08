@@ -67,3 +67,10 @@ trait FunctorFilter[F[_]] extends Serializable {
   def filter[A](fa: F[A])(f: A => Boolean): F[A] =
     mapFilter(fa)(a => if (f(a)) Some(a) else None)
 }
+
+object FunctorFilter {
+  implicit def catsTraverseFilterForOption: TraverseFilter[Option] = cats.instances.option.catsStdTraverseFilterForOption
+  implicit def catsTraverseFilterForList: TraverseFilter[List] = cats.instances.list.catsStdTraverseFilterForList
+  implicit def catsTraverseFilterForVector: TraverseFilter[Vector] = cats.instances.vector.catsStdTraverseFilterForVector
+  implicit def catsTraverseFilterForStream: TraverseFilter[Stream] = cats.instances.stream.catsStdTraverseFilterForStream
+}

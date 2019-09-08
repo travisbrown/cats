@@ -1,5 +1,9 @@
 package cats
 
+import java.util.UUID
+import scala.collection.immutable.{BitSet, SortedMap, SortedSet}
+import scala.concurrent.duration.{Duration, FiniteDuration}
+
 /**
  * A type class to provide textual representation. It is meant to be a
  * better "toString". Whereas toString exists for any Object,
@@ -56,4 +60,33 @@ object Show {
     def contramap[A, B](fa: Show[A])(f: B => A): Show[B] =
       show[B]((fa.show _).compose(f))
   }
+
+  implicit val catsShowForUnit: Show[Unit] = Show.fromToString[Unit]
+  implicit val catsShowForBoolean: Show[Boolean] = Show.fromToString[Boolean]
+  implicit val catsShowForByte: Show[Byte] = Show.fromToString[Byte]
+  implicit val catsShowForShort: Show[Short] = Show.fromToString[Short]
+  implicit val catsShowForInt: Show[Int] = Show.fromToString[Int]
+  implicit val catsShowForLong: Show[Long] = Show.fromToString[Long]
+  implicit val catsShowForFloat: Show[Float] = Show.fromToString[Float]
+  implicit val catsShowForDouble: Show[Double] = Show.fromToString[Double]
+  implicit val catsShowForBigInt: Show[BigInt] = Show.fromToString[BigInt]
+  implicit val catsShowForBigDecimal: Show[BigDecimal] = Show.fromToString[BigDecimal]
+  implicit val catsShowForChar: Show[Char] = Show.fromToString[Char]
+  implicit val catsShowForSymbol: Show[Symbol] = Show.fromToString[Symbol]
+  implicit val catsShowForString: Show[String] = Show.fromToString[String]
+  implicit val catsShowForUUID: Show[UUID] = Show.fromToString[UUID]
+  implicit val catsShowForDuration: Show[Duration] = Show.fromToString[Duration]
+  implicit val catsShowForFiniteDuration: Show[FiniteDuration] = Show.fromToString[FiniteDuration]
+  implicit val catsShowForBitSet: Show[BitSet] = Show.fromToString[BitSet]
+
+  implicit def catsShowForOption[A: Show]: Show[Option[A]] = cats.instances.option.catsStdShowForOption[A]
+  implicit def catsShowForList[A: Show]: Show[List[A]] = cats.instances.list.catsStdShowForList[A]
+  implicit def catsShowForVector[A: Show]: Show[Vector[A]] = cats.instances.vector.catsStdShowForVector[A]
+  implicit def catsShowForStream[A: Show]: Show[Stream[A]] = cats.instances.stream.catsStdShowForStream[A]
+  implicit def catsShowForEither[A: Show, B: Show]: Show[Either[A, B]] = cats.instances.either.catsStdShowForEither[A, B]
+  implicit def catsShowForTuple2[A: Show, B: Show]: Show[(A, B)] = cats.instances.tuple.catsStdShowForTuple2[A, B]
+  implicit def catsShowForSet[A: Show]: Show[Set[A]] = cats.instances.set.catsStdShowForSet[A]
+  implicit def catsShowForMap[K: Show, V: Show]: Show[Map[K, V]] = cats.instances.map.catsStdShowForMap[K, V]
+  implicit def catsShowForSortedSet[A: Show]: Show[SortedSet[A]] = cats.instances.sortedSet.catsStdShowForSortedSet[A]
+  implicit def catsShowForSortedMap[K: Order: Show, V: Show]: Show[SortedMap[K, V]] = cats.instances.sortedMap.catsStdShowForSortedMap[K, V]
 }

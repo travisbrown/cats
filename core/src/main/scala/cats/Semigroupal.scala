@@ -42,4 +42,10 @@ import simulacrum.typeclass
   def product[A, B](fa: F[A], fb: F[B]): F[(A, B)]
 }
 
-object Semigroupal extends SemigroupalArityFunctions
+object Semigroupal extends SemigroupalArityFunctions {
+  implicit def catsSemigroupalForOption: Semigroupal[Option] = cats.instances.option.catsStdInstancesForOption
+  implicit def catsSemigroupalForList: Semigroupal[List] = cats.instances.list.catsStdInstancesForList
+  implicit def catsSemigroupalForVector: Semigroupal[Vector] = cats.instances.vector.catsStdInstancesForVector
+  implicit def catsSemigroupalForStream: Semigroupal[Stream] = cats.instances.stream.catsStdInstancesForStream
+  implicit def catsSemigroupalForFunction1[R: Monoid]: Semigroupal[* => R] = cats.instances.function.catsStdContravariantMonoidalForFunction1[R]
+}
