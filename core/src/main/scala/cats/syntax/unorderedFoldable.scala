@@ -1,8 +1,6 @@
 package cats
 package syntax
 
-import cats.instances.long._
-
 trait UnorderedFoldableSyntax extends UnorderedFoldable.ToUnorderedFoldableOps {
   implicit final def catsSyntaxUnorderedFoldableOps[F[_]: UnorderedFoldable, A](fa: F[A]): UnorderedFoldableOps[F, A] =
     new UnorderedFoldableOps[F, A](fa)

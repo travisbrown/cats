@@ -1,7 +1,6 @@
 package cats
 
 import cats.arrow.Arrow
-import cats.instances.list._
 import simulacrum.typeclass
 
 /**

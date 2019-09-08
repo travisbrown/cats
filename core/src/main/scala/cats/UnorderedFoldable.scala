@@ -1,9 +1,8 @@
 package cats
 
 import cats.kernel.CommutativeMonoid
-import scala.collection.immutable.SortedSet
+import scala.collection.immutable.{SortedMap, SortedSet}
 import simulacrum.typeclass
-import cats.instances.long._
 
 /**
  * `UnorderedFoldable` is like a `Foldable` for unordered containers.
@@ -79,4 +78,6 @@ object UnorderedFoldable {
   implicit def catsTraverseForStream: Traverse[Stream] = cats.instances.stream.catsStdInstancesForStream
   implicit def catsUnorderedTraverseForSet: UnorderedTraverse[Set] = cats.instances.set.catsStdInstancesForSet
   implicit def catsFoldableForSortedSet: Foldable[SortedSet] = cats.instances.sortedSet.catsStdInstancesForSortedSet
+  implicit def catsTraverseForSortedmap[K: Order]: Traverse[SortedMap[K, *]] =
+    cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
 }

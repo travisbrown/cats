@@ -46,20 +46,25 @@ import scala.collection.immutable.SortedMap
 }
 
 @suppressUnusedImportWarningForScalaVersionSpecific
-object Invariant {
+object Invariant extends DistributiveInstances {
   implicit def catsInstancesForId: Distributive[Id] with Comonad[Id] = cats.catsInstancesForId
   implicit def catsComonadForTuple2[A]: Comonad[(A, *)] = cats.instances.tuple.catsStdInstancesForTuple2[A]
-  implicit def catsMonadErrorForEither[A]: MonadError[Either[A, *], A] = cats.instances.either.catsStdInstancesForEither[A]
-  implicit def catsInstancesForOption: MonadError[Option, Unit] with Alternative[Option] = cats.instances.option.catsStdInstancesForOption
-  implicit def catsInstancesForList: Monad[List] with Alternative[List] with CoflatMap[List] = cats.instances.list.catsStdInstancesForList
-  implicit def catsInstancesForVector: Monad[Vector] with Alternative[Vector] with CoflatMap[Vector] = cats.instances.vector.catsStdInstancesForVector
-  implicit def catsInstancesForStream: Monad[Stream] with Alternative[Stream] with CoflatMap[Stream] = cats.instances.stream.catsStdInstancesForStream
+  implicit def catsMonadErrorForEither[A]: MonadError[Either[A, *], A] =
+    cats.instances.either.catsStdInstancesForEither[A]
+  implicit def catsInstancesForOption: MonadError[Option, Unit] with Alternative[Option] =
+    cats.instances.option.catsStdInstancesForOption
+  implicit def catsInstancesForList: Monad[List] with Alternative[List] with CoflatMap[List] =
+    cats.instances.list.catsStdInstancesForList
+  implicit def catsInstancesForVector: Monad[Vector] with Alternative[Vector] with CoflatMap[Vector] =
+    cats.instances.vector.catsStdInstancesForVector
+  implicit def catsInstancesForStream: Monad[Stream] with Alternative[Stream] with CoflatMap[Stream] =
+    cats.instances.stream.catsStdInstancesForStream
 
-  implicit def catsFlatMapForSortedMap[K: Order]: FlatMap[SortedMap[K, *]] = cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
+  implicit def catsFlatMapForSortedMap[K: Order]: FlatMap[SortedMap[K, *]] =
+    cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
   implicit def catsDistributiveForFunction0: Distributive[Function0] = cats.instances.function.function0Distributive
-  implicit def catsDistributiveForFunction1[I]: Distributive[I => *] = cats.instances.function.catsStdDistributiveForFunction1[I]
   implicit def catsMonadForFunction1[I]: Monad[I => *] = cats.instances.function.catsStdMonadForFunction1[I]
-
+  implicit val catsFunctorForPair: Functor[λ[P => (P, P)]] = cats.instances.tuple.catsDataFunctorForPair
 
   implicit val catsInvariantMonoid: Invariant[Monoid] = new Invariant[Monoid] {
 
@@ -136,4 +141,9 @@ object Invariant {
     }
 
   }
+}
+
+private[cats] trait DistributiveInstances {
+  implicit def catsDistributiveForFunction1[I]: Distributive[I => *] =
+    cats.instances.function.catsStdDistributiveForFunction1[I]
 }

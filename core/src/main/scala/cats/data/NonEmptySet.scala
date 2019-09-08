@@ -17,7 +17,6 @@
 package cats
 package data
 
-import cats.instances.sortedSet._
 import cats.kernel._
 import cats.syntax.order._
 

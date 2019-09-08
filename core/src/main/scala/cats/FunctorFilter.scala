@@ -69,8 +69,11 @@ trait FunctorFilter[F[_]] extends Serializable {
 }
 
 object FunctorFilter {
-  implicit def catsTraverseFilterForOption: TraverseFilter[Option] = cats.instances.option.catsStdTraverseFilterForOption
+  implicit def catsTraverseFilterForOption: TraverseFilter[Option] =
+    cats.instances.option.catsStdTraverseFilterForOption
   implicit def catsTraverseFilterForList: TraverseFilter[List] = cats.instances.list.catsStdTraverseFilterForList
-  implicit def catsTraverseFilterForVector: TraverseFilter[Vector] = cats.instances.vector.catsStdTraverseFilterForVector
-  implicit def catsTraverseFilterForStream: TraverseFilter[Stream] = cats.instances.stream.catsStdTraverseFilterForStream
+  implicit def catsTraverseFilterForVector: TraverseFilter[Vector] =
+    cats.instances.vector.catsStdTraverseFilterForVector
+  implicit def catsTraverseFilterForStream: TraverseFilter[Stream] =
+    cats.instances.stream.catsStdTraverseFilterForStream
 }

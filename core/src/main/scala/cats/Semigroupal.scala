@@ -47,5 +47,6 @@ object Semigroupal extends SemigroupalArityFunctions {
   implicit def catsSemigroupalForList: Semigroupal[List] = cats.instances.list.catsStdInstancesForList
   implicit def catsSemigroupalForVector: Semigroupal[Vector] = cats.instances.vector.catsStdInstancesForVector
   implicit def catsSemigroupalForStream: Semigroupal[Stream] = cats.instances.stream.catsStdInstancesForStream
-  implicit def catsSemigroupalForFunction1[R: Monoid]: Semigroupal[* => R] = cats.instances.function.catsStdContravariantMonoidalForFunction1[R]
+  implicit def catsSemigroupalForFunction1[R: Monoid]: Semigroupal[* => R] =
+    cats.instances.function.catsStdContravariantMonoidalForFunction1[R]
 }

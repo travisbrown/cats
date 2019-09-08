@@ -2,7 +2,6 @@ package cats
 package data
 
 import cats.Foldable
-import cats.kernel.instances.tuple._
 import cats.kernel.CommutativeMonoid
 import cats.syntax.semigroup._
 

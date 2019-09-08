@@ -2,7 +2,6 @@ package cats
 package data
 
 import cats.Bifunctor
-import cats.instances.either._
 import cats.syntax.either._
 
 /**

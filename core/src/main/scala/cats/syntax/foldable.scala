@@ -322,8 +322,6 @@ final private[syntax] class FoldableOps1[F[_]](private val F: Foldable[F]) exten
    */
   def partitionBifold[H[_, _], A, B, C](fa: F[A])(f: A => H[B, C])(implicit A: Alternative[F],
                                                                    H: Bifoldable[H]): (F[B], F[C]) = {
-    import cats.instances.tuple._
-
     implicit val mb: Monoid[F[B]] = A.algebra[B]
     implicit val mc: Monoid[F[C]] = A.algebra[C]
 
@@ -347,8 +345,6 @@ final private[syntax] class FoldableOps1[F[_]](private val F: Foldable[F]) exten
   def partitionBifoldM[G[_], H[_, _], A, B, C](
     fa: F[A]
   )(f: A => G[H[B, C]])(implicit A: Alternative[F], M: Monad[G], H: Bifoldable[H]): G[(F[B], F[C])] = {
-    import cats.instances.tuple._
-
     implicit val mb: Monoid[F[B]] = A.algebra[B]
     implicit val mc: Monoid[F[C]] = A.algebra[C]
 
@@ -377,8 +373,6 @@ final private[syntax] class FoldableOps1[F[_]](private val F: Foldable[F]) exten
    * }}}
    */
   def partitionEitherM[G[_], A, B, C](fa: F[A])(f: A => G[Either[B, C]])(implicit A: Alternative[F],
-                                                                         M: Monad[G]): G[(F[B], F[C])] = {
-    import cats.instances.either._
+                                                                         M: Monad[G]): G[(F[B], F[C])] =
     partitionBifoldM[G, Either, A, B, C](fa)(f)(A, M, Bifoldable[Either])
-  }
 }
