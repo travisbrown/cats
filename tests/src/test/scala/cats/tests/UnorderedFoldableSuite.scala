@@ -2,7 +2,6 @@ package cats
 package tests
 
 import org.scalacheck.Arbitrary
-import cats.instances.all._
 import cats.kernel.CommutativeMonoid
 import cats.laws.discipline.UnorderedFoldableTests
 

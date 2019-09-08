@@ -3,7 +3,6 @@ package tests
 
 import org.scalacheck.Arbitrary
 
-import cats.instances.all._
 import kernel.compat.scalaVersionSpecific._
 
 @suppressUnusedImportWarningForScalaVersionSpecific

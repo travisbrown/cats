@@ -4,7 +4,7 @@ package tests
 import cats.laws.discipline.eq._
 import cats.laws.discipline.arbitrary._
 import cats.laws.discipline.{ExhaustiveCheck, InvariantMonoidalTests, MiniInt, SerializableTests}
-import cats.implicits._
+import cats.syntax.all._
 import cats.Eq
 import cats.kernel.laws.discipline.{MonoidTests, SemigroupTests}
 import org.scalacheck.{Arbitrary, Gen}

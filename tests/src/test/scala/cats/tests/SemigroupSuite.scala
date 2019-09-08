@@ -7,14 +7,12 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 class SemigroupSuite extends AnyFunSuiteLike with Matchers with GeneratorDrivenPropertyChecks {
   {
-    import cats.implicits._
     Invariant[Semigroup]
     Semigroupal[Semigroup]
     InvariantMonoidal[Semigroup]
   }
 
   {
-    import cats.instances.invariant._
     Invariant[Semigroup]
     Semigroupal[Semigroup]
     InvariantMonoidal[Semigroup]

@@ -55,7 +55,6 @@ class PartialOrderSuite extends CatsSuite {
 
 object PartialOrderSuite {
   def summonInstance(): Unit = {
-    import cats.instances.partialOrder._
     Invariant[PartialOrder]
     Contravariant[PartialOrder]
     ()

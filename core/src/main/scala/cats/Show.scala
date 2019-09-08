@@ -16,7 +16,7 @@ trait Show[T] extends Show.ContravariantShow[T]
 /**
  * Hand rolling the type class boilerplate due to scala/bug#6260 and scala/bug#10458
  */
-object Show {
+object Show extends ShowInstances {
 
   def apply[A](implicit instance: Show[A]): Show[A] = instance
 
@@ -76,7 +76,6 @@ object Show {
   implicit val catsShowForString: Show[String] = Show.fromToString[String]
   implicit val catsShowForUUID: Show[UUID] = Show.fromToString[UUID]
   implicit val catsShowForDuration: Show[Duration] = Show.fromToString[Duration]
-  implicit val catsShowForFiniteDuration: Show[FiniteDuration] = Show.fromToString[FiniteDuration]
   implicit val catsShowForBitSet: Show[BitSet] = Show.fromToString[BitSet]
 
   implicit def catsShowForOption[A: Show]: Show[Option[A]] = cats.instances.option.catsStdShowForOption[A]
@@ -91,4 +90,8 @@ object Show {
   implicit def catsShowForSortedSet[A: Show]: Show[SortedSet[A]] = cats.instances.sortedSet.catsStdShowForSortedSet[A]
   implicit def catsShowForSortedMap[K: Order: Show, V: Show]: Show[SortedMap[K, V]] =
     cats.instances.sortedMap.catsStdShowForSortedMap[K, V]
+}
+
+private[cats] trait ShowInstances {
+  implicit val catsShowForFiniteDuration: Show[FiniteDuration] = Show.fromToString[FiniteDuration]
 }

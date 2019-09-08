@@ -4,6 +4,7 @@ import cats.kernel._
 import simulacrum.typeclass
 import cats.kernel.compat.scalaVersionSpecific._
 import scala.collection.immutable.SortedMap
+import scala.util.Try
 
 /**
  * Must obey the laws defined in cats.laws.InvariantLaws.
@@ -65,6 +66,16 @@ object Invariant extends DistributiveInstances {
   implicit def catsDistributiveForFunction0: Distributive[Function0] = cats.instances.function.function0Distributive
   implicit def catsMonadForFunction1[I]: Monad[I => *] = cats.instances.function.catsStdMonadForFunction1[I]
   implicit val catsFunctorForPair: Functor[λ[P => (P, P)]] = cats.instances.tuple.catsDataFunctorForPair
+
+  implicit def catsInstancesForTry: MonadError[Try, Throwable] with CoflatMap[Try] with Traverse[Try] with Monad[Try] =
+    cats.instances.try_.catsStdInstancesForTry
+
+  implicit val catsContravariantMonoidalForOrder: ContravariantMonoidal[Order] =
+    cats.instances.order.catsContravariantMonoidalForOrder
+  implicit val catsContravariantMonoidalForPartialOrder: ContravariantMonoidal[PartialOrder] =
+    cats.instances.partialOrder.catsContravariantMonoidalForPartialOrder
+  implicit val catsInvariantMonoidalForSemigroup: InvariantMonoidal[Semigroup] =
+    cats.instances.invariant.catsInvariantMonoidalSemigroup
 
   implicit val catsInvariantMonoid: Invariant[Monoid] = new Invariant[Monoid] {
 

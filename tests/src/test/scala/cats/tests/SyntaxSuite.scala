@@ -5,16 +5,6 @@ import scala.collection.immutable.SortedSet
 import scala.collection.immutable.SortedMap
 import cats.arrow.Compose
 import cats.data.{Binested, Nested, NonEmptyChain, NonEmptyList, NonEmptySet}
-import cats.instances.{
-  AllInstances,
-  AllInstancesBinCompat0,
-  AllInstancesBinCompat1,
-  AllInstancesBinCompat2,
-  AllInstancesBinCompat3,
-  AllInstancesBinCompat4,
-  AllInstancesBinCompat5,
-  AllInstancesBinCompat6
-}
 import cats.syntax.AllSyntaxBinCompat
 
 /**
@@ -35,17 +25,7 @@ import cats.syntax.AllSyntaxBinCompat
  *
  * None of these tests should ever run, or do any runtime checks.
  */
-object SyntaxSuite
-    extends AllSyntaxBinCompat
-    with AllInstances
-    with AllInstancesBinCompat0
-    with AllInstancesBinCompat1
-    with AllInstancesBinCompat2
-    with AllInstancesBinCompat3
-    with AllInstancesBinCompat4
-    with AllInstancesBinCompat5
-    with AllInstancesBinCompat6 {
-
+object SyntaxSuite extends AllSyntaxBinCompat {
   // pretend we have a value of type A
   def mock[A]: A = ???
 

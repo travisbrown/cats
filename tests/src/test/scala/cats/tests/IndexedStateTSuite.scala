@@ -4,7 +4,6 @@ package tests
 import cats.arrow.{Profunctor, Strong}
 import cats.data.{EitherT, IndexedStateT, State, StateT}
 import cats.arrow.Profunctor
-import cats.kernel.instances.tuple._
 import cats.laws.discipline._
 import cats.laws.discipline.eq._
 import cats.laws.discipline.arbitrary._

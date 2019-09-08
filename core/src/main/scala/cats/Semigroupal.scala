@@ -49,4 +49,10 @@ object Semigroupal extends SemigroupalArityFunctions {
   implicit def catsSemigroupalForStream: Semigroupal[Stream] = cats.instances.stream.catsStdInstancesForStream
   implicit def catsSemigroupalForFunction1[R: Monoid]: Semigroupal[* => R] =
     cats.instances.function.catsStdContravariantMonoidalForFunction1[R]
+
+  implicit val catsSemigroupalForOrder: Semigroupal[Order] = cats.instances.order.catsContravariantMonoidalForOrder
+  implicit val catsSemigroupalForPartialOrder: Semigroupal[PartialOrder] =
+    cats.instances.partialOrder.catsContravariantMonoidalForPartialOrder
+  implicit val catsSemigroupalForSemigroup: Semigroupal[Semigroup] =
+    cats.instances.invariant.catsInvariantMonoidalSemigroup
 }
