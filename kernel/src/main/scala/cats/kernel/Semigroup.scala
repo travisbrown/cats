@@ -110,7 +110,10 @@ abstract class SemigroupFunctions[S[T] <: Semigroup[T]] {
     ev.combineAllOption(as)
 }
 
-object Semigroup extends SemigroupFunctions[Semigroup] with SemilatticeInstances {
+object Semigroup
+    extends SemigroupFunctions[Semigroup]
+    with instances.TupleCommutativeGroupInstances
+    with SemilatticeInstances {
 
   /**
    * Access an implicit `Semigroup[A]`.

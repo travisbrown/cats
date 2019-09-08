@@ -46,7 +46,11 @@ trait EqToEquivConversion {
 }
 
 @suppressUnusedImportWarningForScalaVersionSpecific
-object Eq extends EqFunctions[Eq] with EqToEquivConversion with PartialOrderInstances {
+object Eq
+    extends EqFunctions[Eq]
+    with EqToEquivConversion
+    with instances.TupleOrderInstances
+    with PartialOrderInstances {
 
   /**
    * Access an implicit `Eq[A]`.
