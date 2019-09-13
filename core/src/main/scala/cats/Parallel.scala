@@ -116,11 +116,11 @@ object NonEmptyParallel extends ScalaVersionSpecificParallelInstances {
   implicit def catsParallelForEitherValidated[E: Semigroup]: Parallel.Aux[Either[E, *], Validated[E, *]] =
     cats.instances.parallel.catsParallelForEitherValidated[E]
 
-  implicit def catsStdNonEmptyParallelForZipList[A]: NonEmptyParallel.Aux[List, ZipList] =
-    cats.instances.parallel.catsStdNonEmptyParallelForZipList[A]
+  implicit def catsStdNonEmptyParallelForZipList: NonEmptyParallel.Aux[List, ZipList] =
+    cats.instances.parallel.catsStdNonEmptyParallelForZipList
 
-  implicit def catsStdNonEmptyParallelForZipVector[A]: NonEmptyParallel.Aux[Vector, ZipVector] =
-    cats.instances.parallel.catsStdNonEmptyParallelForZipVector[A]
+  implicit def catsStdNonEmptyParallelForZipVector: NonEmptyParallel.Aux[Vector, ZipVector] =
+    cats.instances.parallel.catsStdNonEmptyParallelForZipVector
 }
 
 object Parallel extends ParallelArityFunctions2 {
