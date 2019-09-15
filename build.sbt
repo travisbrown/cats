@@ -17,7 +17,7 @@ lazy val scoverageSettings = Seq(
   coverageHighlighting := true
 )
 
-organization in ThisBuild := "org.typelevel"
+organization in ThisBuild := "dev.travisbrown"
 
 val isTravisBuild = settingKey[Boolean]("Flag indicating whether the current build is running under Travis")
 val crossScalaVersionsFromTravis = settingKey[Seq[String]]("Scala versions set in .travis.yml as scala_version_XXX")
@@ -531,12 +531,13 @@ lazy val kernelLaws = crossProject(JSPlatform, JVMPlatform)
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
-  .dependsOn(macros, kernel)
+  .dependsOn(kernel)
   .settings(moduleName := "cats-core", name := "Cats core")
   .settings(catsSettings)
   .settings(sourceGenerators in Compile += (sourceManaged in Compile).map(Boilerplate.gen).taskValue)
   .settings(includeGeneratedSrc)
   .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test")
+  .settings(libraryDependencies += "org.typelevel" %%% "cats-macros" % "2.0.0")
   .jsSettings(commonJsSettings)
   .jvmSettings(commonJvmSettings ++ mimaSettings("cats-core"))
 
