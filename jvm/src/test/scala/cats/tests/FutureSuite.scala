@@ -2,6 +2,7 @@ package cats
 package jvm
 package tests
 
+import cats.instances.future._
 import cats.kernel.laws.discipline.{MonoidTests => MonoidLawTests, SemigroupTests => SemigroupLawTests}
 import cats.laws.discipline._
 import cats.laws.discipline.arbitrary._
