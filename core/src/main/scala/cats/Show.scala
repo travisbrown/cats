@@ -1,8 +1,9 @@
 package cats
 
 import java.util.UUID
-import scala.collection.immutable.{BitSet, SortedMap, SortedSet}
+import scala.collection.immutable.{BitSet, Queue, SortedMap, SortedSet}
 import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.util.Try
 
 /**
  * A type class to provide textual representation. It is meant to be a
@@ -79,8 +80,10 @@ object Show extends ScalaVersionSpecificShowInstances with ShowInstances {
   implicit val catsShowForBitSet: Show[BitSet] = Show.fromToString[BitSet]
 
   implicit def catsShowForOption[A: Show]: Show[Option[A]] = cats.instances.option.catsStdShowForOption[A]
+  implicit def catsShowForTry[A: Show]: Show[Try[A]] = cats.instances.try_.catsStdShowForTry[A]
   implicit def catsShowForList[A: Show]: Show[List[A]] = cats.instances.list.catsStdShowForList[A]
   implicit def catsShowForVector[A: Show]: Show[Vector[A]] = cats.instances.vector.catsStdShowForVector[A]
+  implicit def catsShowForQueue[A: Show]: Show[Queue[A]] = cats.instances.queue.catsStdShowForQueue[A]
   implicit def catsShowForEither[A: Show, B: Show]: Show[Either[A, B]] =
     cats.instances.either.catsStdShowForEither[A, B]
   implicit def catsShowForTuple2[A: Show, B: Show]: Show[(A, B)] = cats.instances.tuple.catsStdShowForTuple2[A, B]

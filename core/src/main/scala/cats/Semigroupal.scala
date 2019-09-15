@@ -1,5 +1,8 @@
 package cats
 
+import cats.kernel.CommutativeSemigroup
+import scala.collection.immutable.{Queue, SortedMap, SortedSet}
+import scala.util.Try
 import simulacrum.typeclass
 
 /**
@@ -44,14 +47,38 @@ import simulacrum.typeclass
 
 object Semigroupal extends ScalaVersionSpecificSemigroupalInstances with SemigroupalArityFunctions {
   implicit def catsSemigroupalForOption: Semigroupal[Option] = cats.instances.option.catsStdInstancesForOption
+  implicit def catsSemigroupalForTry: Semigroupal[Try] = cats.instances.try_.catsStdInstancesForTry
   implicit def catsSemigroupalForList: Semigroupal[List] = cats.instances.list.catsStdInstancesForList
   implicit def catsSemigroupalForVector: Semigroupal[Vector] = cats.instances.vector.catsStdInstancesForVector
-  implicit def catsSemigroupalForFunction1[R: Monoid]: Semigroupal[* => R] =
+  implicit def catsSemigroupalForQueue: Semigroupal[Queue] = cats.instances.queue.catsStdInstancesForQueue
+  implicit def catsSemigroupalForMap[K]: Semigroupal[Map[K, *]] = cats.instances.map.catsStdInstancesForMap[K]
+  implicit def catsSemigroupalForEither[A]: Semigroupal[Either[A, *]] =
+    cats.instances.either.catsStdInstancesForEither[A]
+  implicit def catsSemigroupalForSortedSet: Semigroupal[SortedSet] =
+    cats.instances.sortedSet.catsStdSemigroupalForSortedSet
+  implicit def catsSemigroupalForSortedMap[K: Order]: Semigroupal[SortedMap[K, *]] =
+    cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
+  implicit def catsSemigroupalForFunction1[A]: Semigroupal[A => *] =
+    cats.instances.function.catsStdMonadForFunction1[A]
+  implicit def catsSemigroupalForFunction1Contravariant[R: Monoid]: Semigroupal[* => R] =
     cats.instances.function.catsStdContravariantMonoidalForFunction1[R]
+  implicit def catsSemigroupalForFunction0: Semigroupal[Function0] =
+    cats.instances.function.catsStdBimonadForFunction0
 
   implicit val catsSemigroupalForOrder: Semigroupal[Order] = cats.instances.order.catsContravariantMonoidalForOrder
   implicit val catsSemigroupalForPartialOrder: Semigroupal[PartialOrder] =
     cats.instances.partialOrder.catsContravariantMonoidalForPartialOrder
+  implicit val catsSemigroupalForOrdering: Semigroupal[Ordering] =
+    cats.instances.ordering.catsContravariantMonoidalForOrdering
+  implicit val catsSemigroupalForPartialOrdering: Semigroupal[PartialOrdering] =
+    cats.instances.partialOrdering.catsContravariantMonoidalForPartialOrdering
+  implicit val catsSemigroupalForEq: Semigroupal[Eq] = cats.instances.eq.catsContravariantMonoidalForEq
+  implicit val catsSemigroupalForEquiv: Semigroupal[Equiv] =
+    cats.instances.equiv.catsContravariantMonoidalForEquiv
+  implicit val catsSemigroupalForMonoid: Semigroupal[Monoid] =
+    cats.instances.invariant.catsSemigroupalForMonoid
   implicit val catsSemigroupalForSemigroup: Semigroupal[Semigroup] =
     cats.instances.invariant.catsInvariantMonoidalSemigroup
+  implicit val catsSemigroupalForCommutativeSemigroup: Semigroupal[CommutativeSemigroup] =
+    cats.instances.invariant.catsInvariantMonoidalCommutativeSemigroup
 }

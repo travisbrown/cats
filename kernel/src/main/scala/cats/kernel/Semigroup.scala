@@ -4,6 +4,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable.{BitSet, Queue, SortedMap, SortedSet}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.{specialized => sp}
+import scala.util.{Failure, Success, Try}
 import compat.scalaVersionSpecific._
 
 /**
@@ -114,7 +115,7 @@ object Semigroup
     extends SemigroupFunctions[Semigroup]
     with ScalaVersionSpecificMonoidInstances
     with instances.TupleCommutativeGroupInstances
-    with SemilatticeInstances {
+    with GroupInstances {
 
   /**
    * Access an implicit `Semigroup[A]`.
@@ -163,15 +164,15 @@ object Semigroup
   implicit def catsKernelMonoidForQueue[A]: Monoid[Queue[A]] =
     cats.kernel.instances.queue.catsKernelStdMonoidForQueue[A]
 
-  implicit def catsKernelBoundedSemilatticeForSet[A]: Monoid[Set[A]] =
-    cats.kernel.instances.set.catsKernelStdSemilatticeForSet[A]
-  implicit def catsKernelBoundedSemilatticeForSortedSet[A: Order]: Monoid[SortedSet[A]] =
-    cats.kernel.instances.sortedSet.catsKernelStdBoundedSemilatticeForSortedSet[A]
+  implicit def catsKernelCommutativeGroupForFunction0[A: CommutativeGroup]: CommutativeGroup[() => A] =
+    cats.kernel.instances.function.catsKernelCommutativeGroupForFunction0[A]
+  implicit def catsKernelCommutativeGroupForFunction1[A, B: CommutativeGroup]: CommutativeGroup[A => B] =
+    cats.kernel.instances.function.catsKernelCommutativeGroupForFunction1[A, B]
 
-  implicit def catsKernelGroupForFunction0[A: Group]: Group[() => A] =
-    cats.kernel.instances.function.catsKernelGroupForFunction0[A]
-  implicit def catsKernelGroupForFunction1[A, B: Group]: Group[A => B] =
-    cats.kernel.instances.function.catsKernelGroupForFunction1[A, B]
+  implicit def catsKernelBoundedSemilatticeForSet[A]: BoundedSemilattice[Set[A]] =
+    cats.kernel.instances.set.catsKernelStdSemilatticeForSet[A]
+  implicit def catsKernelBoundedSemilatticeForSortedSet[A: Order]: BoundedSemilattice[SortedSet[A]] =
+    cats.kernel.instances.sortedSet.catsKernelStdBoundedSemilatticeForSortedSet[A]
 
   implicit def catsKernelCommutativeMonoidForMap[K, V: CommutativeSemigroup]: CommutativeMonoid[Map[K, V]] =
     cats.kernel.instances.map.catsKernelStdCommutativeMonoidForMap[K, V]
@@ -180,28 +181,58 @@ object Semigroup
     cats.kernel.instances.sortedMap.catsKernelStdCommutativeMonoidForSortedMap[K, V]
 }
 
-private[kernel] trait SemilatticeInstances extends MonoidInstances {
+private[kernel] trait GroupInstances extends BoundedSemilatticeInstances {
+  implicit def catsKernelGroupForFunction0[A: Group]: Group[() => A] =
+    cats.kernel.instances.function.catsKernelGroupForFunction0[A]
+  implicit def catsKernelGroupForFunction1[A, B: Group]: Group[A => B] =
+    cats.kernel.instances.function.catsKernelGroupForFunction1[A, B]
+}
+
+private[kernel] trait BoundedSemilatticeInstances extends SemilatticeInstances {
+  implicit def catsKernelBoundedSemilatticeForFunction0[A: BoundedSemilattice]: BoundedSemilattice[() => A] =
+    cats.kernel.instances.function.catsKernelBoundedSemilatticeForFunction0[A]
+  implicit def catsKernelBoundedSemilatticeForFunction1[A, B: BoundedSemilattice]: BoundedSemilattice[A => B] =
+    cats.kernel.instances.function.catsKernelBoundedSemilatticeForFunction1[A, B]
+}
+
+private[kernel] trait SemilatticeInstances extends CommutativeMonoidInstances {
   implicit def catsKernelSemilatticeForFunction0[A: Semilattice]: Semilattice[() => A] =
     cats.kernel.instances.function.catsKernelSemilatticeForFunction0[A]
   implicit def catsKernelSemilatticeForFunction1[A, B: Semilattice]: Semilattice[A => B] =
     cats.kernel.instances.function.catsKernelSemilatticeForFunction1[A, B]
 }
 
-private[kernel] trait MonoidInstances extends CommutativeSemigroupInstances {
+private[kernel] trait CommutativeMonoidInstances extends MonoidInstances {
+  implicit def catsKernelCommutativeMonoidForFunction0[A: CommutativeMonoid]: CommutativeMonoid[() => A] =
+    cats.kernel.instances.function.catsKernelCommutativeMonoidForFunction0[A]
+  implicit def catsKernelCommutativeMonoidForFunction1[A, B: CommutativeMonoid]: CommutativeMonoid[A => B] =
+    cats.kernel.instances.function.catsKernelCommutativeMonoidForFunction1[A, B]
+}
+
+private[kernel] trait MonoidInstances extends BandInstances {
   implicit def catsKernelMonoidForFunction0[A: Monoid]: Monoid[() => A] =
     cats.kernel.instances.function.catsKernelMonoidForFunction0[A]
+  implicit def catsKernelMonoidForFunction1[A, B: Monoid]: Monoid[A => B] =
+    cats.kernel.instances.function.catsKernelMonoidForFunction1[A, B]
   implicit def catsKernelMonoidForSortedMap[K: Order, V: Semigroup]: Monoid[SortedMap[K, V]] =
     cats.kernel.instances.sortedMap.catsKernelStdMonoidForSortedMap[K, V]
+  implicit def catsKernelMonoidForEither[A, B: Monoid]: Monoid[Either[A, B]] =
+    cats.kernel.instances.either.catsDataMonoidForEither[A, B]
+  implicit def catsKernelMonoidForTry[A: Monoid]: Monoid[Try[A]] = new TryMonoid[A](Monoid[A])
 }
 
-private[kernel] trait CommutativeSemigroupInstances extends BandInstances {
-  implicit def catsKernelCommutativeSemigroupForFunction0[A: CommutativeSemigroup]: CommutativeSemigroup[() => A] =
-    cats.kernel.instances.function.catsKernelCommutativeSemigroupForFunction0[A]
-}
-
-private[kernel] trait BandInstances extends SemigroupInstances {
+private[kernel] trait BandInstances extends CommutativeSemigroupInstances {
   implicit def catsKernelBandForFunction0[A: Band]: Band[() => A] =
     cats.kernel.instances.function.catsKernelBandForFunction0[A]
+  implicit def catsKernelBandForFunction1[A, B: Band]: Band[A => B] =
+    cats.kernel.instances.function.catsKernelBandForFunction1[A, B]
+}
+
+private[kernel] trait CommutativeSemigroupInstances extends SemigroupInstances {
+  implicit def catsKernelCommutativeSemigroupForFunction0[A: CommutativeSemigroup]: CommutativeSemigroup[() => A] =
+    cats.kernel.instances.function.catsKernelCommutativeSemigroupForFunction0[A]
+  implicit def catsKernelCommutativeSemigroupForFunction1[A, B: CommutativeSemigroup]: CommutativeSemigroup[A => B] =
+    cats.kernel.instances.function.catsKernelCommutativeSemigroupForFunction1[A, B]
 }
 
 private[kernel] trait SemigroupInstances {
@@ -209,4 +240,19 @@ private[kernel] trait SemigroupInstances {
     cats.kernel.instances.function.catsKernelSemigroupForFunction0[A]
   implicit def catsKernelSemigroupForFunction1[A, B: Semigroup]: Semigroup[A => B] =
     cats.kernel.instances.function.catsKernelSemigroupForFunction1[A, B]
+  implicit def catsKernelSemigroupForEither[A, B: Semigroup]: Semigroup[Either[A, B]] =
+    cats.kernel.instances.either.catsDataSemigroupForEither[A, B]
+  implicit def catsKernelSemigroupForTry[A: Semigroup]: Semigroup[Try[A]] = new TrySemigroup[A](Semigroup[A])
+}
+
+private class TryMonoid[A](A: Monoid[A]) extends TrySemigroup[A](A) with Monoid[Try[A]] {
+  def empty: Try[A] = Success(A.empty)
+}
+
+private class TrySemigroup[A](A: Semigroup[A]) extends Semigroup[Try[A]] {
+  def combine(x: Try[A], y: Try[A]): Try[A] = (x, y) match {
+    case (Success(xv), Success(yv)) => Success(A.combine(xv, yv))
+    case (f @ Failure(_), _)        => f
+    case (_, f)                     => f
+  }
 }

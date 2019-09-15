@@ -3,6 +3,7 @@ package tests
 
 import cats.data.NonEmptyVector.ZipNonEmptyVector
 
+import cats.kernel.instances.order.catsKernelOrderingForOrder
 import cats.kernel.laws.discipline.{EqTests, SemigroupTests}
 
 import cats.data.NonEmptyVector

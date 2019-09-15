@@ -5,6 +5,7 @@ import org.scalacheck.Arbitrary
 import scala.util.Try
 import scala.collection.immutable.{SortedMap, SortedSet}
 import cats.data._
+import cats.kernel.instances.order.catsKernelOrderingForOrder
 import cats.laws.discipline.arbitrary._
 import kernel.compat.scalaVersionSpecific._
 

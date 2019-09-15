@@ -1,16 +1,16 @@
 package cats.kernel
 
-private[kernel] trait ScalaVersionSpecificOrderInstances {
+private[kernel] trait ScalaVersionSpecificOrderInstances extends ScalaVersionSpecificPartialOrderInstances {
   implicit def catsKernelOrderForStream[A: Order]: Order[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdOrderForStream[A]
 }
 
-private[kernel] trait ScalaVersionSpecificPartialOrderInstances {
+private[kernel] trait ScalaVersionSpecificPartialOrderInstances extends ScalaVersionSpecificHashInstances {
   implicit def catsKernelPartialOrderForStream[A: PartialOrder]: PartialOrder[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdPartialOrderForStream[A]
 }
 
-private[kernel] trait ScalaVersionSpecificHashInstances {
+private[kernel] trait ScalaVersionSpecificHashInstances extends ScalaVersionSpecificEqInstances {
   implicit def catsKernelHashForStream[A: Hash]: Hash[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdHashForStream[A]
 }

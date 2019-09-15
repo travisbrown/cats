@@ -1,7 +1,7 @@
 package cats
 
 import cats.kernel.CommutativeMonoid
-import scala.collection.immutable.{SortedMap, SortedSet}
+import scala.collection.immutable.{Queue, SortedMap, SortedSet}
 import scala.util.Try
 import simulacrum.typeclass
 
@@ -76,6 +76,7 @@ object UnorderedFoldable extends ScalaVersionSpecificTraverseInstances {
   implicit def catsTraverseForOption: Traverse[Option] = cats.instances.option.catsStdInstancesForOption
   implicit def catsTraverseForList: Traverse[List] = cats.instances.list.catsStdInstancesForList
   implicit def catsTraverseForVector: Traverse[Vector] = cats.instances.vector.catsStdInstancesForVector
+  implicit def catsTraverseForQueue: Traverse[Queue] = cats.instances.queue.catsStdInstancesForQueue
   implicit def catsUnorderedTraverseForSet: UnorderedTraverse[Set] = cats.instances.set.catsStdInstancesForSet
   implicit def catsFoldableForSortedSet: Foldable[SortedSet] = cats.instances.sortedSet.catsStdInstancesForSortedSet
   implicit def catsTraverseForSortedMap[K: Order]: Traverse[SortedMap[K, *]] =
@@ -84,8 +85,9 @@ object UnorderedFoldable extends ScalaVersionSpecificTraverseInstances {
   implicit def catsUnorderedTraverseForMap[K]: UnorderedTraverse[Map[K, *]] =
     cats.instances.map.catsStdInstancesForMap[K]
 
-  implicit def catsFoldableForEither[A]: Foldable[Either[A, *]] = cats.instances.either.catsStdInstancesForEither[A]
-  implicit def catsFoldableForTuple[A]: Traverse[(A, *)] = cats.instances.tuple.catsStdInstancesForTuple2[A]
+  implicit def catsTraverseForEither[A]: Traverse[Either[A, *]] = cats.instances.either.catsStdInstancesForEither[A]
+  implicit def catsInstancesForTuple[A]: Traverse[(A, *)] with Reducible[(A, *)] =
+    cats.instances.tuple.catsStdInstancesForTuple2[A]
 
-  implicit def catsFoldableForTry: Foldable[Try] = cats.instances.try_.catsStdInstancesForTry
+  implicit def catsTraverseForTry: Traverse[Try] = cats.instances.try_.catsStdInstancesForTry
 }

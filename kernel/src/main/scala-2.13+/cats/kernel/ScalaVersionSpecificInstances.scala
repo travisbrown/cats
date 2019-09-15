@@ -1,6 +1,6 @@
 package cats.kernel
 
-private[kernel] trait ScalaVersionSpecificOrderInstances {
+private[kernel] trait ScalaVersionSpecificOrderInstances extends ScalaVersionSpecificPartialOrderInstances {
   @deprecated("3.0.0", "Use catsKernelOrderForLazyList")
   implicit def catsKernelOrderForStream[A: Order]: Order[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdOrderForStream[A]
@@ -9,7 +9,7 @@ private[kernel] trait ScalaVersionSpecificOrderInstances {
     cats.kernel.instances.lazyList.catsKernelStdOrderForLazyList[A]
 }
 
-private[kernel] trait ScalaVersionSpecificPartialOrderInstances {
+private[kernel] trait ScalaVersionSpecificPartialOrderInstances extends ScalaVersionSpecificHashInstances {
   @deprecated("3.0.0", "Use catsKernelPartialOrderForLazyList")
   implicit def catsKernelPartialOrderForStream[A: PartialOrder]: PartialOrder[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdPartialOrderForStream[A]
@@ -18,7 +18,7 @@ private[kernel] trait ScalaVersionSpecificPartialOrderInstances {
     cats.kernel.instances.lazyList.catsKernelStdPartialOrderForLazyList[A]
 }
 
-private[kernel] trait ScalaVersionSpecificHashInstances {
+private[kernel] trait ScalaVersionSpecificHashInstances extends ScalaVersionSpecificEqInstances {
   @deprecated("3.0.0", "Use catsKernelHashForLazyList")
   implicit def catsKernelHashForStream[A: Hash]: Hash[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdHashForStream[A]

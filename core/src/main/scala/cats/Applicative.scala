@@ -205,7 +205,7 @@ object Applicative {
    * res0: (Long, Int) = (3,6)
    * }}}
    */
-  implicit def catsApplicativeForArrow[F[_, _], A](implicit F: Arrow[F]): Applicative[F[A, *]] =
+  private[cats] def catsApplicativeForArrow[F[_, _], A](implicit F: Arrow[F]): Applicative[F[A, *]] =
     new ArrowApplicative[F, A](F)
 
   /**

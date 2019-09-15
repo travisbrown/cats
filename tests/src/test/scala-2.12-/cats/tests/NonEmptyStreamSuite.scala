@@ -2,7 +2,7 @@ package cats
 package tests
 
 import cats.data.{NonEmptyStream, OneAnd}
-import cats.instances.stream._
+import cats.kernel.instances.order.catsKernelOrderingForOrder
 import cats.kernel.laws.discipline.{EqTests, SemigroupTests}
 import cats.laws.discipline.arbitrary._
 import cats.laws.discipline._

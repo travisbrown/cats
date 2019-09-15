@@ -1,7 +1,6 @@
 package cats
 package tests
 
-import cats.instances._
 import cats.platform.Platform
 import cats.syntax._
 import org.scalactic.anyvals.{PosInt, PosZDouble, PosZInt}
@@ -37,14 +36,6 @@ trait CatsSuite
     with ScalaCheckDrivenPropertyChecks
     with Discipline
     with TestSettings
-    with AllInstances
-    with AllInstancesBinCompat0
-    with AllInstancesBinCompat1
-    with AllInstancesBinCompat2
-    with AllInstancesBinCompat3
-    with AllInstancesBinCompat4
-    with AllInstancesBinCompat5
-    with AllInstancesBinCompat6
     with AllSyntax
     with AllSyntaxBinCompat0
     with AllSyntaxBinCompat1

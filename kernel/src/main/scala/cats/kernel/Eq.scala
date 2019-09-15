@@ -5,6 +5,7 @@ import scala.collection.immutable.{BitSet, Queue, SortedMap, SortedSet}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.math.Equiv
 import scala.{specialized => sp}
+import scala.util.{Failure, Success, Try}
 import compat.scalaVersionSpecific._
 
 /**
@@ -148,7 +149,8 @@ object Eq
     cats.kernel.instances.bitSet.catsKernelStdOrderForBitSet
   implicit def catsKernelPartialOrderForSet[A]: PartialOrder[Set[A]] =
     cats.kernel.instances.set.catsKernelStdPartialOrderForSet[A]
-  implicit def catsKernelHashForSet[A]: Hash[Set[A]] = cats.kernel.instances.set.catsKernelStdHashForSet[A]
+  implicit def catsKernelOrderForEither[A: Order, B: Order]: Order[Either[A, B]] =
+    cats.kernel.instances.either.catsStdOrderForEither[A, B]
 
   implicit def catsKernelInstancesForUnit: Order[Unit] with Hash[Unit] =
     cats.kernel.instances.unit.catsKernelStdOrderForUnit
@@ -194,9 +196,23 @@ object Eq
     cats.kernel.instances.sortedSet.catsKernelStdOrderForSortedSet[A]
   implicit def catsKernelOrderForFunction0[A: Order]: Order[() => A] =
     cats.kernel.instances.function.catsKernelOrderForFunction0[A]
+
+  /**
+   * you may wish to do equality by making `implicit val eqT: Eq[Throwable] = Eq.allEqual`
+   * doing a fine grained equality on Throwable can make the code very execution
+   * order dependent
+   */
+  implicit def catsStdEqForTry[A, T](implicit A: Eq[A], T: Eq[Throwable]): Eq[Try[A]] =
+    new Eq[Try[A]] {
+      def eqv(x: Try[A], y: Try[A]): Boolean = (x, y) match {
+        case (Success(a), Success(b)) => A.eqv(a, b)
+        case (Failure(a), Failure(b)) => T.eqv(a, b)
+        case _                        => false
+      }
+    }
 }
 
-private[kernel] trait PartialOrderInstances extends ScalaVersionSpecificPartialOrderInstances with HashInstances {
+private[kernel] trait PartialOrderInstances extends HashInstances {
   implicit def catsKernelPartialOrderForOption[A: PartialOrder]: PartialOrder[Option[A]] =
     cats.kernel.instances.option.catsKernelStdPartialOrderForOption[A]
   implicit def catsKernelPartialOrderForList[A: PartialOrder]: PartialOrder[List[A]] =
@@ -209,7 +225,8 @@ private[kernel] trait PartialOrderInstances extends ScalaVersionSpecificPartialO
     cats.kernel.instances.function.catsKernelPartialOrderForFunction0[A]
 }
 
-private[kernel] trait HashInstances extends ScalaVersionSpecificHashInstances with EqInstances {
+private[kernel] trait HashInstances extends EqInstances {
+  implicit def catsKernelHashForSet[A]: Hash[Set[A]] = cats.kernel.instances.set.catsKernelStdHashForSet[A]
   implicit def catsKernelHashForOption[A: Hash]: Hash[Option[A]] =
     cats.kernel.instances.option.catsKernelStdHashForOption[A]
   implicit def catsKernelHashForList[A: Hash]: Hash[List[A]] = cats.kernel.instances.list.catsKernelStdHashForList[A]
@@ -229,7 +246,7 @@ private[kernel] trait HashInstances extends ScalaVersionSpecificHashInstances wi
     cats.kernel.instances.either.catsStdHashForEither[A, B]
 }
 
-private[kernel] trait EqInstances extends ScalaVersionSpecificEqInstances {
+private[kernel] trait EqInstances {
   implicit def catsKernelEqForOption[A: Eq]: Eq[Option[A]] = cats.kernel.instances.option.catsKernelStdEqForOption[A]
   implicit def catsKernelEqForList[A: Eq]: Eq[List[A]] = cats.kernel.instances.list.catsKernelStdEqForList[A]
   implicit def catsKernelEqForVector[A: Eq]: Eq[Vector[A]] = cats.kernel.instances.vector.catsKernelStdEqForVector[A]
