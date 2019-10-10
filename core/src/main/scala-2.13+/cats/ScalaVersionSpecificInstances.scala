@@ -36,7 +36,7 @@ private[cats] trait ScalaVersionSpecificParallelInstances {
     cats.instances.parallel.catsStdParallelForZipStream
 
   implicit def catsStdParallelForZipLazyList: Parallel.Aux[LazyList, ZipLazyList] =
-    cats.instances.parallel.catsStdParallelForZipLazyList
+    cats.instances.lazyList.catsStdParallelForLazyListZipLazyList
 }
 
 private[cats] trait ScalaVersionSpecificInvariantInstances {
