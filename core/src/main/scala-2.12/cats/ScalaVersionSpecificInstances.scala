@@ -20,7 +20,7 @@ private[cats] trait ScalaVersionSpecificMonoidKInstances {
 
 private[cats] trait ScalaVersionSpecificParallelInstances {
   implicit def catsStdParallelForZipStream: Parallel.Aux[Stream, ZipStream] =
-    cats.instances.parallel.catsStdParallelForZipStream
+    cats.instances.stream.catsStdParallelForStreamZipStream
 }
 
 private[cats] trait ScalaVersionSpecificInvariantInstances {
