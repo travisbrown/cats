@@ -1,6 +1,6 @@
 package cats
 
-import scala.collection.immutable.SortedMap
+import scala.collection.immutable.{Queue, SortedMap}
 import simulacrum.typeclass
 
 /**
@@ -79,4 +79,6 @@ object FunctorFilter extends ScalaVersionSpecificTraverseFilterInstances {
     cats.instances.map.catsStdFunctorFilterForMap[K]
   implicit def catsTraverseFilterForSortedMap[K: Order]: TraverseFilter[SortedMap[K, *]] =
     cats.instances.sortedMap.catsStdTraverseFilterForSortedMap[K]
+  implicit def catsTraverseFilterForQueue: TraverseFilter[Queue] =
+    cats.instances.queue.catsStdTraverseFilterForQueue
 }

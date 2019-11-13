@@ -85,15 +85,13 @@ import cats.data.Ior
     combineK(F.map(fa)(Left(_)), F.map(fb)(Right(_)))
 }
 
-object SemigroupK {
+object SemigroupK extends ScalaVersionSpecificMonoidKInstances {
   def align[F[_]: SemigroupK: Functor]: Align[F] = new Align[F] {
     def align[A, B](fa: F[A], fb: F[B]): F[Ior[A, B]] =
       SemigroupK[F].combineK(Functor[F].map(fa)(Ior.left), Functor[F].map(fb)(Ior.right))
     def functor: Functor[F] = Functor[F]
   }
-}
 
-object SemigroupK extends ScalaVersionSpecificMonoidKInstances {
   implicit def catsMonoidKForOption: MonoidK[Option] = cats.instances.option.catsStdInstancesForOption
   implicit def catsMonoidKForList: MonoidK[List] = cats.instances.list.catsStdInstancesForList
   implicit def catsMonoidKForVector: MonoidK[Vector] = cats.instances.vector.catsStdInstancesForVector
