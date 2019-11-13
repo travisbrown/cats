@@ -32,3 +32,5 @@ private[cats] trait ScalaVersionSpecificTraverseFilterInstances {
   implicit def catsTraverseFilterForStream: TraverseFilter[Stream] =
     cats.instances.stream.catsStdTraverseFilterForStream
 }
+
+private[cats] trait ScalaVersionSpecificAlignInstances

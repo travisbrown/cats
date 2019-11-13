@@ -56,3 +56,8 @@ private[cats] trait ScalaVersionSpecificTraverseFilterInstances {
   implicit def catsTraverseFilterForLazyList: TraverseFilter[LazyList] =
     cats.instances.lazyList.catsStdTraverseFilterForLazyList
 }
+
+private[cats] trait ScalaVersionSpecificAlignInstances {
+  implicit def catsAlignForLazyList: Align[LazyList] =
+    cats.instances.lazyList.catsStdInstancesForLazyList
+}
