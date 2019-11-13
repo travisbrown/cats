@@ -2,6 +2,7 @@ package cats
 
 import scala.collection.immutable.{SortedMap, SortedSet}
 import simulacrum.typeclass
+import cats.data.Ior
 
 /**
  * SemigroupK is a universal semigroup which operates on kinds.
@@ -68,6 +69,28 @@ import simulacrum.typeclass
     new ComposedSemigroupK[F, G] {
       val F = self
     }
+
+  /**
+   * Combines `F[A]` and `F[B]` into a `F[Either[A,B]]]`.
+   *
+   * Example:
+   * {{{
+   * scala> import cats.SemigroupK
+   * scala> import cats.data.NonEmptyList
+   * scala> SemigroupK[NonEmptyList].sum(NonEmptyList.one("abc"), NonEmptyList.one(2))
+   * res0: NonEmptyList[Either[String,Int]] = NonEmptyList(Left(abc), Right(2))
+   * }}}
+   */
+  def sum[A, B](fa: F[A], fb: F[B])(implicit F: Functor[F]): F[Either[A, B]] =
+    combineK(F.map(fa)(Left(_)), F.map(fb)(Right(_)))
+}
+
+object SemigroupK {
+  def align[F[_]: SemigroupK: Functor]: Align[F] = new Align[F] {
+    def align[A, B](fa: F[A], fb: F[B]): F[Ior[A, B]] =
+      SemigroupK[F].combineK(Functor[F].map(fa)(Ior.left), Functor[F].map(fb)(Ior.right))
+    def functor: Functor[F] = Functor[F]
+  }
 }
 
 object SemigroupK extends ScalaVersionSpecificMonoidKInstances {

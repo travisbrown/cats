@@ -3,6 +3,7 @@ package tests
 
 import cats.data.{NonEmptyList, ZipList}
 import cats.laws.discipline.{
+  AlignTests,
   AlternativeTests,
   CoflatMapTests,
   CommutativeApplyTests,
@@ -35,6 +36,9 @@ class ListSuite extends CatsSuite {
   checkAll("List[Int]", TraverseFilterTests[List].traverseFilter[Int, Int, Int])
   checkAll("TraverseFilter[List]", SerializableTests.serializable(TraverseFilter[List]))
 
+  checkAll("List[Int]", AlignTests[List].align[Int, Int, Int, Int])
+  checkAll("Align[List]", SerializableTests.serializable(Align[List]))
+
   checkAll("ZipList[Int]", CommutativeApplyTests[ZipList].commutativeApply[Int, Int, Int])
 
   test("nel => list => nel returns original nel")(
@@ -59,6 +63,17 @@ class ListSuite extends CatsSuite {
     forAll { l: List[String] =>
       l.show should ===(l.toString)
     }
+  }
+
+  test("the instance for `Eq[List[A]]` is not ambiguous when A has a Hash and a PartialOrder") {
+
+    import cats.kernel.{Hash, PartialOrder}
+
+    trait A
+    implicit def po: PartialOrder[A] = ???
+    implicit def ho: Hash[A] = ???
+
+    lazy val _ = implicitly[Eq[List[A]]]
   }
 }
 

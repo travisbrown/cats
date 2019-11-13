@@ -3,6 +3,7 @@ package tests
 
 import cats.data.{NonEmptyVector, ZipVector}
 import cats.laws.discipline.{
+  AlignTests,
   AlternativeTests,
   CoflatMapTests,
   CommutativeApplyTests,
@@ -34,6 +35,9 @@ class VectorSuite extends CatsSuite {
   checkAll("Vector[Int]", TraverseFilterTests[Vector].traverseFilter[Int, Int, Int])
   checkAll("TraverseFilter[Vector]", SerializableTests.serializable(TraverseFilter[Vector]))
 
+  checkAll("Vector[Int]", AlignTests[Vector].align[Int, Int, Int, Int])
+  checkAll("Align[Vector]", SerializableTests.serializable(Align[Vector]))
+
   checkAll("ZipVector[Int]", CommutativeApplyTests[ZipVector].commutativeApply[Int, Int, Int])
 
   test("show") {
@@ -54,6 +58,17 @@ class VectorSuite extends CatsSuite {
 
   test("toNev on empty vector returns None") {
     assert(Vector.empty[Int].toNev == None)
+  }
+
+  test("the instance for `Eq[Vector[A]]` is not ambiguous when A has a Hash and a PartialOrder") {
+
+    import cats.kernel.{Hash, PartialOrder}
+
+    trait A
+    implicit def po: PartialOrder[A] = ???
+    implicit def ho: Hash[A] = ???
+
+    lazy val _ = implicitly[Eq[Vector[A]]]
   }
 }
 

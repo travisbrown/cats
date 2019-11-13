@@ -94,6 +94,13 @@ import Foldable.sentinel
    */
   def foldRight[A, B](fa: F[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B]
 
+  def foldRightDefer[G[_]: Defer, A, B](fa: F[A], gb: G[B])(fn: (A, G[B]) => G[B]): G[B] =
+    Defer[G].defer(
+      this.foldLeft(fa, (z: G[B]) => z) { (acc, elem) => z =>
+        Defer[G].defer(acc(fn(elem, z)))
+      }(gb)
+    )
+
   def reduceLeftToOption[A, B](fa: F[A])(f: A => B)(g: (B, A) => B): Option[B] =
     foldLeft(fa, Option.empty[B]) {
       case (Some(b), a) => Some(g(b, a))
@@ -198,13 +205,13 @@ import Foldable.sentinel
    * @return `None` if the structure is empty, otherwise the minimum element
    * wrapped in a `Some`.
    *
-   * @see [[Reducible#minimum]] for a version that doesn't need to return an
+   * @see [[Reducible#minimumBy]] for a version that doesn't need to return an
    * `Option` for structures that are guaranteed to be non-empty.
    *
-   * @see [[maximumOptionBy]] for maximum instead of minimum.
+   * @see [[maximumByOption]] for maximum instead of minimum.
    */
-  def minimumOptionBy[A, B: Order](fa: F[A])(f: A => B)(implicit F: Foldable[F]): Option[A] =
-    F.minimumOption(fa)(Order.by(f))
+  def minimumByOption[A, B: Order](fa: F[A])(f: A => B): Option[A] =
+    minimumOption(fa)(Order.by(f))
 
   /**
    * Find the maximum `A` item in this structure according to an `Order.by(f)`.
@@ -212,13 +219,13 @@ import Foldable.sentinel
    * @return `None` if the structure is empty, otherwise the maximum element
    * wrapped in a `Some`.
    *
-   * @see [[Reducible#maximum]] for a version that doesn't need to return an
+   * @see [[Reducible#maximumBy]] for a version that doesn't need to return an
    * `Option` for structures that are guaranteed to be non-empty.
    *
-   * @see [[minimumOptionBy]] for minimum instead of maximum.
+   * @see [[minimumByOption]] for minimum instead of maximum.
    */
-  def maximumOptionBy[A, B: Order](fa: F[A])(f: A => B)(implicit F: Foldable[F]): Option[A] =
-    F.maximumOption(fa)(Order.by(f))
+  def maximumByOption[A, B: Order](fa: F[A])(f: A => B): Option[A] =
+    maximumOption(fa)(Order.by(f))
 
   /**
    * Get the element at the index of the `Foldable`.
@@ -331,6 +338,14 @@ import Foldable.sentinel
    */
   def foldMapM[G[_], A, B](fa: F[A])(f: A => G[B])(implicit G: Monad[G], B: Monoid[B]): G[B] =
     foldM(fa, B.empty)((b, a) => G.map(f(a))(B.combine(b, _)))
+
+  /**
+   * Equivalent to foldMapM.
+   * The difference is that foldMapA only requires G to be an Applicative
+   * rather than a Monad. It is also slower due to use of Eval.
+   */
+  def foldMapA[G[_], A, B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G], B: Monoid[B]): G[B] =
+    foldRight(fa, Eval.now(G.pure(B.empty)))((a, egb) => G.map2Eval(f(a), egb)(B.combine)).value
 
   /**
    * Traverse `F[A]` using `Applicative[G]`.
@@ -617,6 +632,13 @@ object Foldable {
       Eval.defer(if (it.hasNext) f(it.next, loop(it)) else lb)
 
     Eval.always(iterable.iterator).flatMap(loop)
+  }
+
+  def iterateRightDefer[G[_]: Defer, A, B](iterable: Iterable[A], lb: G[B])(f: (A, G[B]) => G[B]): G[B] = {
+    def loop(it: Iterator[A]): G[B] =
+      Defer[G].defer(if (it.hasNext) f(it.next(), Defer[G].defer(loop(it))) else Defer[G].defer(lb))
+
+    Defer[G].defer(loop(iterable.iterator))
   }
 
   /**
