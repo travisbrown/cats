@@ -1,7 +1,7 @@
 package cats.kernel
 
 private[kernel] trait ScalaVersionSpecificOrderInstances extends ScalaVersionSpecificPartialOrderInstances {
-  @deprecated("3.0.0", "Use catsKernelOrderForLazyList")
+  @deprecated("Use catsKernelOrderForLazyList", "3.0.0")
   implicit def catsKernelOrderForStream[A: Order]: Order[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdOrderForStream[A]
 
@@ -10,7 +10,7 @@ private[kernel] trait ScalaVersionSpecificOrderInstances extends ScalaVersionSpe
 }
 
 private[kernel] trait ScalaVersionSpecificPartialOrderInstances extends ScalaVersionSpecificHashInstances {
-  @deprecated("3.0.0", "Use catsKernelPartialOrderForLazyList")
+  @deprecated("Use catsKernelPartialOrderForLazyList", "3.0.0")
   implicit def catsKernelPartialOrderForStream[A: PartialOrder]: PartialOrder[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdPartialOrderForStream[A]
 
@@ -19,7 +19,7 @@ private[kernel] trait ScalaVersionSpecificPartialOrderInstances extends ScalaVer
 }
 
 private[kernel] trait ScalaVersionSpecificHashInstances extends ScalaVersionSpecificEqInstances {
-  @deprecated("3.0.0", "Use catsKernelHashForLazyList")
+  @deprecated("Use catsKernelHashForLazyList", "3.0.0")
   implicit def catsKernelHashForStream[A: Hash]: Hash[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdHashForStream[A]
 
@@ -28,7 +28,7 @@ private[kernel] trait ScalaVersionSpecificHashInstances extends ScalaVersionSpec
 }
 
 private[kernel] trait ScalaVersionSpecificEqInstances {
-  @deprecated("3.0.0", "Use catsKernelEqForLazyList")
+  @deprecated("Use catsKernelEqForLazyList", "3.0.0")
   implicit def catsKernelEqForStream[A: Eq]: Eq[Stream[A]] = cats.kernel.instances.stream.catsKernelStdEqForStream[A]
 
   implicit def catsKernelEqForLazyList[A: Eq]: Eq[LazyList[A]] =
@@ -36,7 +36,7 @@ private[kernel] trait ScalaVersionSpecificEqInstances {
 }
 
 private[kernel] trait ScalaVersionSpecificMonoidInstances {
-  @deprecated("3.0.0", "Use catsKernelMonoidForLazyList")
+  @deprecated("Use catsKernelMonoidForLazyList", "3.0.0")
   implicit def catsKernelMonoidForStream[A]: Monoid[Stream[A]] =
     cats.kernel.instances.stream.catsKernelStdMonoidForStream[A]
 

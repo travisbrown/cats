@@ -3,35 +3,35 @@ package cats
 import cats.data.{ZipLazyList, ZipStream}
 
 private[cats] trait ScalaVersionSpecificTraverseInstances {
-  @deprecated("3.0.0", "Use catsTraverseForLazyList")
+  @deprecated("Use catsTraverseForLazyList", "3.0.0")
   implicit def catsTraverseForStream: Traverse[Stream] = cats.instances.stream.catsStdInstancesForStream
 
   implicit def catsTraverseForLazyList: Traverse[LazyList] = cats.instances.lazyList.catsStdInstancesForLazyList
 }
 
 private[cats] trait ScalaVersionSpecificShowInstances {
-  @deprecated("3.0.0", "Use catsShowForLazyList")
+  @deprecated("Use catsShowForLazyList", "3.0.0")
   implicit def catsShowForStream[A: Show]: Show[Stream[A]] = cats.instances.stream.catsStdShowForStream[A]
 
   implicit def catsShowForLazyList[A: Show]: Show[LazyList[A]] = cats.instances.lazyList.catsStdShowForLazyList[A]
 }
 
 private[cats] trait ScalaVersionSpecificSemigroupalInstances {
-  @deprecated("3.0.0", "Use catsSemigroupalForLazyList")
+  @deprecated("Use catsSemigroupalForLazyList", "3.0.0")
   implicit def catsSemigroupalForStream: Semigroupal[Stream] = cats.instances.stream.catsStdInstancesForStream
 
   implicit def catsSemigroupalForLazyList: Semigroupal[LazyList] = cats.instances.lazyList.catsStdInstancesForLazyList
 }
 
 private[cats] trait ScalaVersionSpecificMonoidKInstances {
-  @deprecated("3.0.0", "Use catsMonoidKForLazyList")
+  @deprecated("Use catsMonoidKForLazyList", "3.0.0")
   implicit def catsMonoidKForStream: MonoidK[Stream] = cats.instances.stream.catsStdInstancesForStream
 
   implicit def catsMonoidKForLazyList: MonoidK[LazyList] = cats.instances.lazyList.catsStdInstancesForLazyList
 }
 
 private[cats] trait ScalaVersionSpecificParallelInstances {
-  @deprecated("3.0.0", "Use catsParallelForLazyList")
+  @deprecated("Use catsParallelForLazyList", "3.0.0")
   implicit def catsStdParallelForZipStream: Parallel.Aux[Stream, ZipStream] =
     cats.instances.parallel.catsStdParallelForZipStream
 
@@ -40,7 +40,7 @@ private[cats] trait ScalaVersionSpecificParallelInstances {
 }
 
 private[cats] trait ScalaVersionSpecificInvariantInstances {
-  @deprecated("3.0.0", "Use catsInstancesForLazyList")
+  @deprecated("Use catsInstancesForLazyList", "3.0.0")
   implicit def catsInstancesForStream: Monad[Stream] with Alternative[Stream] with CoflatMap[Stream] =
     cats.instances.stream.catsStdInstancesForStream
 
@@ -49,7 +49,7 @@ private[cats] trait ScalaVersionSpecificInvariantInstances {
 }
 
 private[cats] trait ScalaVersionSpecificTraverseFilterInstances {
-  @deprecated("3.0.0", "Use catsTraverseFilterForLazyList")
+  @deprecated("Use catsTraverseFilterForLazyList", "3.0.0")
   implicit def catsTraverseFilterForStream: TraverseFilter[Stream] =
     cats.instances.stream.catsStdTraverseFilterForStream
 
@@ -58,7 +58,7 @@ private[cats] trait ScalaVersionSpecificTraverseFilterInstances {
 }
 
 private[cats] trait ScalaVersionSpecificAlignInstances {
-  @deprecated("3.0.0", "Use catsTraverseFilterForLazyList")
+  @deprecated("Use catsTraverseFilterForLazyList", "3.0.0")
   implicit def catsAlignForStream: Align[Stream] =
     cats.instances.stream.catsStdInstancesForStream
 
