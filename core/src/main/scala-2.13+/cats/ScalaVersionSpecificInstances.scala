@@ -58,6 +58,10 @@ private[cats] trait ScalaVersionSpecificTraverseFilterInstances {
 }
 
 private[cats] trait ScalaVersionSpecificAlignInstances {
+  @deprecated("3.0.0", "Use catsTraverseFilterForLazyList")
+  implicit def catsAlignForStream: Align[Stream] =
+    cats.instances.stream.catsStdInstancesForStream
+
   implicit def catsAlignForLazyList: Align[LazyList] =
     cats.instances.lazyList.catsStdInstancesForLazyList
 }

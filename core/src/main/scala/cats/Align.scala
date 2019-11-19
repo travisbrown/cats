@@ -96,4 +96,17 @@ object Align extends ScalaVersionSpecificAlignInstances {
   implicit def catsAlignForSortedMap[K: Order]: Align[SortedMap[K, *]] =
     cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
   implicit def catsAlignForEither[A]: Align[Either[A, *]] = cats.instances.either.catsStdInstancesForEither[A]
+
+  private[cats] def alignWithIterator[A, B, C](fa: Iterable[A], fb: Iterable[B])(f: Ior[A, B] => C): Iterator[C] =
+    new Iterator[C] {
+      private[this] val iterA = fa.iterator
+      private[this] val iterB = fb.iterator
+      def hasNext: Boolean = iterA.hasNext || iterB.hasNext
+      def next(): C =
+        f(
+          if (iterA.hasNext && iterB.hasNext) Ior.both(iterA.next(), iterB.next())
+          else if (iterA.hasNext) Ior.left(iterA.next())
+          else Ior.right(iterB.next())
+        )
+    }
 }

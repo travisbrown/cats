@@ -38,7 +38,7 @@ trait NonEmptyParallel[M[_]] extends Serializable {
     Parallel.parMap2(ma, mb)((_, b) => b)(this)
 
   @deprecated("Use parProductR instead.", "1.0.0-RC2")
-  @inline def parFollowedBy[A, B](ma: M[A])(mb: M[B]): M[B] = parProductR(ma)(mb)
+  @inline private[cats] def parFollowedBy[A, B](ma: M[A])(mb: M[B]): M[B] = parProductR(ma)(mb)
 
   /**
    * Like [[Apply.productL]], but uses the apply instance
@@ -48,7 +48,7 @@ trait NonEmptyParallel[M[_]] extends Serializable {
     Parallel.parMap2(ma, mb)((a, _) => a)(this)
 
   @deprecated("Use parProductL instead.", "1.0.0-RC2")
-  @inline def parForEffect[A, B](ma: M[A])(mb: M[B]): M[A] = parProductL(ma)(mb)
+  @inline private[cats] def parForEffect[A, B](ma: M[A])(mb: M[B]): M[A] = parProductL(ma)(mb)
 
 }
 
@@ -320,6 +320,18 @@ object Parallel extends ParallelArityFunctions2 {
   )(implicit P: Parallel[M]): M[T[A, B]] = {
     val ftab: P.F[T[A, B]] = Bitraverse[T].bitraverse(tmab)(P.parallel.apply(_), P.applicative.pure(_))(P.applicative)
     P.sequential(ftab)
+  }
+
+  /**
+   * Like `Foldable[A].foldMapA`, but uses the applicative instance
+   * corresponding to the Parallel instance instead.
+   */
+  def parFoldMapA[T[_], M[_], A, B](
+    ta: T[A]
+  )(f: A => M[B])(implicit T: Foldable[T], P: Parallel[M], B: Monoid[B]): M[B] = {
+    val fb: P.F[B] =
+      Foldable[T].foldMapA(ta)(a => P.parallel(f(a)))(P.applicative, B)
+    P.sequential(fb)
   }
 
   /**

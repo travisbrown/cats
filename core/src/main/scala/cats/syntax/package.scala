@@ -14,7 +14,7 @@ package object syntax {
   object binested extends BinestedSyntax
   object bitraverse extends BitraverseSyntax with BitraverseSyntaxBinCompat0
   @deprecated("use cats.syntax.semigroupal instead", "1.0.0-RC1")
-  object cartesian extends SemigroupalSyntax
+  private[syntax] object cartesian extends SemigroupalSyntax
   object choice extends ChoiceSyntax
   object coflatMap extends CoflatMapSyntax
   object distributive extends DistributiveSyntax
@@ -47,6 +47,7 @@ package object syntax {
       with ParallelApplySyntax
       with ParallelBitraverseSyntax
       with ParallelUnorderedTraverseSyntax
+      with ParallelFoldMapASyntax
   object partialOrder extends PartialOrderSyntax
   object profunctor extends ProfunctorSyntax
   object reducible extends ReducibleSyntax with ReducibleSyntaxBinCompat0
