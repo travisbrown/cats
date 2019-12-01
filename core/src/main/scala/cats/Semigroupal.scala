@@ -12,7 +12,7 @@ import simulacrum.typeclass
  * That same idea is also manifested in the form of [[Apply]], and indeed [[Apply]] extends both
  * [[Semigroupal]] and [[Functor]] to illustrate this.
  */
-@typeclass trait Semigroupal[F[_]] {
+@typeclass trait Semigroupal[F[_]] extends Serializable {
 
   /**
    * Combine an `F[A]` and an `F[B]` into an `F[(A, B)]` that maintains the effects of both `fa` and `fb`.

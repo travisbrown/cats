@@ -10,7 +10,7 @@ import cats.data.Ior
  *
  * Must obey the laws in cats.laws.AlignLaws
  */
-@typeclass trait Align[F[_]] {
+@typeclass trait Align[F[_]] extends Serializable {
 
   def functor: Functor[F]
 

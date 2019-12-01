@@ -7,7 +7,7 @@ import simulacrum.{noop, typeclass}
 /**
  * `UnorderedFoldable` is like a `Foldable` for unordered containers.
  */
-@typeclass trait UnorderedFoldable[F[_]] {
+@typeclass trait UnorderedFoldable[F[_]] extends Serializable {
 
   def unorderedFoldMap[A, B: CommutativeMonoid](fa: F[A])(f: A => B): B
 

@@ -18,7 +18,7 @@ import simulacrum.typeclass
  * res1: Int = 301
  * }}}
  */
-@typeclass trait Compose[F[_, _]] { self =>
+@typeclass trait Compose[F[_, _]] extends Serializable { self =>
 
   @simulacrum.op("<<<", alias = true)
   def compose[A, B, C](f: F[B, C], g: F[A, B]): F[A, C]

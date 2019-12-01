@@ -7,7 +7,7 @@ import cats.kernel.compat.scalaVersionSpecific._
 /**
  * Must obey the laws defined in cats.laws.InvariantLaws.
  */
-@typeclass trait Invariant[F[_]] { self =>
+@typeclass trait Invariant[F[_]] extends Serializable { self =>
 
   /**
    * Transform an `F[A]` into an `F[B]` by providing a transformation from `A`

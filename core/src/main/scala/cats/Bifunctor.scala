@@ -5,7 +5,7 @@ import simulacrum.typeclass
  * A type class of types which give rise to two independent, covariant
  * functors.
  */
-@typeclass trait Bifunctor[F[_, _]] { self =>
+@typeclass trait Bifunctor[F[_, _]] extends Serializable { self =>
 
   /**
    * The quintessential method of the Bifunctor trait, it applies a
