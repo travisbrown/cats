@@ -31,7 +31,6 @@ object CommutativeApplicative {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[CommutativeApplicative]] for `F`.
    */
@@ -56,7 +55,9 @@ object CommutativeApplicative {
   }
   object nonInheritedOps extends ToCommutativeApplicativeOps
   object ops {
-    implicit def toAllCommutativeApplicativeOps[F[_], A](target: F[A])(implicit tc: CommutativeApplicative[F]): AllOps[F, A] {
+    implicit def toAllCommutativeApplicativeOps[F[_], A](
+      target: F[A]
+    )(implicit tc: CommutativeApplicative[F]): AllOps[F, A] {
       type TypeClassType = CommutativeApplicative[F]
     } = new AllOps[F, A] {
       type TypeClassType = CommutativeApplicative[F]

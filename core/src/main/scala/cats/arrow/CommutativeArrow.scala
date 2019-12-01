@@ -14,10 +14,10 @@ import scala.annotation.implicitNotFound
 @typeclass trait CommutativeArrow[F[_, _]] extends Arrow[F]
 
 object CommutativeArrow {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[CommutativeArrow]] for `F`.
    */
@@ -42,7 +42,9 @@ object CommutativeArrow {
   }
   object nonInheritedOps extends ToCommutativeArrowOps
   object ops {
-    implicit def toAllCommutativeArrowOps[F[_, _], A, B](target: F[A, B])(implicit tc: CommutativeArrow[F]): AllOps[F, A, B] {
+    implicit def toAllCommutativeArrowOps[F[_, _], A, B](
+      target: F[A, B]
+    )(implicit tc: CommutativeArrow[F]): AllOps[F, A, B] {
       type TypeClassType = CommutativeArrow[F]
     } = new AllOps[F, A, B] {
       type TypeClassType = CommutativeArrow[F]

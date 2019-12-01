@@ -24,7 +24,6 @@ object ContravariantSemigroupal extends SemigroupalArityFunctions {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[ContravariantSemigroupal]] for `F`.
    */
@@ -39,7 +38,9 @@ object ContravariantSemigroupal extends SemigroupalArityFunctions {
     type TypeClassType <: ContravariantSemigroupal[F]
   }
   trait ToContravariantSemigroupalOps {
-    implicit def toContravariantSemigroupalOps[F[_], A](target: F[A])(implicit tc: ContravariantSemigroupal[F]): Ops[F, A] {
+    implicit def toContravariantSemigroupalOps[F[_], A](
+      target: F[A]
+    )(implicit tc: ContravariantSemigroupal[F]): Ops[F, A] {
       type TypeClassType = ContravariantSemigroupal[F]
     } = new Ops[F, A] {
       type TypeClassType = ContravariantSemigroupal[F]
@@ -49,7 +50,9 @@ object ContravariantSemigroupal extends SemigroupalArityFunctions {
   }
   object nonInheritedOps extends ToContravariantSemigroupalOps
   object ops {
-    implicit def toAllContravariantSemigroupalOps[F[_], A](target: F[A])(implicit tc: ContravariantSemigroupal[F]): AllOps[F, A] {
+    implicit def toAllContravariantSemigroupalOps[F[_], A](
+      target: F[A]
+    )(implicit tc: ContravariantSemigroupal[F]): AllOps[F, A] {
       type TypeClassType = ContravariantSemigroupal[F]
     } = new AllOps[F, A] {
       type TypeClassType = ContravariantSemigroupal[F]

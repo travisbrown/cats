@@ -35,10 +35,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Bifoldable {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Bifoldable]] for `F`.
    */
@@ -49,8 +49,10 @@ object Bifoldable {
     def self: F[A, B]
     val typeClassInstance: TypeClassType
     def bifoldLeft[C](c: C)(f: (C, A) => C, g: (C, B) => C): C = typeClassInstance.bifoldLeft[A, B, C](self, c)(f, g)
-    def bifoldRight[C](c: Eval[C])(f: (A, Eval[C]) => Eval[C], g: (B, Eval[C]) => Eval[C]): Eval[C] = typeClassInstance.bifoldRight[A, B, C](self, c)(f, g)
-    def bifoldMap[C](f: A => C, g: B => C)(implicit C: Monoid[C]): C = typeClassInstance.bifoldMap[A, B, C](self)(f, g)(C)
+    def bifoldRight[C](c: Eval[C])(f: (A, Eval[C]) => Eval[C], g: (B, Eval[C]) => Eval[C]): Eval[C] =
+      typeClassInstance.bifoldRight[A, B, C](self, c)(f, g)
+    def bifoldMap[C](f: A => C, g: B => C)(implicit C: Monoid[C]): C =
+      typeClassInstance.bifoldMap[A, B, C](self)(f, g)(C)
     def bifold(implicit A: Monoid[A], B: Monoid[B]): (A, B) = typeClassInstance.bifold[A, B](self)(A, B)
   }
   trait AllOps[F[_, _], A, B] extends Ops[F, A, B]

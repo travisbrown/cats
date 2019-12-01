@@ -201,10 +201,10 @@ import scala.annotation.implicitNotFound
 }
 
 object FlatMap {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[FlatMap]] for `F`.
    */

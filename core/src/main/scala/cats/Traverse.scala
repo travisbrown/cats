@@ -133,10 +133,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Traverse {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Traverse]] for `F`.
    */
@@ -146,15 +146,24 @@ object Traverse {
     type TypeClassType <: Traverse[F]
     def self: F[A]
     val typeClassInstance: TypeClassType
-    def traverse[G[_], B](f: A => G[B])(implicit ev$1: Applicative[G]): G[F[B]] = typeClassInstance.traverse[G, A, B](self)(f)
-    def flatTraverse[G[_], B](f: A => G[F[B]])(implicit G: Applicative[G], F: FlatMap[F]): G[F[B]] = typeClassInstance.flatTraverse[G, A, B](self)(f)(G, F)
-    def sequence[G[_], B](implicit ev$1: A <:< G[B], ev$2: Applicative[G]): G[F[B]] = typeClassInstance.sequence[G, B](self.asInstanceOf[F[G[B]]])
-    def flatSequence[G[_], B](implicit ev$1: A <:< G[F[B]], G: Applicative[G], F: FlatMap[F]): G[F[B]] = typeClassInstance.flatSequence[G, B](self.asInstanceOf[F[G[F[B]]]])(G, F)
+    def traverse[G[_], B](f: A => G[B])(implicit ev$1: Applicative[G]): G[F[B]] =
+      typeClassInstance.traverse[G, A, B](self)(f)
+    def flatTraverse[G[_], B](f: A => G[F[B]])(implicit G: Applicative[G], F: FlatMap[F]): G[F[B]] =
+      typeClassInstance.flatTraverse[G, A, B](self)(f)(G, F)
+    def sequence[G[_], B](implicit ev$1: A <:< G[B], ev$2: Applicative[G]): G[F[B]] =
+      typeClassInstance.sequence[G, B](self.asInstanceOf[F[G[B]]])
+    def flatSequence[G[_], B](implicit ev$1: A <:< G[F[B]], G: Applicative[G], F: FlatMap[F]): G[F[B]] =
+      typeClassInstance.flatSequence[G, B](self.asInstanceOf[F[G[F[B]]]])(G, F)
     def mapWithIndex[B](f: (A, Int) => B): F[B] = typeClassInstance.mapWithIndex[A, B](self)(f)
-    def traverseWithIndexM[G[_], B](f: (A, Int) => G[B])(implicit G: Monad[G]): G[F[B]] = typeClassInstance.traverseWithIndexM[G, A, B](self)(f)(G)
+    def traverseWithIndexM[G[_], B](f: (A, Int) => G[B])(implicit G: Monad[G]): G[F[B]] =
+      typeClassInstance.traverseWithIndexM[G, A, B](self)(f)(G)
     def zipWithIndex: F[(A, Int)] = typeClassInstance.zipWithIndex[A](self)
   }
-  trait AllOps[F[_], A] extends Ops[F, A] with Functor.AllOps[F, A] with Foldable.AllOps[F, A] with UnorderedTraverse.AllOps[F, A] {
+  trait AllOps[F[_], A]
+      extends Ops[F, A]
+      with Functor.AllOps[F, A]
+      with Foldable.AllOps[F, A]
+      with UnorderedTraverse.AllOps[F, A] {
     type TypeClassType <: Traverse[F]
   }
   trait ToTraverseOps {

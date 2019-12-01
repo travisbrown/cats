@@ -231,11 +231,9 @@ object Applicative {
       def map[A, B](fa: F[A])(f: A => B): F[B] = F.map(fa)(f)
     }
 
-
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Applicative]] for `F`.
    */

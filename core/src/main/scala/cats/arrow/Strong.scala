@@ -42,10 +42,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Strong {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Strong]] for `F`.
    */

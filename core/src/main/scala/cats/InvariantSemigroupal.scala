@@ -29,7 +29,6 @@ object InvariantSemigroupal extends SemigroupalArityFunctions {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[InvariantSemigroupal]] for `F`.
    */
@@ -54,7 +53,9 @@ object InvariantSemigroupal extends SemigroupalArityFunctions {
   }
   object nonInheritedOps extends ToInvariantSemigroupalOps
   object ops {
-    implicit def toAllInvariantSemigroupalOps[F[_], A](target: F[A])(implicit tc: InvariantSemigroupal[F]): AllOps[F, A] {
+    implicit def toAllInvariantSemigroupalOps[F[_], A](
+      target: F[A]
+    )(implicit tc: InvariantSemigroupal[F]): AllOps[F, A] {
       type TypeClassType = InvariantSemigroupal[F]
     } = new AllOps[F, A] {
       type TypeClassType = InvariantSemigroupal[F]

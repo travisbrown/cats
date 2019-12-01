@@ -76,10 +76,10 @@ trait TraverseFilter[F[_]] extends FunctorFilter[F] {
 }
 
 object TraverseFilter {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[TraverseFilter]] for `F`.
    */
@@ -89,8 +89,10 @@ object TraverseFilter {
     type TypeClassType <: TraverseFilter[F]
     def self: F[A]
     val typeClassInstance: TypeClassType
-    def traverseFilter[G[_], B](f: A => G[Option[B]])(implicit G: Applicative[G]): G[F[B]] = typeClassInstance.traverseFilter[G, A, B](self)(f)(G)
-    def filterA[G[_]](f: A => G[Boolean])(implicit G: Applicative[G]): G[F[A]] = typeClassInstance.filterA[G, A](self)(f)(G)
+    def traverseFilter[G[_], B](f: A => G[Option[B]])(implicit G: Applicative[G]): G[F[B]] =
+      typeClassInstance.traverseFilter[G, A, B](self)(f)(G)
+    def filterA[G[_]](f: A => G[Boolean])(implicit G: Applicative[G]): G[F[A]] =
+      typeClassInstance.filterA[G, A](self)(f)(G)
   }
   trait AllOps[F[_], A] extends Ops[F, A] with FunctorFilter.AllOps[F, A] {
     type TypeClassType <: TraverseFilter[F]

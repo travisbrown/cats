@@ -106,7 +106,6 @@ object Align {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Align]] for `F`.
    */
@@ -120,7 +119,8 @@ object Align {
     def alignWith[B, C](fb: F[B])(f: Ior[A, B] => C): F[C] = typeClassInstance.alignWith[A, B, C](self, fb)(f)
     def alignCombine(fa2: F[A])(implicit ev$1: Semigroup[A]): F[A] = typeClassInstance.alignCombine[A](self, fa2)
     def padZip[B](fb: F[B]): F[(Option[A], Option[B])] = typeClassInstance.padZip[A, B](self, fb)
-    def padZipWith[B, C](fb: F[B])(f: (Option[A], Option[B]) => C): F[C] = typeClassInstance.padZipWith[A, B, C](self, fb)(f)
+    def padZipWith[B, C](fb: F[B])(f: (Option[A], Option[B]) => C): F[C] =
+      typeClassInstance.padZipWith[A, B, C](self, fb)(f)
   }
   trait AllOps[F[_], A] extends Ops[F, A]
   trait ToAlignOps {

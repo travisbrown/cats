@@ -16,10 +16,10 @@ import scala.annotation.implicitNotFound
 @typeclass trait CommutativeFlatMap[F[_]] extends FlatMap[F] with CommutativeApply[F]
 
 object CommutativeFlatMap {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[CommutativeFlatMap]] for `F`.
    */

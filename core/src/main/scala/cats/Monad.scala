@@ -122,10 +122,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Monad {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Monad]] for `F`.
    */
@@ -135,7 +135,8 @@ object Monad {
     type TypeClassType <: Monad[F]
     def self: F[A]
     val typeClassInstance: TypeClassType
-    def untilM[G[_]](cond: => F[Boolean])(implicit G: Alternative[G]): F[G[A]] = typeClassInstance.untilM[G, A](self)(cond)(G)
+    def untilM[G[_]](cond: => F[Boolean])(implicit G: Alternative[G]): F[G[A]] =
+      typeClassInstance.untilM[G, A](self)(cond)(G)
     def untilM_(cond: => F[Boolean]): F[Unit] = typeClassInstance.untilM_[A](self)(cond)
     def iterateWhile(p: A => Boolean): F[A] = typeClassInstance.iterateWhile[A](self)(p)
     def iterateUntil(p: A => Boolean): F[A] = typeClassInstance.iterateUntil[A](self)(p)

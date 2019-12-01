@@ -16,10 +16,10 @@ import scala.annotation.implicitNotFound
 @typeclass trait CommutativeMonad[F[_]] extends Monad[F] with CommutativeFlatMap[F] with CommutativeApplicative[F]
 
 object CommutativeMonad {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[CommutativeMonad]] for `F`.
    */
@@ -30,7 +30,11 @@ object CommutativeMonad {
     def self: F[A]
     val typeClassInstance: TypeClassType
   }
-  trait AllOps[F[_], A] extends Ops[F, A] with Monad.AllOps[F, A] with CommutativeFlatMap.AllOps[F, A] with CommutativeApplicative.AllOps[F, A] {
+  trait AllOps[F[_], A]
+      extends Ops[F, A]
+      with Monad.AllOps[F, A]
+      with CommutativeFlatMap.AllOps[F, A]
+      with CommutativeApplicative.AllOps[F, A] {
     type TypeClassType <: CommutativeMonad[F]
   }
   trait ToCommutativeMonadOps {

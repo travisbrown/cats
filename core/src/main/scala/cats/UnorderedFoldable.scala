@@ -97,7 +97,6 @@ object UnorderedFoldable {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[UnorderedFoldable]] for `F`.
    */
@@ -107,7 +106,8 @@ object UnorderedFoldable {
     type TypeClassType <: UnorderedFoldable[F]
     def self: F[A]
     val typeClassInstance: TypeClassType
-    def unorderedFoldMap[B](f: A => B)(implicit ev$1: CommutativeMonoid[B]): B = typeClassInstance.unorderedFoldMap[A, B](self)(f)
+    def unorderedFoldMap[B](f: A => B)(implicit ev$1: CommutativeMonoid[B]): B =
+      typeClassInstance.unorderedFoldMap[A, B](self)(f)
     def unorderedFold(implicit ev$1: CommutativeMonoid[A]): A = typeClassInstance.unorderedFold[A](self)
     def isEmpty: Boolean = typeClassInstance.isEmpty[A](self)
     def nonEmpty: Boolean = typeClassInstance.nonEmpty[A](self)

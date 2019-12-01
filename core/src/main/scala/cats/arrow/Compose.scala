@@ -41,10 +41,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Compose {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Compose]] for `F`.
    */

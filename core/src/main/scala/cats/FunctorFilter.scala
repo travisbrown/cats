@@ -71,10 +71,10 @@ trait FunctorFilter[F[_]] extends Serializable {
 }
 
 object FunctorFilter {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[FunctorFilter]] for `F`.
    */
@@ -86,7 +86,8 @@ object FunctorFilter {
     val typeClassInstance: TypeClassType
     def mapFilter[B](f: A => Option[B]): F[B] = typeClassInstance.mapFilter[A, B](self)(f)
     def collect[B](f: PartialFunction[A, B]): F[B] = typeClassInstance.collect[A, B](self)(f)
-    def flattenOption[B](implicit ev$1: A <:< Option[B]): F[B] = typeClassInstance.flattenOption[B](self.asInstanceOf[F[Option[B]]])
+    def flattenOption[B](implicit ev$1: A <:< Option[B]): F[B] =
+      typeClassInstance.flattenOption[B](self.asInstanceOf[F[Option[B]]])
     def filter(f: A => Boolean): F[A] = typeClassInstance.filter[A](self)(f)
   }
   trait AllOps[F[_], A] extends Ops[F, A]

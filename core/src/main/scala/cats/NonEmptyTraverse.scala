@@ -93,10 +93,10 @@ import scala.annotation.implicitNotFound
 }
 
 object NonEmptyTraverse {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[NonEmptyTraverse]] for `F`.
    */
@@ -106,10 +106,14 @@ object NonEmptyTraverse {
     type TypeClassType <: NonEmptyTraverse[F]
     def self: F[A]
     val typeClassInstance: TypeClassType
-    def nonEmptyTraverse[G[_], B](f: A => G[B])(implicit ev$1: Apply[G]): G[F[B]] = typeClassInstance.nonEmptyTraverse[G, A, B](self)(f)
-    def nonEmptySequence[G[_], B](implicit ev$1: A <:< G[B], ev$2: Apply[G]): G[F[B]] = typeClassInstance.nonEmptySequence[G, B](self.asInstanceOf[F[G[B]]])
-    def nonEmptyFlatTraverse[G[_], B](f: A => G[F[B]])(implicit G: Apply[G], F: FlatMap[F]): G[F[B]] = typeClassInstance.nonEmptyFlatTraverse[G, A, B](self)(f)(G, F)
-    def nonEmptyFlatSequence[G[_], B](implicit ev$1: A <:< G[F[B]], G: Apply[G], F: FlatMap[F]): G[F[B]] = typeClassInstance.nonEmptyFlatSequence[G, B](self.asInstanceOf[F[G[F[B]]]])(G, F)
+    def nonEmptyTraverse[G[_], B](f: A => G[B])(implicit ev$1: Apply[G]): G[F[B]] =
+      typeClassInstance.nonEmptyTraverse[G, A, B](self)(f)
+    def nonEmptySequence[G[_], B](implicit ev$1: A <:< G[B], ev$2: Apply[G]): G[F[B]] =
+      typeClassInstance.nonEmptySequence[G, B](self.asInstanceOf[F[G[B]]])
+    def nonEmptyFlatTraverse[G[_], B](f: A => G[F[B]])(implicit G: Apply[G], F: FlatMap[F]): G[F[B]] =
+      typeClassInstance.nonEmptyFlatTraverse[G, A, B](self)(f)(G, F)
+    def nonEmptyFlatSequence[G[_], B](implicit ev$1: A <:< G[F[B]], G: Apply[G], F: FlatMap[F]): G[F[B]] =
+      typeClassInstance.nonEmptyFlatSequence[G, B](self.asInstanceOf[F[G[F[B]]]])(G, F)
   }
   trait AllOps[F[_], A] extends Ops[F, A] with Traverse.AllOps[F, A] with Reducible.AllOps[F, A] {
     type TypeClassType <: NonEmptyTraverse[F]

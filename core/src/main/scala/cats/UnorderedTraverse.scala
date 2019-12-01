@@ -15,10 +15,10 @@ import scala.annotation.implicitNotFound
 }
 
 object UnorderedTraverse {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[UnorderedTraverse]] for `F`.
    */
@@ -28,8 +28,10 @@ object UnorderedTraverse {
     type TypeClassType <: UnorderedTraverse[F]
     def self: F[A]
     val typeClassInstance: TypeClassType
-    def unorderedTraverse[G[_], B](f: A => G[B])(implicit ev$1: CommutativeApplicative[G]): G[F[B]] = typeClassInstance.unorderedTraverse[G, A, B](self)(f)
-    def unorderedSequence[G[_], B](implicit ev$1: A <:< G[B], ev$2: CommutativeApplicative[G]): G[F[B]] = typeClassInstance.unorderedSequence[G, B](self.asInstanceOf[F[G[B]]])
+    def unorderedTraverse[G[_], B](f: A => G[B])(implicit ev$1: CommutativeApplicative[G]): G[F[B]] =
+      typeClassInstance.unorderedTraverse[G, A, B](self)(f)
+    def unorderedSequence[G[_], B](implicit ev$1: A <:< G[B], ev$2: CommutativeApplicative[G]): G[F[B]] =
+      typeClassInstance.unorderedSequence[G, B](self.asInstanceOf[F[G[B]]])
   }
   trait AllOps[F[_], A] extends Ops[F, A] with UnorderedFoldable.AllOps[F, A] {
     type TypeClassType <: UnorderedTraverse[F]

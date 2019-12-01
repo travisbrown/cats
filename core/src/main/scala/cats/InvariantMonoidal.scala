@@ -39,7 +39,6 @@ object InvariantMonoidal {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[InvariantMonoidal]] for `F`.
    */

@@ -7,10 +7,10 @@ import scala.annotation.implicitNotFound
 @typeclass trait Bimonad[F[_]] extends Monad[F] with Comonad[F]
 
 object Bimonad {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Bimonad]] for `F`.
    */

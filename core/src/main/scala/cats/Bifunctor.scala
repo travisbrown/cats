@@ -58,10 +58,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Bifunctor {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Bifunctor]] for `F`.
    */

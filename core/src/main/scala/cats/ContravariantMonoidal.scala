@@ -30,7 +30,6 @@ object ContravariantMonoidal extends SemigroupalArityFunctions {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[ContravariantMonoidal]] for `F`.
    */
@@ -41,7 +40,10 @@ object ContravariantMonoidal extends SemigroupalArityFunctions {
     def self: F[A]
     val typeClassInstance: TypeClassType
   }
-  trait AllOps[F[_], A] extends Ops[F, A] with ContravariantSemigroupal.AllOps[F, A] with InvariantMonoidal.AllOps[F, A] {
+  trait AllOps[F[_], A]
+      extends Ops[F, A]
+      with ContravariantSemigroupal.AllOps[F, A]
+      with InvariantMonoidal.AllOps[F, A] {
     type TypeClassType <: ContravariantMonoidal[F]
   }
   trait ToContravariantMonoidalOps {
@@ -55,7 +57,9 @@ object ContravariantMonoidal extends SemigroupalArityFunctions {
   }
   object nonInheritedOps extends ToContravariantMonoidalOps
   object ops {
-    implicit def toAllContravariantMonoidalOps[F[_], A](target: F[A])(implicit tc: ContravariantMonoidal[F]): AllOps[F, A] {
+    implicit def toAllContravariantMonoidalOps[F[_], A](
+      target: F[A]
+    )(implicit tc: ContravariantMonoidal[F]): AllOps[F, A] {
       type TypeClassType = ContravariantMonoidal[F]
     } = new AllOps[F, A] {
       type TypeClassType = ContravariantMonoidal[F]

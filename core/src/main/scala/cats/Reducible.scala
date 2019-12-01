@@ -251,10 +251,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Reducible {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Reducible]] for `F`.
    */
@@ -267,21 +267,28 @@ object Reducible {
     def reduceLeft(f: (A, A) => A): A = typeClassInstance.reduceLeft[A](self)(f)
     def reduceRight(f: (A, Eval[A]) => Eval[A]): Eval[A] = typeClassInstance.reduceRight[A](self)(f)
     def reduce(implicit A: Semigroup[A]): A = typeClassInstance.reduce[A](self)(A)
-    def reduceK[G[_], B](implicit ev$1: A <:< G[B], G: SemigroupK[G]): G[B] = typeClassInstance.reduceK[G, B](self.asInstanceOf[F[G[B]]])(G)
+    def reduceK[G[_], B](implicit ev$1: A <:< G[B], G: SemigroupK[G]): G[B] =
+      typeClassInstance.reduceK[G, B](self.asInstanceOf[F[G[B]]])(G)
     def reduceMap[B](f: A => B)(implicit B: Semigroup[B]): B = typeClassInstance.reduceMap[A, B](self)(f)(B)
     def reduceLeftTo[B](f: A => B)(g: (B, A) => B): B = typeClassInstance.reduceLeftTo[A, B](self)(f)(g)
-    def reduceLeftM[G[_], B](f: A => G[B])(g: (B, A) => G[B])(implicit G: FlatMap[G]): G[B] = typeClassInstance.reduceLeftM[G, A, B](self)(f)(g)(G)
-    def reduceMapM[G[_], B](f: A => G[B])(implicit G: FlatMap[G], B: Semigroup[B]): G[B] = typeClassInstance.reduceMapM[G, A, B](self)(f)(G, B)
-    def reduceRightTo[B](f: A => B)(g: (A, Eval[B]) => Eval[B]): Eval[B] = typeClassInstance.reduceRightTo[A, B](self)(f)(g)
-    def nonEmptyTraverse_[G[_], B](f: A => G[B])(implicit G: Apply[G]): G[Unit] = typeClassInstance.nonEmptyTraverse_[G, A, B](self)(f)(G)
-    def nonEmptySequence_[G[_], B](implicit ev$1: A <:< G[B], G: Apply[G]): G[Unit] = typeClassInstance.nonEmptySequence_[G, B](self.asInstanceOf[F[G[B]]])(G)
+    def reduceLeftM[G[_], B](f: A => G[B])(g: (B, A) => G[B])(implicit G: FlatMap[G]): G[B] =
+      typeClassInstance.reduceLeftM[G, A, B](self)(f)(g)(G)
+    def reduceMapM[G[_], B](f: A => G[B])(implicit G: FlatMap[G], B: Semigroup[B]): G[B] =
+      typeClassInstance.reduceMapM[G, A, B](self)(f)(G, B)
+    def reduceRightTo[B](f: A => B)(g: (A, Eval[B]) => Eval[B]): Eval[B] =
+      typeClassInstance.reduceRightTo[A, B](self)(f)(g)
+    def nonEmptyTraverse_[G[_], B](f: A => G[B])(implicit G: Apply[G]): G[Unit] =
+      typeClassInstance.nonEmptyTraverse_[G, A, B](self)(f)(G)
+    def nonEmptySequence_[G[_], B](implicit ev$1: A <:< G[B], G: Apply[G]): G[Unit] =
+      typeClassInstance.nonEmptySequence_[G, B](self.asInstanceOf[F[G[B]]])(G)
     def toNonEmptyList: NonEmptyList[A] = typeClassInstance.toNonEmptyList[A](self)
     def minimum(implicit A: Order[A]): A = typeClassInstance.minimum[A](self)(A)
     def maximum(implicit A: Order[A]): A = typeClassInstance.maximum[A](self)(A)
     def minimumBy[B](f: A => B)(implicit ev$1: Order[B]): A = typeClassInstance.minimumBy[A, B](self)(f)
     def maximumBy[B](f: A => B)(implicit ev$1: Order[B]): A = typeClassInstance.maximumBy[A, B](self)(f)
     def nonEmptyIntercalate(a: A)(implicit A: Semigroup[A]): A = typeClassInstance.nonEmptyIntercalate[A](self, a)(A)
-    def nonEmptyPartition[B, C](f: A => Either[B, C]): Ior[NonEmptyList[B], NonEmptyList[C]] = typeClassInstance.nonEmptyPartition[A, B, C](self)(f)
+    def nonEmptyPartition[B, C](f: A => Either[B, C]): Ior[NonEmptyList[B], NonEmptyList[C]] =
+      typeClassInstance.nonEmptyPartition[A, B, C](self)(f)
   }
   trait AllOps[F[_], A] extends Ops[F, A] with Foldable.AllOps[F, A] {
     type TypeClassType <: Reducible[F]

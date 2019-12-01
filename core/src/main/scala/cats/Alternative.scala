@@ -91,10 +91,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Alternative {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Alternative]] for `F`.
    */
@@ -104,9 +104,12 @@ object Alternative {
     type TypeClassType <: Alternative[F]
     def self: F[A]
     val typeClassInstance: TypeClassType
-    def unite[G[_], B](implicit ev$1: A <:< G[B], FM: Monad[F], G: Foldable[G]): F[B] = typeClassInstance.unite[G, B](self.asInstanceOf[F[G[B]]])(FM, G)
-    def separate[G[_, _], B, C](implicit ev$1: A <:< G[B, C], FM: Monad[F], G: Bifoldable[G]): (F[B], F[C]) = typeClassInstance.separate[G, B, C](self.asInstanceOf[F[G[B, C]]])(FM, G)
-    def separateFoldable[G[_, _], B, C](implicit ev$1: A <:< G[B, C], G: Bifoldable[G], FF: Foldable[F]): (F[B], F[C]) = typeClassInstance.separateFoldable[G, B, C](self.asInstanceOf[F[G[B, C]]])(G, FF)
+    def unite[G[_], B](implicit ev$1: A <:< G[B], FM: Monad[F], G: Foldable[G]): F[B] =
+      typeClassInstance.unite[G, B](self.asInstanceOf[F[G[B]]])(FM, G)
+    def separate[G[_, _], B, C](implicit ev$1: A <:< G[B, C], FM: Monad[F], G: Bifoldable[G]): (F[B], F[C]) =
+      typeClassInstance.separate[G, B, C](self.asInstanceOf[F[G[B, C]]])(FM, G)
+    def separateFoldable[G[_, _], B, C](implicit ev$1: A <:< G[B, C], G: Bifoldable[G], FF: Foldable[F]): (F[B], F[C]) =
+      typeClassInstance.separateFoldable[G, B, C](self.asInstanceOf[F[G[B, C]]])(G, FF)
   }
   trait AllOps[F[_], A] extends Ops[F, A] with Applicative.AllOps[F, A] with MonoidK.AllOps[F, A] {
     type TypeClassType <: Alternative[F]

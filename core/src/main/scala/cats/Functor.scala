@@ -192,10 +192,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Functor {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Functor]] for `F`.
    */

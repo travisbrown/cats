@@ -881,7 +881,6 @@ object Foldable {
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Foldable]] for `F`.
    */
@@ -893,36 +892,52 @@ object Foldable {
     val typeClassInstance: TypeClassType
     def foldLeft[B](b: B)(f: (B, A) => B): B = typeClassInstance.foldLeft[A, B](self, b)(f)
     def foldRight[B](lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = typeClassInstance.foldRight[A, B](self, lb)(f)
-    def foldRightDefer[G[_], B](gb: G[B])(fn: (A, G[B]) => G[B])(implicit ev$1: Defer[G]): G[B] = typeClassInstance.foldRightDefer[G, A, B](self, gb)(fn)
-    def reduceLeftToOption[B](f: A => B)(g: (B, A) => B): Option[B] = typeClassInstance.reduceLeftToOption[A, B](self)(f)(g)
-    def reduceRightToOption[B](f: A => B)(g: (A, Eval[B]) => Eval[B]): Eval[Option[B]] = typeClassInstance.reduceRightToOption[A, B](self)(f)(g)
+    def foldRightDefer[G[_], B](gb: G[B])(fn: (A, G[B]) => G[B])(implicit ev$1: Defer[G]): G[B] =
+      typeClassInstance.foldRightDefer[G, A, B](self, gb)(fn)
+    def reduceLeftToOption[B](f: A => B)(g: (B, A) => B): Option[B] =
+      typeClassInstance.reduceLeftToOption[A, B](self)(f)(g)
+    def reduceRightToOption[B](f: A => B)(g: (A, Eval[B]) => Eval[B]): Eval[Option[B]] =
+      typeClassInstance.reduceRightToOption[A, B](self)(f)(g)
     def reduceLeftOption(f: (A, A) => A): Option[A] = typeClassInstance.reduceLeftOption[A](self)(f)
     def reduceRightOption(f: (A, Eval[A]) => Eval[A]): Eval[Option[A]] = typeClassInstance.reduceRightOption[A](self)(f)
     def minimumOption(implicit A: Order[A]): Option[A] = typeClassInstance.minimumOption[A](self)(A)
     def maximumOption(implicit A: Order[A]): Option[A] = typeClassInstance.maximumOption[A](self)(A)
-    def minimumByOption[B](f: A => B)(implicit ev$1: Order[B]): Option[A] = typeClassInstance.minimumByOption[A, B](self)(f)
-    def maximumByOption[B](f: A => B)(implicit ev$1: Order[B]): Option[A] = typeClassInstance.maximumByOption[A, B](self)(f)
+    def minimumByOption[B](f: A => B)(implicit ev$1: Order[B]): Option[A] =
+      typeClassInstance.minimumByOption[A, B](self)(f)
+    def maximumByOption[B](f: A => B)(implicit ev$1: Order[B]): Option[A] =
+      typeClassInstance.maximumByOption[A, B](self)(f)
     def get(idx: Long): Option[A] = typeClassInstance.get[A](self)(idx)
     def collectFirst[B](pf: PartialFunction[A, B]): Option[B] = typeClassInstance.collectFirst[A, B](self)(pf)
     def collectFirstSome[B](f: A => Option[B]): Option[B] = typeClassInstance.collectFirstSome[A, B](self)(f)
-    def collectFoldSome[B](f: A => Option[B])(implicit B: Monoid[B]): B = typeClassInstance.collectFoldSome[A, B](self)(f)(B)
+    def collectFoldSome[B](f: A => Option[B])(implicit B: Monoid[B]): B =
+      typeClassInstance.collectFoldSome[A, B](self)(f)(B)
     def fold(implicit A: Monoid[A]): A = typeClassInstance.fold[A](self)(A)
     def combineAll(implicit ev$1: Monoid[A]): A = typeClassInstance.combineAll[A](self)
     def combineAllOption(implicit ev: Semigroup[A]): Option[A] = typeClassInstance.combineAllOption[A](self)(ev)
     def toIterable: Iterable[A] = typeClassInstance.toIterable[A](self)
     def foldMap[B](f: A => B)(implicit B: Monoid[B]): B = typeClassInstance.foldMap[A, B](self)(f)(B)
-    def foldM[G[_], B](z: B)(f: (B, A) => G[B])(implicit G: Monad[G]): G[B] = typeClassInstance.foldM[G, A, B](self, z)(f)(G)
-    final def foldLeftM[G[_], B](z: B)(f: (B, A) => G[B])(implicit G: Monad[G]): G[B] = typeClassInstance.foldLeftM[G, A, B](self, z)(f)(G)
-    def foldMapM[G[_], B](f: A => G[B])(implicit G: Monad[G], B: Monoid[B]): G[B] = typeClassInstance.foldMapM[G, A, B](self)(f)(G, B)
-    def foldMapA[G[_], B](f: A => G[B])(implicit G: Applicative[G], B: Monoid[B]): G[B] = typeClassInstance.foldMapA[G, A, B](self)(f)(G, B)
-    def traverse_[G[_], B](f: A => G[B])(implicit G: Applicative[G]): G[Unit] = typeClassInstance.traverse_[G, A, B](self)(f)(G)
-    def sequence_[G[_], B](implicit ev$1: A <:< G[B], ev$2: Applicative[G]): G[Unit] = typeClassInstance.sequence_[G, B](self.asInstanceOf[F[G[B]]])
-    def foldK[G[_], B](implicit ev$1: A <:< G[B], G: MonoidK[G]): G[B] = typeClassInstance.foldK[G, B](self.asInstanceOf[F[G[B]]])(G)
+    def foldM[G[_], B](z: B)(f: (B, A) => G[B])(implicit G: Monad[G]): G[B] =
+      typeClassInstance.foldM[G, A, B](self, z)(f)(G)
+    final def foldLeftM[G[_], B](z: B)(f: (B, A) => G[B])(implicit G: Monad[G]): G[B] =
+      typeClassInstance.foldLeftM[G, A, B](self, z)(f)(G)
+    def foldMapM[G[_], B](f: A => G[B])(implicit G: Monad[G], B: Monoid[B]): G[B] =
+      typeClassInstance.foldMapM[G, A, B](self)(f)(G, B)
+    def foldMapA[G[_], B](f: A => G[B])(implicit G: Applicative[G], B: Monoid[B]): G[B] =
+      typeClassInstance.foldMapA[G, A, B](self)(f)(G, B)
+    def traverse_[G[_], B](f: A => G[B])(implicit G: Applicative[G]): G[Unit] =
+      typeClassInstance.traverse_[G, A, B](self)(f)(G)
+    def sequence_[G[_], B](implicit ev$1: A <:< G[B], ev$2: Applicative[G]): G[Unit] =
+      typeClassInstance.sequence_[G, B](self.asInstanceOf[F[G[B]]])
+    def foldK[G[_], B](implicit ev$1: A <:< G[B], G: MonoidK[G]): G[B] =
+      typeClassInstance.foldK[G, B](self.asInstanceOf[F[G[B]]])(G)
     def find(f: A => Boolean): Option[A] = typeClassInstance.find[A](self)(f)
-    def existsM[G[_]](p: A => G[Boolean])(implicit G: Monad[G]): G[Boolean] = typeClassInstance.existsM[G, A](self)(p)(G)
-    def forallM[G[_]](p: A => G[Boolean])(implicit G: Monad[G]): G[Boolean] = typeClassInstance.forallM[G, A](self)(p)(G)
+    def existsM[G[_]](p: A => G[Boolean])(implicit G: Monad[G]): G[Boolean] =
+      typeClassInstance.existsM[G, A](self)(p)(G)
+    def forallM[G[_]](p: A => G[Boolean])(implicit G: Monad[G]): G[Boolean] =
+      typeClassInstance.forallM[G, A](self)(p)(G)
     def toList: List[A] = typeClassInstance.toList[A](self)
-    def partitionEither[B, C](f: A => Either[B, C])(implicit A: Alternative[F]): (F[B], F[C]) = typeClassInstance.partitionEither[A, B, C](self)(f)(A)
+    def partitionEither[B, C](f: A => Either[B, C])(implicit A: Alternative[F]): (F[B], F[C]) =
+      typeClassInstance.partitionEither[A, B, C](self)(f)(A)
     def filter_(p: A => Boolean): List[A] = typeClassInstance.filter_[A](self)(p)
     def takeWhile_(p: A => Boolean): List[A] = typeClassInstance.takeWhile_[A](self)(p)
     def dropWhile_(p: A => Boolean): List[A] = typeClassInstance.dropWhile_[A](self)(p)

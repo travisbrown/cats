@@ -49,10 +49,10 @@ import scala.annotation.implicitNotFound
 }
 
 object Choice {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[Choice]] for `F`.
    */
