@@ -14,10 +14,10 @@ import scala.annotation.implicitNotFound
 }
 
 object EmptyK {
+
   /****************************************************************************
    * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
    ****************************************************************************/
-
   /**
    * Summon an instance of [[EmptyK]] for `F`.
    */
