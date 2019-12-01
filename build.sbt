@@ -12,6 +12,7 @@ lazy val scoverageSettings = Seq(
 )
 
 organization in ThisBuild := "org.typelevel"
+scalafixDependencies in ThisBuild += "org.typelevel" %% "simulacrum-fix" % "0.1.0-SNAPSHOT"
 
 val isTravisBuild = settingKey[Boolean]("Flag indicating whether the current build is running under Travis")
 val crossScalaVersionsFromTravis = settingKey[Seq[String]]("Scala versions set in .travis.yml as scala_version_XXX")
@@ -71,27 +72,20 @@ lazy val commonSettings = commonScalaVersionSettings ++ Seq(
   }
 ) ++ warnUnusedImport
 
-def macroDependencies(scalaVersion: String) =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, minor)) if minor < 13 =>
-      Seq(
-        compilerPlugin(("org.scalamacros" %% "paradise" % "2.1.1").cross(CrossVersion.patch))
-      )
-    case _ => Seq()
-  }
+def macroDependencies(scalaVersion: String, scalaOrganization: String) =
+  Seq(scalaOrganization % "scala-reflect" % scalaVersion % Provided)
 
 lazy val catsSettings = Seq(
   incOptions := incOptions.value.withLogRecompileOnMacro(false),
   libraryDependencies ++= Seq(
     compilerPlugin(("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full))
-  ) ++ macroDependencies(scalaVersion.value)
+  ) ++ macroDependencies(scalaVersion.value, scalaOrganization.value)
 ) ++ commonSettings ++ publishSettings ++ scoverageSettings ++ simulacrumSettings
 
 lazy val simulacrumSettings = Seq(
-  libraryDependencies ++= Seq(
-    scalaOrganization.value % "scala-reflect" % scalaVersion.value % Provided,
-    "org.typelevel" %%% "simulacrum" % "1.0.0" % Provided
-  ),
+  addCompilerPlugin(scalafixSemanticdb),
+  scalacOptions ++= Seq(s"-P:semanticdb:targetroot:${baseDirectory.value}/.semanticdb", "-Yrangepos"),
+  libraryDependencies += "org.typelevel" %% "simulacrum-annotation" % "0.1.0-SNAPSHOT",
   pomPostProcess := { (node: xml.Node) =>
     new RuleTransformer(new RewriteRule {
       override def transform(node: xml.Node): Seq[xml.Node] = node match {
@@ -219,7 +213,7 @@ lazy val docSettings = Seq(
   ) ++ (if (priorTo2_13(scalaVersion.value))
           Seq("-Yno-adapted-args")
         else
-          Seq("-Ymacro-annotations")),
+          Nil),
   scalacOptions in Tut ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports", "-Ywarn-dead-code"))),
   git.remoteRepo := "git@github.com:typelevel/cats.git",
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md" | "*.svg",
@@ -810,9 +804,7 @@ def commonScalacOptions(scalaVersion: String) =
             "-Xfuture"
           )
         else
-          Seq(
-            "-Ymacro-annotations"
-          ))
+          Nil)
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
