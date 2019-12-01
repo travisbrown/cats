@@ -93,4 +93,46 @@ object UnorderedFoldable {
         case false => Eval.False
       }
   }
+
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[UnorderedFoldable]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: UnorderedFoldable[F]): UnorderedFoldable[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: UnorderedFoldable[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+    def unorderedFoldMap[B](f: A => B)(implicit ev$1: CommutativeMonoid[B]): B = typeClassInstance.unorderedFoldMap[A, B](self)(f)
+    def unorderedFold(implicit ev$1: CommutativeMonoid[A]): A = typeClassInstance.unorderedFold[A](self)
+    def isEmpty: Boolean = typeClassInstance.isEmpty[A](self)
+    def nonEmpty: Boolean = typeClassInstance.nonEmpty[A](self)
+    def exists(p: A => Boolean): Boolean = typeClassInstance.exists[A](self)(p)
+    def forall(p: A => Boolean): Boolean = typeClassInstance.forall[A](self)(p)
+    def size: Long = typeClassInstance.size[A](self)
+  }
+  trait AllOps[F[_], A] extends Ops[F, A]
+  trait ToUnorderedFoldableOps {
+    implicit def toUnorderedFoldableOps[F[_], A](target: F[A])(implicit tc: UnorderedFoldable[F]): Ops[F, A] {
+      type TypeClassType = UnorderedFoldable[F]
+    } = new Ops[F, A] {
+      type TypeClassType = UnorderedFoldable[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToUnorderedFoldableOps
+  object ops {
+    implicit def toAllUnorderedFoldableOps[F[_], A](target: F[A])(implicit tc: UnorderedFoldable[F]): AllOps[F, A] {
+      type TypeClassType = UnorderedFoldable[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = UnorderedFoldable[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
 }

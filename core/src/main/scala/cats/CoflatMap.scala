@@ -47,3 +47,44 @@ import scala.annotation.implicitNotFound
   def coflatten[A](fa: F[A]): F[F[A]] =
     coflatMap(fa)(fa => fa)
 }
+
+object CoflatMap {
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[CoflatMap]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: CoflatMap[F]): CoflatMap[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: CoflatMap[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+    def coflatMap[B](f: F[A] => B): F[B] = typeClassInstance.coflatMap[A, B](self)(f)
+    def coflatten: F[F[A]] = typeClassInstance.coflatten[A](self)
+  }
+  trait AllOps[F[_], A] extends Ops[F, A] with Functor.AllOps[F, A] {
+    type TypeClassType <: CoflatMap[F]
+  }
+  trait ToCoflatMapOps {
+    implicit def toCoflatMapOps[F[_], A](target: F[A])(implicit tc: CoflatMap[F]): Ops[F, A] {
+      type TypeClassType = CoflatMap[F]
+    } = new Ops[F, A] {
+      type TypeClassType = CoflatMap[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToCoflatMapOps
+  object ops {
+    implicit def toAllCoflatMapOps[F[_], A](target: F[A])(implicit tc: CoflatMap[F]): AllOps[F, A] {
+      type TypeClassType = CoflatMap[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = CoflatMap[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+}

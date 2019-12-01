@@ -42,3 +42,43 @@ import scala.annotation.implicitNotFound
   def rmap[A, B, C](fab: F[A, B])(f: B => C): F[A, C] =
     dimap[A, B, A, C](fab)(identity)(f)
 }
+
+object Profunctor {
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[Profunctor]] for `F`.
+   */
+  @inline def apply[F[_, _]](implicit instance: Profunctor[F]): Profunctor[F] = instance
+
+  trait Ops[F[_, _], A, B] {
+    type TypeClassType <: Profunctor[F]
+    def self: F[A, B]
+    val typeClassInstance: TypeClassType
+    def dimap[C, D](f: C => A)(g: B => D): F[C, D] = typeClassInstance.dimap[A, B, C, D](self)(f)(g)
+    def lmap[C](f: C => A): F[C, B] = typeClassInstance.lmap[A, B, C](self)(f)
+    def rmap[C](f: B => C): F[A, C] = typeClassInstance.rmap[A, B, C](self)(f)
+  }
+  trait AllOps[F[_, _], A, B] extends Ops[F, A, B]
+  trait ToProfunctorOps {
+    implicit def toProfunctorOps[F[_, _], A, B](target: F[A, B])(implicit tc: Profunctor[F]): Ops[F, A, B] {
+      type TypeClassType = Profunctor[F]
+    } = new Ops[F, A, B] {
+      type TypeClassType = Profunctor[F]
+      val self: F[A, B] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToProfunctorOps
+  object ops {
+    implicit def toAllProfunctorOps[F[_, _], A, B](target: F[A, B])(implicit tc: Profunctor[F]): AllOps[F, A, B] {
+      type TypeClassType = Profunctor[F]
+    } = new AllOps[F, A, B] {
+      type TypeClassType = Profunctor[F]
+      val self: F[A, B] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+}

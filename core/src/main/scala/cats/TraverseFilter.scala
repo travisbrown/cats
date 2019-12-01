@@ -74,3 +74,44 @@ trait TraverseFilter[F[_]] extends FunctorFilter[F] {
   override def mapFilter[A, B](fa: F[A])(f: A => Option[B]): F[B] =
     traverseFilter[Id, A, B](fa)(f)
 }
+
+object TraverseFilter {
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[TraverseFilter]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: TraverseFilter[F]): TraverseFilter[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: TraverseFilter[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+    def traverseFilter[G[_], B](f: A => G[Option[B]])(implicit G: Applicative[G]): G[F[B]] = typeClassInstance.traverseFilter[G, A, B](self)(f)(G)
+    def filterA[G[_]](f: A => G[Boolean])(implicit G: Applicative[G]): G[F[A]] = typeClassInstance.filterA[G, A](self)(f)(G)
+  }
+  trait AllOps[F[_], A] extends Ops[F, A] with FunctorFilter.AllOps[F, A] {
+    type TypeClassType <: TraverseFilter[F]
+  }
+  trait ToTraverseFilterOps {
+    implicit def toTraverseFilterOps[F[_], A](target: F[A])(implicit tc: TraverseFilter[F]): Ops[F, A] {
+      type TypeClassType = TraverseFilter[F]
+    } = new Ops[F, A] {
+      type TypeClassType = TraverseFilter[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToTraverseFilterOps
+  object ops {
+    implicit def toAllTraverseFilterOps[F[_], A](target: F[A])(implicit tc: TraverseFilter[F]): AllOps[F, A] {
+      type TypeClassType = TraverseFilter[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = TraverseFilter[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+}

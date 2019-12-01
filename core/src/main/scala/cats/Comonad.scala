@@ -29,3 +29,43 @@ import scala.annotation.implicitNotFound
    */
   def extract[A](x: F[A]): A
 }
+
+object Comonad {
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[Comonad]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: Comonad[F]): Comonad[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: Comonad[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+    def extract: A = typeClassInstance.extract[A](self)
+  }
+  trait AllOps[F[_], A] extends Ops[F, A] with CoflatMap.AllOps[F, A] {
+    type TypeClassType <: Comonad[F]
+  }
+  trait ToComonadOps {
+    implicit def toComonadOps[F[_], A](target: F[A])(implicit tc: Comonad[F]): Ops[F, A] {
+      type TypeClassType = Comonad[F]
+    } = new Ops[F, A] {
+      type TypeClassType = Comonad[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToComonadOps
+  object ops {
+    implicit def toAllComonadOps[F[_], A](target: F[A])(implicit tc: Comonad[F]): AllOps[F, A] {
+      type TypeClassType = Comonad[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = Comonad[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+}

@@ -44,4 +44,40 @@ import scala.annotation.implicitNotFound
   def product[A, B](fa: F[A], fb: F[B]): F[(A, B)]
 }
 
-object Semigroupal extends SemigroupalArityFunctions
+object Semigroupal extends SemigroupalArityFunctions {
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[Semigroupal]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: Semigroupal[F]): Semigroupal[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: Semigroupal[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+    def product[B](fb: F[B]): F[(A, B)] = typeClassInstance.product[A, B](self, fb)
+  }
+  trait AllOps[F[_], A] extends Ops[F, A]
+  trait ToSemigroupalOps {
+    implicit def toSemigroupalOps[F[_], A](target: F[A])(implicit tc: Semigroupal[F]): Ops[F, A] {
+      type TypeClassType = Semigroupal[F]
+    } = new Ops[F, A] {
+      type TypeClassType = Semigroupal[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToSemigroupalOps
+  object ops {
+    implicit def toAllSemigroupalOps[F[_], A](target: F[A])(implicit tc: Semigroupal[F]): AllOps[F, A] {
+      type TypeClassType = Semigroupal[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = Semigroupal[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+}

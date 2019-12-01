@@ -231,6 +231,43 @@ object Applicative {
       def map[A, B](fa: F[A])(f: A => B): F[B] = F.map(fa)(f)
     }
 
+
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[Applicative]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: Applicative[F]): Applicative[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: Applicative[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+  }
+  trait AllOps[F[_], A] extends Ops[F, A] with Apply.AllOps[F, A] with InvariantMonoidal.AllOps[F, A] {
+    type TypeClassType <: Applicative[F]
+  }
+  trait ToApplicativeOps {
+    implicit def toApplicativeOps[F[_], A](target: F[A])(implicit tc: Applicative[F]): Ops[F, A] {
+      type TypeClassType = Applicative[F]
+    } = new Ops[F, A] {
+      type TypeClassType = Applicative[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToApplicativeOps
+  object ops {
+    implicit def toAllApplicativeOps[F[_], A](target: F[A])(implicit tc: Applicative[F]): AllOps[F, A] {
+      type TypeClassType = Applicative[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = Applicative[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
 }
 
 private[cats] class ApplicativeMonoid[F[_], A](f: Applicative[F], monoid: Monoid[A])

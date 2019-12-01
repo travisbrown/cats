@@ -190,3 +190,50 @@ import scala.annotation.implicitNotFound
       val G = Contravariant[G]
     }
 }
+
+object Functor {
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[Functor]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: Functor[F]): Functor[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: Functor[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+    def map[B](f: A => B): F[B] = typeClassInstance.map[A, B](self)(f)
+    final def fmap[B](f: A => B): F[B] = typeClassInstance.fmap[A, B](self)(f)
+    def widen[B >: A]: F[B] = typeClassInstance.widen[A, B](self)
+    def void: F[Unit] = typeClassInstance.void[A](self)
+    def fproduct[B](f: A => B): F[(A, B)] = typeClassInstance.fproduct[A, B](self)(f)
+    def as[B](b: B): F[B] = typeClassInstance.as[A, B](self, b)
+    def tupleLeft[B](b: B): F[(B, A)] = typeClassInstance.tupleLeft[A, B](self, b)
+    def tupleRight[B](b: B): F[(A, B)] = typeClassInstance.tupleRight[A, B](self, b)
+  }
+  trait AllOps[F[_], A] extends Ops[F, A] with Invariant.AllOps[F, A] {
+    type TypeClassType <: Functor[F]
+  }
+  trait ToFunctorOps {
+    implicit def toFunctorOps[F[_], A](target: F[A])(implicit tc: Functor[F]): Ops[F, A] {
+      type TypeClassType = Functor[F]
+    } = new Ops[F, A] {
+      type TypeClassType = Functor[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToFunctorOps
+  object ops {
+    implicit def toAllFunctorOps[F[_], A](target: F[A])(implicit tc: Functor[F]): AllOps[F, A] {
+      type TypeClassType = Functor[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = Functor[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+}

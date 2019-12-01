@@ -26,6 +26,43 @@ import scala.annotation.implicitNotFound
 object ContravariantMonoidal extends SemigroupalArityFunctions {
   def monoid[F[_], A](implicit f: ContravariantMonoidal[F]): Monoid[F[A]] =
     new ContravariantMonoidalMonoid[F, A](f)
+
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[ContravariantMonoidal]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: ContravariantMonoidal[F]): ContravariantMonoidal[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: ContravariantMonoidal[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+  }
+  trait AllOps[F[_], A] extends Ops[F, A] with ContravariantSemigroupal.AllOps[F, A] with InvariantMonoidal.AllOps[F, A] {
+    type TypeClassType <: ContravariantMonoidal[F]
+  }
+  trait ToContravariantMonoidalOps {
+    implicit def toContravariantMonoidalOps[F[_], A](target: F[A])(implicit tc: ContravariantMonoidal[F]): Ops[F, A] {
+      type TypeClassType = ContravariantMonoidal[F]
+    } = new Ops[F, A] {
+      type TypeClassType = ContravariantMonoidal[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToContravariantMonoidalOps
+  object ops {
+    implicit def toAllContravariantMonoidalOps[F[_], A](target: F[A])(implicit tc: ContravariantMonoidal[F]): AllOps[F, A] {
+      type TypeClassType = ContravariantMonoidal[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = ContravariantMonoidal[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
 }
 
 private[cats] class ContravariantMonoidalMonoid[F[_], A](f: ContravariantMonoidal[F])

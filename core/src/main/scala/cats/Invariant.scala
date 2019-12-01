@@ -123,4 +123,40 @@ object Invariant {
     }
 
   }
+
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[Invariant]] for `F`.
+   */
+  @inline def apply[F[_]](implicit instance: Invariant[F]): Invariant[F] = instance
+
+  trait Ops[F[_], A] {
+    type TypeClassType <: Invariant[F]
+    def self: F[A]
+    val typeClassInstance: TypeClassType
+    def imap[B](f: A => B)(g: B => A): F[B] = typeClassInstance.imap[A, B](self)(f)(g)
+  }
+  trait AllOps[F[_], A] extends Ops[F, A]
+  trait ToInvariantOps {
+    implicit def toInvariantOps[F[_], A](target: F[A])(implicit tc: Invariant[F]): Ops[F, A] {
+      type TypeClassType = Invariant[F]
+    } = new Ops[F, A] {
+      type TypeClassType = Invariant[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToInvariantOps
+  object ops {
+    implicit def toAllInvariantOps[F[_], A](target: F[A])(implicit tc: Invariant[F]): AllOps[F, A] {
+      type TypeClassType = Invariant[F]
+    } = new AllOps[F, A] {
+      type TypeClassType = Invariant[F]
+      val self: F[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
 }

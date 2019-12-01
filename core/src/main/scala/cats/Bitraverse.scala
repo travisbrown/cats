@@ -111,6 +111,47 @@ import scala.annotation.implicitNotFound
     bitraverse(fgab)(identity, G.pure(_))
 }
 
+object Bitraverse {
+  /****************************************************************************
+   * THE REST OF THIS OBJECT IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!! *
+   ****************************************************************************/
+
+  /**
+   * Summon an instance of [[Bitraverse]] for `F`.
+   */
+  @inline def apply[F[_, _]](implicit instance: Bitraverse[F]): Bitraverse[F] = instance
+
+  trait Ops[F[_, _], A, B] {
+    type TypeClassType <: Bitraverse[F]
+    def self: F[A, B]
+    val typeClassInstance: TypeClassType
+    def bitraverse[G[_], C, D](f: A => G[C], g: B => G[D])(implicit ev$1: Applicative[G]): G[F[C, D]] = typeClassInstance.bitraverse[G, A, B, C, D](self)(f, g)
+    def bisequence[G[_], C, D](implicit ev$1: A <:< G[C], ev$2: B <:< G[D], ev$3: Applicative[G]): G[F[C, D]] = typeClassInstance.bisequence[G, C, D](self.asInstanceOf[F[G[C], G[D]]])
+  }
+  trait AllOps[F[_, _], A, B] extends Ops[F, A, B] with Bifoldable.AllOps[F, A, B] with Bifunctor.AllOps[F, A, B] {
+    type TypeClassType <: Bitraverse[F]
+  }
+  trait ToBitraverseOps {
+    implicit def toBitraverseOps[F[_, _], A, B](target: F[A, B])(implicit tc: Bitraverse[F]): Ops[F, A, B] {
+      type TypeClassType = Bitraverse[F]
+    } = new Ops[F, A, B] {
+      type TypeClassType = Bitraverse[F]
+      val self: F[A, B] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToBitraverseOps
+  object ops {
+    implicit def toAllBitraverseOps[F[_, _], A, B](target: F[A, B])(implicit tc: Bitraverse[F]): AllOps[F, A, B] {
+      type TypeClassType = Bitraverse[F]
+    } = new AllOps[F, A, B] {
+      type TypeClassType = Bitraverse[F]
+      val self: F[A, B] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+}
+
 private[cats] trait ComposedBitraverse[F[_, _], G[_, _]]
     extends Bitraverse[λ[(α, β) => F[G[α, β], G[α, β]]]]
     with ComposedBifoldable[F, G]
