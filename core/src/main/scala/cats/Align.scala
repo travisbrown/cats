@@ -3,6 +3,7 @@ package cats
 import simulacrum.typeclass
 
 import cats.data.Ior
+import scala.annotation.implicitNotFound
 
 /**
  * `Align` supports zipping together structures with different shapes,
@@ -10,6 +11,7 @@ import cats.data.Ior
  *
  * Must obey the laws in cats.laws.AlignLaws
  */
+@implicitNotFound("Could not find an instance of Align for ${F}")
 @typeclass trait Align[F[_]] extends Serializable {
 
   def functor: Functor[F]

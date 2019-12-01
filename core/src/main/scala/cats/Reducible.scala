@@ -2,6 +2,7 @@ package cats
 
 import cats.data.{Ior, NonEmptyList}
 import simulacrum.{noop, typeclass}
+import scala.annotation.implicitNotFound
 
 /**
  * Data structures that can be reduced to a summary value.
@@ -16,6 +17,7 @@ import simulacrum.{noop, typeclass}
  *  - `reduceLeftTo(fa)(f)(g)` eagerly reduces with an additional mapping function
  *  - `reduceRightTo(fa)(f)(g)` lazily reduces with an additional mapping function
  */
+@implicitNotFound("Could not find an instance of Reducible for ${F}")
 @typeclass trait Reducible[F[_]] extends Foldable[F] { self =>
 
   /**

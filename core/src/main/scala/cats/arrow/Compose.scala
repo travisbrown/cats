@@ -2,6 +2,7 @@ package cats
 package arrow
 
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
 /**
  * Must obey the laws defined in cats.laws.ComposeLaws.
@@ -18,6 +19,7 @@ import simulacrum.typeclass
  * res1: Int = 301
  * }}}
  */
+@implicitNotFound("Could not find an instance of Compose for ${F}")
 @typeclass trait Compose[F[_, _]] extends Serializable { self =>
 
   @simulacrum.op("<<<", alias = true)

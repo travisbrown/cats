@@ -1,6 +1,7 @@
 package cats
 
 import simulacrum.{noop, typeclass}
+import scala.annotation.implicitNotFound
 
 /**
  * Monad.
@@ -11,6 +12,7 @@ import simulacrum.{noop, typeclass}
  *
  * Must obey the laws defined in cats.laws.MonadLaws.
  */
+@implicitNotFound("Could not find an instance of Monad for ${F}")
 @typeclass trait Monad[F[_]] extends FlatMap[F] with Applicative[F] {
   override def map[A, B](fa: F[A])(f: A => B): F[B] =
     flatMap(fa)(a => pure(f(a)))

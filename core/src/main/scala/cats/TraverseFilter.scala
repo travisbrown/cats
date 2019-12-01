@@ -1,6 +1,7 @@
 package cats
 
 import simulacrum.{noop, typeclass}
+import scala.annotation.implicitNotFound
 
 /**
  * `TraverseFilter`, also known as `Witherable`, represents list-like structures
@@ -10,6 +11,7 @@ import simulacrum.{noop, typeclass}
  * Based on Haskell's [[https://hackage.haskell.org/package/witherable-0.1.3.3/docs/Data-Witherable.html Data.Witherable]]
  */
 
+@implicitNotFound("Could not find an instance of TraverseFilter for ${F}")
 @typeclass
 trait TraverseFilter[F[_]] extends FunctorFilter[F] {
   def traverse: Traverse[F]

@@ -3,10 +3,12 @@ package cats
 import cats.kernel._
 import simulacrum.typeclass
 import cats.kernel.compat.scalaVersionSpecific._
+import scala.annotation.implicitNotFound
 
 /**
  * Must obey the laws defined in cats.laws.InvariantLaws.
  */
+@implicitNotFound("Could not find an instance of Invariant for ${F}")
 @typeclass trait Invariant[F[_]] extends Serializable { self =>
 
   /**

@@ -3,6 +3,7 @@ package cats
 import cats.arrow.Arrow
 import cats.instances.list._
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
 /**
  * Applicative functor.
@@ -14,6 +15,7 @@ import simulacrum.typeclass
  *
  * Must obey the laws defined in cats.laws.ApplicativeLaws.
  */
+@implicitNotFound("Could not find an instance of Applicative for ${F}")
 @typeclass trait Applicative[F[_]] extends Apply[F] with InvariantMonoidal[F] { self =>
 
   /**

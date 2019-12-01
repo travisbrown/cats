@@ -1,6 +1,7 @@
 package cats
 
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
 /**
  * [[Semigroupal]] captures the idea of composing independent effectful values.
@@ -12,6 +13,7 @@ import simulacrum.typeclass
  * That same idea is also manifested in the form of [[Apply]], and indeed [[Apply]] extends both
  * [[Semigroupal]] and [[Functor]] to illustrate this.
  */
+@implicitNotFound("Could not find an instance of Semigroupal for ${F}")
 @typeclass trait Semigroupal[F[_]] extends Serializable {
 
   /**

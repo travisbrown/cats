@@ -2,6 +2,7 @@ package cats
 
 import simulacrum.typeclass
 import cats.data.Ior
+import scala.annotation.implicitNotFound
 
 /**
  * SemigroupK is a universal semigroup which operates on kinds.
@@ -21,6 +22,7 @@ import cats.data.Ior
  *    The combination operation just depends on the structure of F,
  *    but not the structure of A.
  */
+@implicitNotFound("Could not find an instance of SemigroupK for ${F}")
 @typeclass trait SemigroupK[F[_]] extends Serializable { self =>
 
   /**

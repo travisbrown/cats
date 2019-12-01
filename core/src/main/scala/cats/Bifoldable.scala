@@ -1,10 +1,12 @@
 package cats
 
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
 /**
  * A type class abstracting over types that give rise to two independent [[cats.Foldable]]s.
  */
+@implicitNotFound("Could not find an instance of Bifoldable for ${F}")
 @typeclass trait Bifoldable[F[_, _]] extends Serializable { self =>
 
   /** Collapse the structure with a left-associative function */

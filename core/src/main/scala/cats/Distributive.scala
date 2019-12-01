@@ -1,6 +1,8 @@
 package cats
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
+@implicitNotFound("Could not find an instance of Distributive for ${F}")
 @typeclass trait Distributive[F[_]] extends Functor[F] { self =>
 
   /**

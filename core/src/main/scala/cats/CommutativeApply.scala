@@ -2,6 +2,7 @@ package cats
 
 import cats.kernel.CommutativeSemigroup
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
 /**
  * Commutative Apply.
@@ -12,6 +13,7 @@ import simulacrum.typeclass
  *
  * Must obey the laws defined in cats.laws.CommutativeApplyLaws.
  */
+@implicitNotFound("Could not find an instance of CommutativeApply for ${F}")
 @typeclass trait CommutativeApply[F[_]] extends Apply[F]
 
 object CommutativeApply {
