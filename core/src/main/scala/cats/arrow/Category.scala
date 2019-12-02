@@ -12,8 +12,8 @@ import scala.annotation.implicitNotFound
 
   def id[A]: F[A, A]
 
-  override def algebraK: MonoidK[λ[α => F[α, α]]] =
-    new MonoidK[λ[α => F[α, α]]] {
+  override def algebraK: MonoidK[({ type λ[α] = F[α, α] })#λ] =
+    new MonoidK[({ type λ[α] = F[α, α] })#λ] {
       def empty[A]: F[A, A] = id
       def combineK[A](f1: F[A, A], f2: F[A, A]): F[A, A] = self.compose(f1, f2)
     }

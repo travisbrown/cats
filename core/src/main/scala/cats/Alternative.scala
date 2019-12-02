@@ -83,7 +83,7 @@ import scala.annotation.implicitNotFound
   def guard(condition: Boolean): F[Unit] =
     if (condition) unit else empty
 
-  override def compose[G[_]: Applicative]: Alternative[λ[α => F[G[α]]]] =
+  override def compose[G[_]: Applicative]: Alternative[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedAlternative[F, G] {
       val F = self
       val G = Applicative[G]

@@ -29,8 +29,8 @@ import scala.annotation.implicitNotFound
   def andThen[A, B, C](f: F[A, B], g: F[B, C]): F[A, C] =
     compose(g, f)
 
-  def algebraK: SemigroupK[λ[α => F[α, α]]] =
-    new SemigroupK[λ[α => F[α, α]]] {
+  def algebraK: SemigroupK[({ type λ[α] = F[α, α] })#λ] =
+    new SemigroupK[({ type λ[α] = F[α, α] })#λ] {
       def combineK[A](f1: F[A, A], f2: F[A, A]): F[A, A] = self.compose(f1, f2)
     }
 

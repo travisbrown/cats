@@ -27,14 +27,14 @@ sealed abstract class FreeInvariantMonoidal[F[_], A] extends Product with Serial
 
   /** Interpret this algebra into another InvariantMonoidal */
   final def compile[G[_]](f: FunctionK[F, G]): FA[G, A] =
-    foldMap[FA[G, *]] {
-      λ[FunctionK[F, FA[G, *]]](fa => lift(f(fa)))
+    foldMap[({ type λ[α$] = FA[G, α$] })#λ] {
+      new FunctionK[F, ({ type λ[α$] = FA[G, α$] })#λ] { def apply[A$](fa: F[A$]): FA[G, A$] = lift(f(fa)) }
     }
 
   /** Interpret this algebra into a Monoid */
-  final def analyze[M: Monoid](f: FunctionK[F, λ[α => M]]): M =
-    foldMap[Const[M, *]](
-      λ[FunctionK[F, Const[M, *]]](x => Const(f(x)))
+  final def analyze[M: Monoid](f: FunctionK[F, ({ type λ[α] = M })#λ]): M =
+    foldMap[({ type λ[α$] = Const[M, α$] })#λ](
+      new FunctionK[F, ({ type λ[α$] = Const[M, α$] })#λ] { def apply[A$](x: F[A$]): Const[M, A$] = Const(f(x)) }
     ).getConst
 }
 
@@ -68,8 +68,8 @@ object FreeInvariantMonoidal {
     Suspend(fa)
 
   /** `FreeInvariantMonoidal[S, *]` has a FreeInvariantMonoidal for any type constructor `S[_]`. */
-  implicit def catsFreeInvariantMonoidal[S[_]]: InvariantMonoidal[FA[S, *]] =
-    new InvariantMonoidal[FA[S, *]] {
+  implicit def catsFreeInvariantMonoidal[S[_]]: InvariantMonoidal[({ type λ[α$] = FA[S, α$] })#λ] =
+    new InvariantMonoidal[({ type λ[α$] = FA[S, α$] })#λ] {
       def unit: FA[S, Unit] = FreeInvariantMonoidal.pure(())
       def imap[A, B](fa: FA[S, A])(f: A => B)(g: B => A): FA[S, B] = fa.imap(f)(g)
       def product[A, B](fa: FA[S, A], fb: FA[S, B]): FA[S, (A, B)] = fa.product(fb)

@@ -88,7 +88,7 @@ import scala.annotation.implicitNotFound
   def flatSequence[G[_], A](fgfa: F[G[F[A]]])(implicit G: Applicative[G], F: FlatMap[F]): G[F[A]] =
     G.map(sequence(fgfa))(F.flatten)
 
-  def compose[G[_]: Traverse]: Traverse[λ[α => F[G[α]]]] =
+  def compose[G[_]: Traverse]: Traverse[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedTraverse[F, G] {
       val F = self
       val G = Traverse[G]

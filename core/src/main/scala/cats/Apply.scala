@@ -209,7 +209,7 @@ trait Apply[F[_]] extends Functor[F] with InvariantSemigroupal[F] with ApplyArit
    * res1: List[Option[(Boolean, Int)]] = List(None, None, Some((true,2)), None, Some((false,2)), None)
    * }}}
    */
-  def compose[G[_]: Apply]: Apply[λ[α => F[G[α]]]] =
+  def compose[G[_]: Apply]: Apply[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedApply[F, G] {
       val F = self
       val G = Apply[G]

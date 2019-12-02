@@ -27,7 +27,7 @@ abstract class Is[A, B] extends Serializable {
    * chain much like functions. See also `compose`.
    */
   @inline final def andThen[C](next: B Is C): A Is C =
-    next.substitute[A Is *](this)
+    next.substitute[({ type λ[α$] = A Is α$ })#λ](this)
 
   /**
    * `Is` is transitive and therefore values of `Is` can be composed in a
@@ -41,7 +41,7 @@ abstract class Is[A, B] extends Serializable {
    * own inverse, so `x.flip.flip == x`.
    */
   @inline final def flip: B Is A =
-    this.substitute[* Is A](Is.refl)
+    this.substitute[({ type λ[α$] = α$ Is A })#λ](Is.refl)
 
   /**
    * Sometimes for more complex substitutions it helps the typechecker to
@@ -49,7 +49,7 @@ abstract class Is[A, B] extends Serializable {
    * before substitution.
    */
   @inline final def lift[F[_]]: F[A] Is F[B] =
-    substitute[λ[α => F[A] Is F[α]]](Is.refl)
+    substitute[({ type λ[α] = F[A] Is F[α] })#λ](Is.refl)
 
   /**
    * Substitution on identity brings about a direct coercion function of the
@@ -63,7 +63,7 @@ abstract class Is[A, B] extends Serializable {
    * value.
    */
   @inline final def predefEq: A =:= B =
-    substitute[A =:= *](implicitly[A =:= A])
+    substitute[({ type λ[α$] = A =:= α$ })#λ](implicitly[A =:= A])
 }
 
 sealed abstract class IsInstances {

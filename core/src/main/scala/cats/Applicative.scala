@@ -85,7 +85,7 @@ import scala.annotation.implicitNotFound
    * res1: List[Option[(Boolean, Int)]] = List(None, None, Some((true,2)), None, Some((false,2)), None)
    * }}}
    */
-  def compose[G[_]: Applicative]: Applicative[λ[α => F[G[α]]]] =
+  def compose[G[_]: Applicative]: Applicative[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedApplicative[F, G] {
       val F = self
       val G = Applicative[G]
@@ -133,7 +133,7 @@ import scala.annotation.implicitNotFound
    * res2: List[Comparison] = List(LessThan, LessThan, LessThan, GreaterThan)
    * }}}
    */
-  def composeContravariantMonoidal[G[_]: ContravariantMonoidal]: ContravariantMonoidal[λ[α => F[G[α]]]] =
+  def composeContravariantMonoidal[G[_]: ContravariantMonoidal]: ContravariantMonoidal[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedApplicativeContravariantMonoidal[F, G] {
       val F = self
       val G = ContravariantMonoidal[G]
@@ -208,7 +208,7 @@ object Applicative {
    * res0: (Long, Int) = (3,6)
    * }}}
    */
-  implicit def catsApplicativeForArrow[F[_, _], A](implicit F: Arrow[F]): Applicative[F[A, *]] =
+  implicit def catsApplicativeForArrow[F[_, _], A](implicit F: Arrow[F]): Applicative[({ type λ[α$] = F[A, α$] })#λ] =
     new ArrowApplicative[F, A](F)
 
   /**
@@ -274,7 +274,7 @@ private[cats] class ApplicativeMonoid[F[_], A](f: Applicative[F], monoid: Monoid
   def empty: F[A] = f.pure(monoid.empty)
 }
 
-private[cats] class ArrowApplicative[F[_, _], A](F: Arrow[F]) extends Applicative[F[A, *]] {
+private[cats] class ArrowApplicative[F[_, _], A](F: Arrow[F]) extends Applicative[({ type λ[α$] = F[A, α$] })#λ] {
   def pure[B](b: B): F[A, B] = F.lift[A, B](_ => b)
   override def map[B, C](fb: F[A, B])(f: B => C): F[A, C] = F.rmap(fb)(f)
   def ap[B, C](ff: F[A, B => C])(fb: F[A, B]): F[A, C] =

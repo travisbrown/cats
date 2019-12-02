@@ -178,13 +178,13 @@ import scala.annotation.implicitNotFound
   @noop
   def ifF[A](fb: F[Boolean])(ifTrue: => A, ifFalse: => A): F[A] = map(fb)(x => if (x) ifTrue else ifFalse)
 
-  def compose[G[_]: Functor]: Functor[λ[α => F[G[α]]]] =
+  def compose[G[_]: Functor]: Functor[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedFunctor[F, G] {
       val F = self
       val G = Functor[G]
     }
 
-  override def composeContravariant[G[_]: Contravariant]: Contravariant[λ[α => F[G[α]]]] =
+  override def composeContravariant[G[_]: Contravariant]: Contravariant[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedCovariantContravariant[F, G] {
       val F = self
       val G = Contravariant[G]

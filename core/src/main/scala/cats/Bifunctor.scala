@@ -24,10 +24,10 @@ import scala.annotation.implicitNotFound
    */
   def bimap[A, B, C, D](fab: F[A, B])(f: A => C, g: B => D): F[C, D]
 
-  def rightFunctor[X]: Functor[F[X, *]] =
+  def rightFunctor[X]: Functor[({ type λ[α$] = F[X, α$] })#λ] =
     new RightFunctor[F, X] { val F = self }
 
-  def leftFunctor[X]: Functor[F[*, X]] =
+  def leftFunctor[X]: Functor[({ type λ[α$] = F[α$, X] })#λ] =
     new LeftFunctor[F, X] { val F = self }
 
   // derived methods
@@ -37,7 +37,7 @@ import scala.annotation.implicitNotFound
   def leftMap[A, B, C](fab: F[A, B])(f: A => C): F[C, B] = bimap(fab)(f, identity)
 
   /** The composition of two Bifunctors is itself a Bifunctor */
-  def compose[G[_, _]](implicit G0: Bifunctor[G]): Bifunctor[λ[(α, β) => F[G[α, β], G[α, β]]]] =
+  def compose[G[_, _]](implicit G0: Bifunctor[G]): Bifunctor[({ type λ[α, β] = F[G[α, β], G[α, β]] })#λ] =
     new ComposedBifunctor[F, G] {
       val F = self
       val G = G0
@@ -97,7 +97,7 @@ object Bifunctor {
   }
 }
 
-private[cats] trait ComposedBifunctor[F[_, _], G[_, _]] extends Bifunctor[λ[(A, B) => F[G[A, B], G[A, B]]]] {
+private[cats] trait ComposedBifunctor[F[_, _], G[_, _]] extends Bifunctor[({ type λ[A, B] = F[G[A, B], G[A, B]] })#λ] {
   def F: Bifunctor[F]
   def G: Bifunctor[G]
 
@@ -107,14 +107,14 @@ private[cats] trait ComposedBifunctor[F[_, _], G[_, _]] extends Bifunctor[λ[(A,
   }
 }
 
-abstract private class LeftFunctor[F[_, _], X] extends Functor[F[*, X]] {
+abstract private class LeftFunctor[F[_, _], X] extends Functor[({ type λ[α$] = F[α$, X] })#λ] {
   implicit val F: Bifunctor[F]
 
   override def map[A, C](fax: F[A, X])(f: A => C): F[C, X] =
     F.bimap(fax)(f, identity)
 }
 
-abstract private class RightFunctor[F[_, _], X] extends Functor[F[X, *]] {
+abstract private class RightFunctor[F[_, _], X] extends Functor[({ type λ[α$] = F[X, α$] })#λ] {
   implicit val F: Bifunctor[F]
 
   override def map[A, C](fxa: F[X, A])(f: A => C): F[X, C] =

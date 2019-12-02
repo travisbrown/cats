@@ -22,7 +22,7 @@ import scala.annotation.implicitNotFound
       (c: C, b: B) => C.combine(c, g(b))
     )
 
-  def compose[G[_, _]](implicit ev: Bifoldable[G]): Bifoldable[λ[(α, β) => F[G[α, β], G[α, β]]]] =
+  def compose[G[_, _]](implicit ev: Bifoldable[G]): Bifoldable[({ type λ[α, β] = F[G[α, β], G[α, β]] })#λ] =
     new ComposedBifoldable[F, G] {
       val F = self
       val G = ev
@@ -77,7 +77,8 @@ object Bifoldable {
   }
 }
 
-private[cats] trait ComposedBifoldable[F[_, _], G[_, _]] extends Bifoldable[λ[(α, β) => F[G[α, β], G[α, β]]]] {
+private[cats] trait ComposedBifoldable[F[_, _], G[_, _]]
+    extends Bifoldable[({ type λ[α, β] = F[G[α, β], G[α, β]] })#λ] {
   implicit def F: Bifoldable[F]
   implicit def G: Bifoldable[G]
 

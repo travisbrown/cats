@@ -16,7 +16,7 @@ import scala.annotation.implicitNotFound
   def cosequence[G[_]: Functor, A](ga: G[F[A]]): F[G[A]] = distribute(ga)(identity)
 
   // Distributive composes
-  def compose[G[_]](implicit G0: Distributive[G]): Distributive[λ[α => F[G[α]]]] =
+  def compose[G[_]](implicit G0: Distributive[G]): Distributive[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedDistributive[F, G] {
       implicit def F = self
       implicit def G = G0

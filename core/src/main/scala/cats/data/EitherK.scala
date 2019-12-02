@@ -111,15 +111,17 @@ sealed abstract private[data] class EitherKInstances3 {
     Eq.by(_.run)
 
   implicit def catsDataFunctorForEitherK[F[_], G[_]](implicit F0: Functor[F],
-                                                     G0: Functor[G]): Functor[EitherK[F, G, *]] =
+                                                     G0: Functor[G]): Functor[({ type λ[α$] = EitherK[F, G, α$] })#λ] =
     new EitherKFunctor[F, G] {
       implicit def F: Functor[F] = F0
 
       implicit def G: Functor[G] = G0
     }
 
-  implicit def catsDataFoldableForEitherK[F[_], G[_]](implicit F0: Foldable[F],
-                                                      G0: Foldable[G]): Foldable[EitherK[F, G, *]] =
+  implicit def catsDataFoldableForEitherK[F[_], G[_]](
+    implicit F0: Foldable[F],
+    G0: Foldable[G]
+  ): Foldable[({ type λ[α$] = EitherK[F, G, α$] })#λ] =
     new EitherKFoldable[F, G] {
       implicit def F: Foldable[F] = F0
 
@@ -129,8 +131,10 @@ sealed abstract private[data] class EitherKInstances3 {
 
 sealed abstract private[data] class EitherKInstances2 extends EitherKInstances3 {
 
-  implicit def catsDataContravariantForEitherK[F[_], G[_]](implicit F0: Contravariant[F],
-                                                           G0: Contravariant[G]): Contravariant[EitherK[F, G, *]] =
+  implicit def catsDataContravariantForEitherK[F[_], G[_]](
+    implicit F0: Contravariant[F],
+    G0: Contravariant[G]
+  ): Contravariant[({ type λ[α$] = EitherK[F, G, α$] })#λ] =
     new EitherKContravariant[F, G] {
       implicit def F: Contravariant[F] = F0
 
@@ -139,8 +143,10 @@ sealed abstract private[data] class EitherKInstances2 extends EitherKInstances3 
 }
 
 sealed abstract private[data] class EitherKInstances1 extends EitherKInstances2 {
-  implicit def catsDataCoflatMapForEitherK[F[_], G[_]](implicit F0: CoflatMap[F],
-                                                       G0: CoflatMap[G]): CoflatMap[EitherK[F, G, *]] =
+  implicit def catsDataCoflatMapForEitherK[F[_], G[_]](
+    implicit F0: CoflatMap[F],
+    G0: CoflatMap[G]
+  ): CoflatMap[({ type λ[α$] = EitherK[F, G, α$] })#λ] =
     new EitherKCoflatMap[F, G] with EitherKFunctor[F, G] {
       implicit def F: CoflatMap[F] = F0
 
@@ -149,8 +155,10 @@ sealed abstract private[data] class EitherKInstances1 extends EitherKInstances2 
 }
 
 sealed abstract private[data] class EitherKInstances0 extends EitherKInstances1 {
-  implicit def catsDataTraverseForEitherK[F[_], G[_]](implicit F0: Traverse[F],
-                                                      G0: Traverse[G]): Traverse[EitherK[F, G, *]] =
+  implicit def catsDataTraverseForEitherK[F[_], G[_]](
+    implicit F0: Traverse[F],
+    G0: Traverse[G]
+  ): Traverse[({ type λ[α$] = EitherK[F, G, α$] })#λ] =
     new EitherKTraverse[F, G] with EitherKFunctor[F, G] {
       implicit def F: Traverse[F] = F0
 
@@ -161,7 +169,7 @@ sealed abstract private[data] class EitherKInstances0 extends EitherKInstances1 
 sealed abstract private[data] class EitherKInstances extends EitherKInstances0 {
 
   implicit def catsDataComonadForEitherK[F[_], G[_]](implicit F0: Comonad[F],
-                                                     G0: Comonad[G]): Comonad[EitherK[F, G, *]] =
+                                                     G0: Comonad[G]): Comonad[({ type λ[α$] = EitherK[F, G, α$] })#λ] =
     new EitherKComonad[F, G] with EitherKFunctor[F, G] {
       implicit def F: Comonad[F] = F0
 
@@ -169,7 +177,7 @@ sealed abstract private[data] class EitherKInstances extends EitherKInstances0 {
     }
 }
 
-private[data] trait EitherKFunctor[F[_], G[_]] extends Functor[EitherK[F, G, *]] {
+private[data] trait EitherKFunctor[F[_], G[_]] extends Functor[({ type λ[α$] = EitherK[F, G, α$] })#λ] {
   implicit def F: Functor[F]
 
   implicit def G: Functor[G]
@@ -178,7 +186,7 @@ private[data] trait EitherKFunctor[F[_], G[_]] extends Functor[EitherK[F, G, *]]
     a.map(f)
 }
 
-private[data] trait EitherKContravariant[F[_], G[_]] extends Contravariant[EitherK[F, G, *]] {
+private[data] trait EitherKContravariant[F[_], G[_]] extends Contravariant[({ type λ[α$] = EitherK[F, G, α$] })#λ] {
   implicit def F: Contravariant[F]
 
   implicit def G: Contravariant[G]
@@ -187,7 +195,7 @@ private[data] trait EitherKContravariant[F[_], G[_]] extends Contravariant[Eithe
     a.contramap(f)
 }
 
-private[data] trait EitherKFoldable[F[_], G[_]] extends Foldable[EitherK[F, G, *]] {
+private[data] trait EitherKFoldable[F[_], G[_]] extends Foldable[({ type λ[α$] = EitherK[F, G, α$] })#λ] {
   implicit def F: Foldable[F]
 
   implicit def G: Foldable[G]
@@ -208,7 +216,9 @@ private[data] trait EitherKFoldable[F[_], G[_]] extends Foldable[EitherK[F, G, *
     fa.foldMap(f)
 }
 
-private[data] trait EitherKTraverse[F[_], G[_]] extends EitherKFoldable[F, G] with Traverse[EitherK[F, G, *]] {
+private[data] trait EitherKTraverse[F[_], G[_]]
+    extends EitherKFoldable[F, G]
+    with Traverse[({ type λ[α$] = EitherK[F, G, α$] })#λ] {
   implicit def F: Traverse[F]
 
   implicit def G: Traverse[G]
@@ -220,7 +230,7 @@ private[data] trait EitherKTraverse[F[_], G[_]] extends EitherKFoldable[F, G] wi
     fa.traverse(f)
 }
 
-private[data] trait EitherKCoflatMap[F[_], G[_]] extends CoflatMap[EitherK[F, G, *]] {
+private[data] trait EitherKCoflatMap[F[_], G[_]] extends CoflatMap[({ type λ[α$] = EitherK[F, G, α$] })#λ] {
   implicit def F: CoflatMap[F]
 
   implicit def G: CoflatMap[G]
@@ -235,7 +245,9 @@ private[data] trait EitherKCoflatMap[F[_], G[_]] extends CoflatMap[EitherK[F, G,
     fa.coflatten
 }
 
-private[data] trait EitherKComonad[F[_], G[_]] extends Comonad[EitherK[F, G, *]] with EitherKCoflatMap[F, G] {
+private[data] trait EitherKComonad[F[_], G[_]]
+    extends Comonad[({ type λ[α$] = EitherK[F, G, α$] })#λ]
+    with EitherKCoflatMap[F, G] {
   implicit def F: Comonad[F]
 
   implicit def G: Comonad[G]

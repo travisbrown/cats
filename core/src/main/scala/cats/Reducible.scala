@@ -162,7 +162,7 @@ import scala.annotation.implicitNotFound
       lnel.map { case NonEmptyList(h, t) => NonEmptyList(a, h :: t) }
     }.value
 
-  def compose[G[_]: Reducible]: Reducible[λ[α => F[G[α]]]] =
+  def compose[G[_]: Reducible]: Reducible[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedReducible[F, G] {
       val F = self
       val G = Reducible[G]

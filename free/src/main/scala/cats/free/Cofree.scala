@@ -100,26 +100,27 @@ object Cofree extends CofreeInstances {
 }
 
 sealed abstract private[free] class CofreeInstances2 {
-  implicit def catsReducibleForCofree[F[_]: Foldable]: Reducible[Cofree[F, *]] =
+  implicit def catsReducibleForCofree[F[_]: Foldable]: Reducible[({ type λ[α$] = Cofree[F, α$] })#λ] =
     new CofreeReducible[F] {
       def F = implicitly
     }
 }
 
 sealed abstract private[free] class CofreeInstances1 extends CofreeInstances2 {
-  implicit def catsTraverseForCofree[F[_]: Traverse]: Traverse[Cofree[F, *]] =
+  implicit def catsTraverseForCofree[F[_]: Traverse]: Traverse[({ type λ[α$] = Cofree[F, α$] })#λ] =
     new CofreeTraverse[F] {
       def F = implicitly
     }
 }
 
 sealed abstract private[free] class CofreeInstances extends CofreeInstances1 {
-  implicit def catsFreeComonadForCofree[S[_]: Functor]: Comonad[Cofree[S, *]] = new CofreeComonad[S] {
-    def F = implicitly
-  }
+  implicit def catsFreeComonadForCofree[S[_]: Functor]: Comonad[({ type λ[α$] = Cofree[S, α$] })#λ] =
+    new CofreeComonad[S] {
+      def F = implicitly
+    }
 }
 
-private trait CofreeComonad[S[_]] extends Comonad[Cofree[S, *]] {
+private trait CofreeComonad[S[_]] extends Comonad[({ type λ[α$] = Cofree[S, α$] })#λ] {
   implicit def F: Functor[S]
 
   final override def extract[A](p: Cofree[S, A]): A = p.extract
@@ -131,7 +132,7 @@ private trait CofreeComonad[S[_]] extends Comonad[Cofree[S, *]] {
   final override def map[A, B](a: Cofree[S, A])(f: A => B): Cofree[S, B] = a.map(f)
 }
 
-private trait CofreeReducible[F[_]] extends Reducible[Cofree[F, *]] {
+private trait CofreeReducible[F[_]] extends Reducible[({ type λ[α$] = Cofree[F, α$] })#λ] {
   implicit def F: Foldable[F]
 
   final override def foldMap[A, B](fa: Cofree[F, A])(f: A => B)(implicit M: Monoid[B]): B =
@@ -157,7 +158,10 @@ private trait CofreeReducible[F[_]] extends Reducible[Cofree[F, *]] {
 
 }
 
-private trait CofreeTraverse[F[_]] extends Traverse[Cofree[F, *]] with CofreeReducible[F] with CofreeComonad[F] {
+private trait CofreeTraverse[F[_]]
+    extends Traverse[({ type λ[α$] = Cofree[F, α$] })#λ]
+    with CofreeReducible[F]
+    with CofreeComonad[F] {
   implicit def F: Traverse[F]
 
   final override def traverse[G[_], A, B](fa: Cofree[F, A])(f: A => G[B])(implicit G: Applicative[G]): G[Cofree[F, B]] =

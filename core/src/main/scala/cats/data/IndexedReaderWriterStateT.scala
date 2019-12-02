@@ -300,8 +300,11 @@ sealed private[data] trait CommonIRWSTConstructors {
    * res0: (List[String], String, Option[Int]) = (List(),"",Some(1))
    * }}}
    */
-  def liftK[F[_], E, L, S](implicit F: Applicative[F], L: Monoid[L]): F ~> IndexedReaderWriterStateT[F, E, L, S, S, *] =
-    λ[F ~> IndexedReaderWriterStateT[F, E, L, S, S, *]](IndexedReaderWriterStateT.liftF(_))
+  def liftK[F[_], E, L, S](implicit F: Applicative[F],
+                           L: Monoid[L]): F ~> ({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, S, S, α$] })#λ =
+    new (F ~> ({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, S, S, α$] })#λ) {
+      def apply[A$](a$ : F[A$]): IndexedReaderWriterStateT[F, E, L, S, S, A$] = IndexedReaderWriterStateT.liftF(a$)
+    }
 
   @deprecated("Use liftF instead", "1.0.0-RC2")
   def lift[F[_], E, L, S, A](fa: F[A])(implicit F: Applicative[F],
@@ -499,21 +502,21 @@ sealed abstract private[data] class IRWSTInstances extends IRWSTInstances1 {
 
   implicit def catsDataStrongForIRWST[F[_], E, L, T](
     implicit F0: Monad[F]
-  ): Strong[IndexedReaderWriterStateT[F, E, L, *, *, T]] =
+  ): Strong[({ type λ[α$, β$] = IndexedReaderWriterStateT[F, E, L, α$, β$, T] })#λ] =
     new IRWSTStrong[F, E, L, T] {
       implicit def F: Monad[F] = F0
     }
 
   implicit def catsDataBifunctorForIRWST[F[_], E, L, SA](
     implicit F0: Functor[F]
-  ): Bifunctor[IndexedReaderWriterStateT[F, E, L, SA, *, *]] =
+  ): Bifunctor[({ type λ[α$, β$] = IndexedReaderWriterStateT[F, E, L, SA, α$, β$] })#λ] =
     new IRWSTBifunctor[F, E, L, SA] {
       implicit def F: Functor[F] = F0
     }
 
   implicit def catsDataContravariantForIRWST[F[_], E, L, SB, T](
     implicit F0: Functor[F]
-  ): Contravariant[IndexedReaderWriterStateT[F, E, L, *, SB, T]] =
+  ): Contravariant[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, α$, SB, T] })#λ] =
     new IRWSTContravariant[F, E, L, SB, T] {
       implicit def F: Functor[F] = F0
     }
@@ -521,7 +524,7 @@ sealed abstract private[data] class IRWSTInstances extends IRWSTInstances1 {
   implicit def catsDataMonadErrorForIRWST[F[_], E, L, S, R](
     implicit F0: MonadError[F, R],
     L0: Monoid[L]
-  ): MonadError[IndexedReaderWriterStateT[F, E, L, S, S, *], R] =
+  ): MonadError[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, S, S, α$] })#λ, R] =
     new RWSTMonadError[F, E, L, S, R] {
       implicit def F: MonadError[F, R] = F0
       implicit def L: Monoid[L] = L0
@@ -529,8 +532,8 @@ sealed abstract private[data] class IRWSTInstances extends IRWSTInstances1 {
 
   implicit def catsDataDeferForIRWST[F[_], E, L, SA, SB](
     implicit F: Defer[F]
-  ): Defer[IndexedReaderWriterStateT[F, E, L, SA, SB, *]] =
-    new Defer[IndexedReaderWriterStateT[F, E, L, SA, SB, *]] {
+  ): Defer[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, SA, SB, α$] })#λ] =
+    new Defer[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, SA, SB, α$] })#λ] {
       def defer[A](
         fa: => IndexedReaderWriterStateT[F, E, L, SA, SB, A]
       ): IndexedReaderWriterStateT[F, E, L, SA, SB, A] =
@@ -540,8 +543,10 @@ sealed abstract private[data] class IRWSTInstances extends IRWSTInstances1 {
 }
 
 sealed abstract private[data] class IRWSTInstances1 extends IRWSTInstances2 {
-  implicit def catsDataMonadForRWST[F[_], E, L, S](implicit F0: Monad[F],
-                                                   L0: Monoid[L]): Monad[ReaderWriterStateT[F, E, L, S, *]] =
+  implicit def catsDataMonadForRWST[F[_], E, L, S](
+    implicit F0: Monad[F],
+    L0: Monoid[L]
+  ): Monad[({ type λ[α$] = ReaderWriterStateT[F, E, L, S, α$] })#λ] =
     new RWSTMonad[F, E, L, S] {
       implicit def F: Monad[F] = F0
       implicit def L: Monoid[L] = L0
@@ -549,7 +554,7 @@ sealed abstract private[data] class IRWSTInstances1 extends IRWSTInstances2 {
 
   implicit def catsDataProfunctorForIRWST[F[_], E, L, T](
     implicit F0: Functor[F]
-  ): Profunctor[IndexedReaderWriterStateT[F, E, L, *, *, T]] =
+  ): Profunctor[({ type λ[α$, β$] = IndexedReaderWriterStateT[F, E, L, α$, β$, T] })#λ] =
     new IRWSTProfunctor[F, E, L, T] {
       implicit def F: Functor[F] = F0
     }
@@ -561,7 +566,7 @@ sealed abstract private[data] class IRWSTInstances2 extends IRWSTInstances3 {
     implicit FM: Monad[F],
     FA: Alternative[F],
     L0: Monoid[L]
-  ): Alternative[IndexedReaderWriterStateT[F, E, L, S, S, *]] =
+  ): Alternative[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, S, S, α$] })#λ] =
     new RWSTAlternative[F, E, L, S] {
       implicit def G: Alternative[F] = FA
       implicit def F: Monad[F] = FM
@@ -573,7 +578,7 @@ sealed abstract private[data] class IRWSTInstances3 {
   implicit def catsDataSemigroupKForIRWST[F[_], E, L, SA, SB](
     implicit F0: Monad[F],
     G0: SemigroupK[F]
-  ): SemigroupK[IndexedReaderWriterStateT[F, E, L, SA, SB, *]] =
+  ): SemigroupK[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, SA, SB, α$] })#λ] =
     new IRWSTSemigroupK[F, E, L, SA, SB] {
       implicit def F: Monad[F] = F0
       implicit def G: SemigroupK[F] = G0
@@ -581,14 +586,14 @@ sealed abstract private[data] class IRWSTInstances3 {
 
   implicit def catsDataFunctorForIRWST[F[_], E, L, SA, SB](
     implicit F0: Functor[F]
-  ): Functor[IndexedReaderWriterStateT[F, E, L, SA, SB, *]] =
+  ): Functor[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, SA, SB, α$] })#λ] =
     new IRWSTFunctor[F, E, L, SA, SB] {
       implicit def F: Functor[F] = F0
     }
 }
 
 sealed abstract private[data] class IRWSTFunctor[F[_], E, L, SA, SB]
-    extends Functor[IndexedReaderWriterStateT[F, E, L, SA, SB, *]] {
+    extends Functor[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, SA, SB, α$] })#λ] {
   implicit def F: Functor[F]
 
   override def map[A, B](
@@ -598,7 +603,7 @@ sealed abstract private[data] class IRWSTFunctor[F[_], E, L, SA, SB]
 }
 
 sealed abstract private[data] class IRWSTContravariant[F[_], E, L, SB, T]
-    extends Contravariant[IndexedReaderWriterStateT[F, E, L, *, SB, T]] {
+    extends Contravariant[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, α$, SB, T] })#λ] {
   implicit def F: Functor[F]
 
   override def contramap[A, B](
@@ -608,7 +613,7 @@ sealed abstract private[data] class IRWSTContravariant[F[_], E, L, SB, T]
 }
 
 sealed abstract private[data] class IRWSTProfunctor[F[_], E, L, T]
-    extends Profunctor[IndexedReaderWriterStateT[F, E, L, *, *, T]] {
+    extends Profunctor[({ type λ[α$, β$] = IndexedReaderWriterStateT[F, E, L, α$, β$, T] })#λ] {
   implicit def F: Functor[F]
 
   override def dimap[A, B, C, D](
@@ -619,7 +624,7 @@ sealed abstract private[data] class IRWSTProfunctor[F[_], E, L, T]
 
 sealed abstract private[data] class IRWSTStrong[F[_], E, L, T]
     extends IRWSTProfunctor[F, E, L, T]
-    with Strong[IndexedReaderWriterStateT[F, E, L, *, *, T]] {
+    with Strong[({ type λ[α$, β$] = IndexedReaderWriterStateT[F, E, L, α$, β$, T] })#λ] {
   implicit def F: Monad[F]
 
   def first[A, B, C](
@@ -640,7 +645,7 @@ sealed abstract private[data] class IRWSTStrong[F[_], E, L, T]
 }
 
 sealed abstract private[data] class IRWSTBifunctor[F[_], E, L, SA]
-    extends Bifunctor[IndexedReaderWriterStateT[F, E, L, SA, *, *]] {
+    extends Bifunctor[({ type λ[α$, β$] = IndexedReaderWriterStateT[F, E, L, SA, α$, β$] })#λ] {
   implicit def F: Functor[F]
 
   override def bimap[A, B, C, D](
@@ -651,7 +656,7 @@ sealed abstract private[data] class IRWSTBifunctor[F[_], E, L, SA]
 
 sealed abstract private[data] class RWSTMonad[F[_], E, L, S]
     extends IRWSTFunctor[F, E, L, S, S]
-    with Monad[ReaderWriterStateT[F, E, L, S, *]] {
+    with Monad[({ type λ[α$] = ReaderWriterStateT[F, E, L, S, α$] })#λ] {
   implicit def F: Monad[F]
   implicit def L: Monoid[L]
 
@@ -685,7 +690,7 @@ sealed abstract private[data] class RWSTAlternative[F[_], E, L, S]
 
 sealed abstract private[data] class RWSTMonadError[F[_], E, L, S, R]
     extends RWSTMonad[F, E, L, S]
-    with MonadError[ReaderWriterStateT[F, E, L, S, *], R] {
+    with MonadError[({ type λ[α$] = ReaderWriterStateT[F, E, L, S, α$] })#λ, R] {
 
   implicit def F: MonadError[F, R]
 
@@ -699,7 +704,8 @@ sealed abstract private[data] class RWSTMonadError[F[_], E, L, S, R]
     }
 }
 
-private trait IRWSTSemigroupK1[F[_], E, L, SA, SB] extends SemigroupK[IndexedReaderWriterStateT[F, E, L, SA, SB, *]] {
+private trait IRWSTSemigroupK1[F[_], E, L, SA, SB]
+    extends SemigroupK[({ type λ[α$] = IndexedReaderWriterStateT[F, E, L, SA, SB, α$] })#λ] {
   implicit def F: Monad[F]
   implicit def G: SemigroupK[F]
 
@@ -712,7 +718,7 @@ private trait IRWSTSemigroupK1[F[_], E, L, SA, SB] extends SemigroupK[IndexedRea
 
 private trait RWSTAlternative1[F[_], E, L, S]
     extends IRWSTSemigroupK1[F, E, L, S, S]
-    with Alternative[ReaderWriterStateT[F, E, L, S, *]] {
+    with Alternative[({ type λ[α$] = ReaderWriterStateT[F, E, L, S, α$] })#λ] {
 
   implicit def F: Monad[F]
   def G: Alternative[F]

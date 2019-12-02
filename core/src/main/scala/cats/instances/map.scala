@@ -19,8 +19,12 @@ trait MapInstances extends cats.kernel.instances.MapInstances {
     }
 
   // scalastyle:off method.length
-  implicit def catsStdInstancesForMap[K]: UnorderedTraverse[Map[K, *]] with FlatMap[Map[K, *]] with Align[Map[K, *]] =
-    new UnorderedTraverse[Map[K, *]] with FlatMap[Map[K, *]] with Align[Map[K, *]] {
+  implicit def catsStdInstancesForMap[K]: UnorderedTraverse[({ type λ[α$] = Map[K, α$] })#λ]
+    with FlatMap[({ type λ[α$] = Map[K, α$] })#λ]
+    with Align[({ type λ[α$] = Map[K, α$] })#λ] =
+    new UnorderedTraverse[({ type λ[α$] = Map[K, α$] })#λ]
+      with FlatMap[({ type λ[α$] = Map[K, α$] })#λ]
+      with Align[({ type λ[α$] = Map[K, α$] })#λ] {
 
       def unorderedTraverse[G[_], A, B](
         fa: Map[K, A]
@@ -90,7 +94,7 @@ trait MapInstances extends cats.kernel.instances.MapInstances {
 
       override def exists[A](fa: Map[K, A])(p: A => Boolean): Boolean = fa.exists(pair => p(pair._2))
 
-      def functor: Functor[Map[K, *]] = this
+      def functor: Functor[({ type λ[α$] = Map[K, α$] })#λ] = this
 
       def align[A, B](fa: Map[K, A], fb: Map[K, B]): Map[K, A Ior B] =
         alignWith(fa, fb)(identity)
@@ -140,10 +144,10 @@ private[instances] trait MapInstancesBinCompat0 {
       }
   }
 
-  implicit def catsStdFunctorFilterForMap[K]: FunctorFilter[Map[K, *]] =
-    new FunctorFilter[Map[K, *]] {
+  implicit def catsStdFunctorFilterForMap[K]: FunctorFilter[({ type λ[α$] = Map[K, α$] })#λ] =
+    new FunctorFilter[({ type λ[α$] = Map[K, α$] })#λ] {
 
-      val functor: Functor[Map[K, *]] = cats.instances.map.catsStdInstancesForMap[K]
+      val functor: Functor[({ type λ[α$] = Map[K, α$] })#λ] = cats.instances.map.catsStdInstancesForMap[K]
 
       def mapFilter[A, B](fa: Map[K, A])(f: A => Option[B]) =
         fa.collect(scala.Function.unlift((t: (K, A)) => f(t._2).map(t._1 -> _)))
@@ -162,9 +166,10 @@ private[instances] trait MapInstancesBinCompat0 {
 }
 
 private[instances] trait MapInstancesBinCompat1 {
-  implicit def catsStdMonoidKForMap[K]: MonoidK[Map[K, *]] = new MonoidK[Map[K, *]] {
-    override def empty[A]: Map[K, A] = Map.empty
+  implicit def catsStdMonoidKForMap[K]: MonoidK[({ type λ[α$] = Map[K, α$] })#λ] =
+    new MonoidK[({ type λ[α$] = Map[K, α$] })#λ] {
+      override def empty[A]: Map[K, A] = Map.empty
 
-    override def combineK[A](x: Map[K, A], y: Map[K, A]): Map[K, A] = x ++ y
-  }
+      override def combineK[A](x: Map[K, A], y: Map[K, A]): Map[K, A] = x ++ y
+    }
 }

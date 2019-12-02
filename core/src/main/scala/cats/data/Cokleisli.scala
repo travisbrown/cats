@@ -78,40 +78,52 @@ object Cokleisli extends CokleisliInstances {
 
 sealed abstract private[data] class CokleisliInstances extends CokleisliInstances0 {
 
-  implicit val catsDataCommutativeArrowForCokleisliId: CommutativeArrow[Cokleisli[Id, *, *]] =
-    new CokleisliArrow[Id] with CommutativeArrow[Cokleisli[Id, *, *]] {
+  implicit val catsDataCommutativeArrowForCokleisliId
+    : CommutativeArrow[({ type λ[α$, β$] = Cokleisli[Id, α$, β$] })#λ] =
+    new CokleisliArrow[Id] with CommutativeArrow[({ type λ[α$, β$] = Cokleisli[Id, α$, β$] })#λ] {
       def F: Comonad[Id] = Comonad[Id]
     }
 
-  implicit def catsDataMonadForCokleisli[F[_], A]: Monad[Cokleisli[F, A, *]] =
+  implicit def catsDataMonadForCokleisli[F[_], A]: Monad[({ type λ[α$] = Cokleisli[F, A, α$] })#λ] =
     new CokleisliMonad[F, A]
 
-  implicit def catsDataMonoidKForCokleisli[F[_]](implicit ev: Comonad[F]): MonoidK[λ[α => Cokleisli[F, α, α]]] =
-    Category[Cokleisli[F, *, *]].algebraK
+  implicit def catsDataMonoidKForCokleisli[F[_]](
+    implicit ev: Comonad[F]
+  ): MonoidK[({ type λ[α] = Cokleisli[F, α, α] })#λ] =
+    Category[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ].algebraK
 }
 
 sealed abstract private[data] class CokleisliInstances0 extends CokleisliInstances1 {
-  implicit def catsDataArrowForCokleisli[F[_]](implicit ev: Comonad[F]): Arrow[Cokleisli[F, *, *]] =
+  implicit def catsDataArrowForCokleisli[F[_]](
+    implicit ev: Comonad[F]
+  ): Arrow[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ] =
     new CokleisliArrow[F] { def F: Comonad[F] = ev }
 }
 
 sealed abstract private[data] class CokleisliInstances1 {
-  implicit def catsDataComposeForCokleisli[F[_]](implicit ev: CoflatMap[F]): Compose[Cokleisli[F, *, *]] =
+  implicit def catsDataComposeForCokleisli[F[_]](
+    implicit ev: CoflatMap[F]
+  ): Compose[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ] =
     new CokleisliCompose[F] { def F: CoflatMap[F] = ev }
 
-  implicit def catsDataProfunctorForCokleisli[F[_]](implicit ev: Functor[F]): Profunctor[Cokleisli[F, *, *]] =
+  implicit def catsDataProfunctorForCokleisli[F[_]](
+    implicit ev: Functor[F]
+  ): Profunctor[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ] =
     new CokleisliProfunctor[F] { def F: Functor[F] = ev }
 
-  implicit def catsDataSemigroupKForCokleisli[F[_]](implicit ev: CoflatMap[F]): SemigroupK[λ[α => Cokleisli[F, α, α]]] =
-    Compose[Cokleisli[F, *, *]].algebraK
+  implicit def catsDataSemigroupKForCokleisli[F[_]](
+    implicit ev: CoflatMap[F]
+  ): SemigroupK[({ type λ[α] = Cokleisli[F, α, α] })#λ] =
+    Compose[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ].algebraK
 
-  implicit def catsDataContravariantForCokleisli[F[_]: Functor, A]: Contravariant[Cokleisli[F, *, A]] =
-    new Contravariant[Cokleisli[F, *, A]] {
+  implicit def catsDataContravariantForCokleisli[F[_]: Functor, A]
+    : Contravariant[({ type λ[α$] = Cokleisli[F, α$, A] })#λ] =
+    new Contravariant[({ type λ[α$] = Cokleisli[F, α$, A] })#λ] {
       def contramap[B, C](fbc: Cokleisli[F, B, A])(f: C => B): Cokleisli[F, C, A] = fbc.lmap(f)
     }
 }
 
-private[data] class CokleisliMonad[F[_], A] extends Monad[Cokleisli[F, A, *]] {
+private[data] class CokleisliMonad[F[_], A] extends Monad[({ type λ[α$] = Cokleisli[F, A, α$] })#λ] {
 
   def pure[B](x: B): Cokleisli[F, A, B] =
     Cokleisli.pure(x)
@@ -135,7 +147,7 @@ private[data] class CokleisliMonad[F[_], A] extends Monad[Cokleisli[F, A, *]] {
 }
 
 private trait CokleisliArrow[F[_]]
-    extends Arrow[Cokleisli[F, *, *]]
+    extends Arrow[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ]
     with CokleisliCompose[F]
     with CokleisliProfunctor[F] {
   implicit def F: Comonad[F]
@@ -156,14 +168,14 @@ private trait CokleisliArrow[F[_]]
     Cokleisli(fac => f.run(F.map(fac)(_._1)) -> g.run(F.map(fac)(_._2)))
 }
 
-private trait CokleisliCompose[F[_]] extends Compose[Cokleisli[F, *, *]] {
+private trait CokleisliCompose[F[_]] extends Compose[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ] {
   implicit def F: CoflatMap[F]
 
   def compose[A, B, C](f: Cokleisli[F, B, C], g: Cokleisli[F, A, B]): Cokleisli[F, A, C] =
     f.compose(g)
 }
 
-private trait CokleisliProfunctor[F[_]] extends Profunctor[Cokleisli[F, *, *]] {
+private trait CokleisliProfunctor[F[_]] extends Profunctor[({ type λ[α$, β$] = Cokleisli[F, α$, β$] })#λ] {
   implicit def F: Functor[F]
 
   def dimap[A, B, C, D](fab: Cokleisli[F, A, B])(f: C => A)(g: B => D): Cokleisli[F, C, D] =
