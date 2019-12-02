@@ -688,8 +688,8 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
       def foldRight[A, B](fa: Chain[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = {
         def loop(as: Chain[A]): Eval[B] =
           as match {
-            case Chain.nil => lb
             case h ==: t   => f(h, Eval.defer(loop(t)))
+            case _         => lb
           }
         Eval.defer(loop(fa))
       }
