@@ -17,7 +17,7 @@ import org.scalacheck.Arbitrary
 object eq {
 
   implicit def catsLawsEqForFn1Exhaustive[A, B](implicit A: ExhaustiveCheck[A], B: Eq[B]): Eq[A => B] =
-    Eq.instance((f, g) => A.allValues.forall(a => B.eqv(f(a), g(a))))
+    Eq.instance[A => B]((f, g) => A.allValues.forall(a => B.eqv(f(a), g(a))))
 
   implicit def catsLawsEqForFn2[A, B, C](implicit ev: Eq[((A, B)) => C]): Eq[(A, B) => C] =
     Eq.by((_: (A, B) => C).tupled)
@@ -135,7 +135,7 @@ object eq {
    * and comparing the application of the two functions.
    */
   implicit def catsLawsEqForFn2[A, B, C](implicit A: Arbitrary[A], B: Arbitrary[B], C: Eq[C]): Eq[(A, B) => C] =
-    Eq.by((_: (A, B) => C).tupled)(catsLawsEqForFn1)
+    Eq.by((_: (A, B) => C).tupled)(catsLawsEqForFn1[(A, B), C])
 
   /** `Eq[AndThen]` instance, built by piggybacking on [[catsLawsEqForFn1]]. */
   implicit def catsLawsEqForAndThen[A, B](implicit A: Arbitrary[A], B: Eq[B]): Eq[AndThen[A, B]] =

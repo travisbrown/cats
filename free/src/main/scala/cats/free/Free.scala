@@ -72,10 +72,10 @@ sealed abstract class Free[S[_], A] extends Product with Serializable {
   /**
    * A combination of step and fold.
    */
-  final private[free] def foldStep[B](
+  final private[free] def foldStep[B, X](
     onPure: A => B,
     onSuspend: S[A] => B,
-    onFlatMapped: ((S[X], X => Free[S, A]) forSome { type X }) => B
+    onFlatMapped: (S[X], X => Free[S, A]) => B
   ): B = this.step match {
     case Pure(a)                    => onPure(a)
     case Suspend(a)                 => onSuspend(a)

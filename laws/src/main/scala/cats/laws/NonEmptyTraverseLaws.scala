@@ -1,6 +1,6 @@
 package cats.laws
 
-import cats.{Apply, Id, NonEmptyTraverse, Semigroup}
+import cats.{Apply, Id, NonEmptyTraverse, Semigroup, catsInstancesForId}
 import cats.data.{Const, Nested}
 import cats.syntax.nonEmptyTraverse._
 import cats.syntax.reducible._

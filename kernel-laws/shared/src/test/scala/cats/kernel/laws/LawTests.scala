@@ -70,7 +70,7 @@ object KernelCheck {
 
   // Copied from cats-laws.
   implicit def cogenSortedMap[K: Order: Cogen, V: Cogen]: Cogen[SortedMap[K, V]] = {
-    implicit val orderingK = Order[K].toOrdering
+    implicit val orderingK: Ordering[K] = Order[K].toOrdering
 
     implicitly[Cogen[Map[K, V]]].contramap(_.toMap)
   }
@@ -81,7 +81,7 @@ object KernelCheck {
 
   // Copied from cats-laws.
   implicit def cogenSortedSet[A: Order: Cogen]: Cogen[SortedSet[A]] = {
-    implicit val orderingA = Order[A].toOrdering
+    implicit val orderingA: Ordering[A] = Order[A].toOrdering
 
     implicitly[Cogen[Set[A]]].contramap(_.toSet)
   }
@@ -137,10 +137,17 @@ class Tests extends AnyFunSuiteLike with Discipline with ScalaVersionSpecificTes
 
   import KernelCheck._
 
+  private val Some(posZ10) = PosZInt.from(10)
+  private val Some(posZ100) = PosZInt.from(100)
+  private val Some(pos1) = PosInt.from(1)
+  private val Some(pos2) = PosInt.from(2)
+  private val Some(pos10) = PosInt.from(10)
+  private val Some(pos100) = PosInt.from(100)
+
   // The ScalaCheck defaults (100,100) are too high for Scala.js.
-  final val PropMaxSize: PosZInt = if (Platform.isJs) 10 else 100
-  final val PropMinSuccessful: PosInt = if (Platform.isJs) 10 else 100
-  final val PropWorkers: PosInt = if (Platform.isJvm) PosInt(2) else PosInt(1)
+  final val PropMaxSize: PosZInt = if (Platform.isJs) posZ10 else posZ100
+  final val PropMinSuccessful: PosInt = if (Platform.isJs) pos10 else pos100
+  final val PropWorkers: PosInt = if (Platform.isJvm) pos2 else pos1
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = PropMinSuccessful, sizeRange = PropMaxSize, workers = PropWorkers)
