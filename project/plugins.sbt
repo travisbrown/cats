@@ -1,3 +1,4 @@
+addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.4")
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.2")
 addSbtPlugin("com.github.gseitz" %% "sbt-release" % "1.0.12")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.1")
