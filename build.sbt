@@ -43,9 +43,9 @@ def scalaVersionSpecificFolders(srcName: String, srcBaseDir: java.io.File, scala
     List(CrossType.Pure, CrossType.Full)
       .flatMap(_.sharedSrcDir(srcBaseDir, srcName).toList.map(f => file(f.getPath + suffix)))
   CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, y)) if y >= 13 =>
-      extraDirs("-2.13+")
-    case _ => Nil
+    case Some((2, y)) => extraDirs("-2.x") ++ (if (y >= 13) extraDirs("-2.13+") else Nil)
+    case Some((0, _)) => extraDirs("-2.13+") ++ extraDirs("-3.x")
+    case _            => Nil
   }
 }
 
@@ -59,7 +59,7 @@ commonScalaVersionSettings
 ThisBuild / mimaFailOnNoPrevious := false
 
 lazy val commonSettings = commonScalaVersionSettings ++ Seq(
-  scalacOptions ++= commonScalacOptions(scalaVersion.value),
+  scalacOptions ++= commonScalacOptions(scalaVersion.value, isDotty.value),
   Compile / unmanagedSourceDirectories ++= scalaVersionSpecificFolders("main", baseDirectory.value, scalaVersion.value),
   Test / unmanagedSourceDirectories ++= scalaVersionSpecificFolders("test", baseDirectory.value, scalaVersion.value),
   resolvers ++= Seq(Resolver.sonatypeRepo("releases"), Resolver.sonatypeRepo("snapshots")),
@@ -77,15 +77,21 @@ def macroDependencies(scalaVersion: String, scalaOrganization: String) =
 
 lazy val catsSettings = Seq(
   incOptions := incOptions.value.withLogRecompileOnMacro(false),
-  libraryDependencies ++= Seq(
-    compilerPlugin(("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full))
-  ) ++ macroDependencies(scalaVersion.value, scalaOrganization.value)
+  libraryDependencies ++= (if (isDotty.value) Nil
+                           else
+                             Seq(
+                               compilerPlugin(
+                                 ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
+                               )
+                             )) ++ macroDependencies(scalaVersion.value, scalaOrganization.value)
 ) ++ commonSettings ++ publishSettings ++ scoverageSettings ++ simulacrumSettings
 
 lazy val simulacrumSettings = Seq(
-  addCompilerPlugin(scalafixSemanticdb),
-  scalacOptions ++= Seq(s"-P:semanticdb:targetroot:${baseDirectory.value}/.semanticdb", "-Yrangepos"),
-  libraryDependencies += "org.typelevel" %% "simulacrum-annotation" % "0.1.0-SNAPSHOT",
+  scalacOptions ++= (if (isDotty.value) Nil
+                     else Seq(s"-P:semanticdb:targetroot:${baseDirectory.value}/.semanticdb", "-Yrangepos")),
+  libraryDependencies ++= (if (isDotty.value) Nil else Seq(compilerPlugin(scalafixSemanticdb))),
+  libraryDependencies += ("org.typelevel" %%% "simulacrum-annotation" % "0.1.0-SNAPSHOT")
+    .withDottyCompat(scalaVersion.value),
   pomPostProcess := { (node: xml.Node) =>
     new RuleTransformer(new RewriteRule {
       override def transform(node: xml.Node): Seq[xml.Node] = node match {
@@ -143,15 +149,17 @@ lazy val includeGeneratedSrc: Setting[_] = {
 }
 
 lazy val disciplineDependencies = Seq(
-  libraryDependencies ++= Seq("org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
-                              "org.typelevel" %%% "discipline-core" % disciplineVersion)
+  libraryDependencies ++= Seq(
+    "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
+    "org.typelevel" %%% "discipline-core" % disciplineVersion
+  ).map(_.withDottyCompat(scalaVersion.value))
 )
 
 lazy val testingDependencies = Seq(
   libraryDependencies ++= Seq(
     "org.typelevel" %%% "discipline-scalatest" % disciplineScalatestVersion % "test",
     "org.scalatestplus" %%% "scalatestplus-scalacheck" % scalatestplusScalaCheckVersion % "test"
-  )
+  ).map(_.withDottyCompat(scalaVersion.value))
 )
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
@@ -496,7 +504,10 @@ lazy val kernel = crossProject(JSPlatform, JVMPlatform)
   .settings(includeGeneratedSrc)
   .jsSettings(commonJsSettings)
   .jvmSettings(commonJvmSettings ++ mimaSettings("cats-kernel"))
-  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test")
+  .settings(
+    libraryDependencies += ("org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test")
+      .withDottyCompat(scalaVersion.value)
+  )
 
 lazy val kernelLaws = crossProject(JSPlatform, JVMPlatform)
   .in(file("kernel-laws"))
@@ -519,7 +530,10 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(catsSettings)
   .settings(sourceGenerators in Compile += (sourceManaged in Compile).map(Boilerplate.gen).taskValue)
   .settings(includeGeneratedSrc)
-  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test")
+  .settings(
+    libraryDependencies += ("org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test")
+      .withDottyCompat(scalaVersion.value)
+  )
   .jsSettings(commonJsSettings)
   .jvmSettings(commonJvmSettings ++ mimaSettings("cats-core"))
 
@@ -782,29 +796,33 @@ lazy val crossVersionSharedSources: Seq[Setting[_]] =
     }
   }
 
-def commonScalacOptions(scalaVersion: String) =
+def commonScalacOptions(scalaVersion: String, isDotty: Boolean) =
   Seq(
     "-encoding",
     "UTF-8",
     "-feature",
-    "-language:existentials",
-    "-language:higherKinds",
-    "-language:implicitConversions",
-    "-language:experimental.macros",
     "-unchecked",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-value-discard",
     "-Xfatal-warnings",
-    "-deprecation",
-    "-Xlint:-unused,_"
+    "-deprecation"
   ) ++ (if (priorTo2_13(scalaVersion))
           Seq(
             "-Yno-adapted-args",
             "-Xfuture"
           )
         else
-          Nil)
+          Nil) ++ (if (isDotty)
+                     Seq("-language:Scala2,implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
+                   else
+                     Seq(
+                       "-language:existentials",
+                       "-language:higherKinds",
+                       "-language:implicitConversions",
+                       "-language:experimental.macros",
+                       "-Ywarn-dead-code",
+                       "-Ywarn-numeric-widen",
+                       "-Ywarn-value-discard",
+                       "-Xlint:-unused,_"
+                     ))
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
@@ -845,7 +863,7 @@ lazy val sharedReleaseProcess = Seq(
 )
 
 lazy val warnUnusedImport = Seq(
-  scalacOptions ++= Seq("-Ywarn-unused:imports"),
+  scalacOptions ++= (if (isDotty.value) Nil else Seq("-Ywarn-unused:imports")),
   scalacOptions in (Compile, console) ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 )
