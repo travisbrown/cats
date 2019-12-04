@@ -36,14 +36,15 @@ sealed abstract private[data] class Tuple2KInstances extends Tuple2KInstances0 {
   implicit def catsDataContravariantMonoidalForTuple2k[F[_], G[_]](
     implicit FD: ContravariantMonoidal[F],
     GD: ContravariantMonoidal[G]
-  ): ContravariantMonoidal[λ[α => Tuple2K[F, G, α]]] =
+  ): ContravariantMonoidal[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KContravariantMonoidal[F, G] with Tuple2KContravariant[F, G] {
       def F: ContravariantMonoidal[F] = FD
       def G: ContravariantMonoidal[G] = GD
     }
 
-  implicit def catsDataDeferForTuple2K[F[_], G[_]](implicit F: Defer[F], G: Defer[G]): Defer[Tuple2K[F, G, *]] =
-    new Defer[Tuple2K[F, G, *]] {
+  implicit def catsDataDeferForTuple2K[F[_], G[_]](implicit F: Defer[F],
+                                                   G: Defer[G]): Defer[({ type λ[α$] = Tuple2K[F, G, α$] })#λ] =
+    new Defer[({ type λ[α$] = Tuple2K[F, G, α$] })#λ] {
       def defer[A](fa: => Tuple2K[F, G, A]): Tuple2K[F, G, A] = {
         // Make sure we only evaluate once on both the first and second
         lazy val cacheFa = fa
@@ -55,7 +56,7 @@ sealed abstract private[data] class Tuple2KInstances extends Tuple2KInstances0 {
 
 sealed abstract private[data] class Tuple2KInstances0 extends Tuple2KInstances1 {
   implicit def catsDataTraverseForTuple2K[F[_], G[_]](implicit FF: Traverse[F],
-                                                      GF: Traverse[G]): Traverse[λ[α => Tuple2K[F, G, α]]] =
+                                                      GF: Traverse[G]): Traverse[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KTraverse[F, G] with Tuple2KFunctor[F, G] {
       def F: Traverse[F] = FF
       def G: Traverse[G] = GF
@@ -63,7 +64,7 @@ sealed abstract private[data] class Tuple2KInstances0 extends Tuple2KInstances1 
   implicit def catsDataContravariantForTuple2K[F[_], G[_]](
     implicit FC: Contravariant[F],
     GC: Contravariant[G]
-  ): Contravariant[λ[α => Tuple2K[F, G, α]]] = new Tuple2KContravariant[F, G] {
+  ): Contravariant[({ type λ[α] = Tuple2K[F, G, α] })#λ] = new Tuple2KContravariant[F, G] {
     def F: Contravariant[F] = FC
     def G: Contravariant[G] = GC
   }
@@ -75,14 +76,16 @@ sealed abstract private[data] class Tuple2KInstances0 extends Tuple2KInstances1 
 }
 
 sealed abstract private[data] class Tuple2KInstances1 extends Tuple2KInstances2 {
-  implicit def catsDataAlternativeForTuple2K[F[_], G[_]](implicit FF: Alternative[F],
-                                                         GG: Alternative[G]): Alternative[λ[α => Tuple2K[F, G, α]]] =
+  implicit def catsDataAlternativeForTuple2K[F[_], G[_]](
+    implicit FF: Alternative[F],
+    GG: Alternative[G]
+  ): Alternative[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KAlternative[F, G] {
       def F: Alternative[F] = FF
       def G: Alternative[G] = GG
     }
   implicit def catsDataFoldableForTuple2K[F[_], G[_]](implicit FF: Foldable[F],
-                                                      GF: Foldable[G]): Foldable[λ[α => Tuple2K[F, G, α]]] =
+                                                      GF: Foldable[G]): Foldable[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KFoldable[F, G] {
       def F: Foldable[F] = FF
       def G: Foldable[G] = GF
@@ -91,13 +94,13 @@ sealed abstract private[data] class Tuple2KInstances1 extends Tuple2KInstances2 
 
 sealed abstract private[data] class Tuple2KInstances2 extends Tuple2KInstances3 {
   implicit def catsDataMonadForTuple2K[F[_], G[_]](implicit FM: Monad[F],
-                                                   GM: Monad[G]): Monad[λ[α => Tuple2K[F, G, α]]] =
+                                                   GM: Monad[G]): Monad[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KMonad[F, G] {
       def F: Monad[F] = FM
       def G: Monad[G] = GM
     }
   implicit def catsDataMonoidKForTuple2K[F[_], G[_]](implicit FF: MonoidK[F],
-                                                     GG: MonoidK[G]): MonoidK[λ[α => Tuple2K[F, G, α]]] =
+                                                     GG: MonoidK[G]): MonoidK[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KMonoidK[F, G] {
       def F: MonoidK[F] = FF
       def G: MonoidK[G] = GG
@@ -108,16 +111,18 @@ sealed abstract private[data] class Tuple2KInstances3 extends Tuple2KInstances4 
   implicit def catsDataCommutativeApplicativeForTuple2K[F[_], G[_]](
     implicit FF: CommutativeApplicative[F],
     GG: CommutativeApplicative[G]
-  ): CommutativeApplicative[λ[α => Tuple2K[F, G, α]]] =
-    new Tuple2KApplicative[F, G] with CommutativeApplicative[λ[α => Tuple2K[F, G, α]]] {
+  ): CommutativeApplicative[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
+    new Tuple2KApplicative[F, G] with CommutativeApplicative[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
       def F: Applicative[F] = FF
       def G: Applicative[G] = GG
     }
 }
 
 sealed abstract private[data] class Tuple2KInstances4 extends Tuple2KInstances5 {
-  implicit def catsDataSemigroupKForTuple2K[F[_], G[_]](implicit FF: SemigroupK[F],
-                                                        GG: SemigroupK[G]): SemigroupK[λ[α => Tuple2K[F, G, α]]] =
+  implicit def catsDataSemigroupKForTuple2K[F[_], G[_]](
+    implicit FF: SemigroupK[F],
+    GG: SemigroupK[G]
+  ): SemigroupK[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KSemigroupK[F, G] {
       def F: SemigroupK[F] = FF
       def G: SemigroupK[G] = GG
@@ -125,16 +130,18 @@ sealed abstract private[data] class Tuple2KInstances4 extends Tuple2KInstances5 
   implicit def catsDataCommutativeApplyForTuple2K[F[_], G[_]](
     implicit FF: CommutativeApply[F],
     GG: CommutativeApply[G]
-  ): CommutativeApply[λ[α => Tuple2K[F, G, α]]] =
-    new Tuple2KApply[F, G] with CommutativeApply[λ[α => Tuple2K[F, G, α]]] {
+  ): CommutativeApply[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
+    new Tuple2KApply[F, G] with CommutativeApply[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
       def F: Apply[F] = FF
       def G: Apply[G] = GG
     }
 }
 
 sealed abstract private[data] class Tuple2KInstances5 extends Tuple2KInstances6 {
-  implicit def catsDataApplicativeForTuple2K[F[_], G[_]](implicit FF: Applicative[F],
-                                                         GG: Applicative[G]): Applicative[λ[α => Tuple2K[F, G, α]]] =
+  implicit def catsDataApplicativeForTuple2K[F[_], G[_]](
+    implicit FF: Applicative[F],
+    GG: Applicative[G]
+  ): Applicative[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KApplicative[F, G] {
       def F: Applicative[F] = FF
       def G: Applicative[G] = GG
@@ -143,7 +150,7 @@ sealed abstract private[data] class Tuple2KInstances5 extends Tuple2KInstances6 
 
 sealed abstract private[data] class Tuple2KInstances6 extends Tuple2KInstances7 {
   implicit def catsDataApplyForTuple2K[F[_], G[_]](implicit FF: Apply[F],
-                                                   GG: Apply[G]): Apply[λ[α => Tuple2K[F, G, α]]] =
+                                                   GG: Apply[G]): Apply[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KApply[F, G] {
       def F: Apply[F] = FF
       def G: Apply[G] = GG
@@ -151,8 +158,10 @@ sealed abstract private[data] class Tuple2KInstances6 extends Tuple2KInstances7 
 }
 
 sealed abstract private[data] class Tuple2KInstances7 extends Tuple2KInstances8 {
-  implicit def catsDataDistributiveForTuple2K[F[_], G[_]](implicit FF: Distributive[F],
-                                                          GG: Distributive[G]): Distributive[λ[α => Tuple2K[F, G, α]]] =
+  implicit def catsDataDistributiveForTuple2K[F[_], G[_]](
+    implicit FF: Distributive[F],
+    GG: Distributive[G]
+  ): Distributive[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KDistributive[F, G] with Tuple2KFunctor[F, G] {
       def F: Distributive[F] = FF
       def G: Distributive[G] = GG
@@ -161,21 +170,21 @@ sealed abstract private[data] class Tuple2KInstances7 extends Tuple2KInstances8 
 
 sealed abstract private[data] class Tuple2KInstances8 {
   implicit def catsDataFunctorForTuple2K[F[_], G[_]](implicit FF: Functor[F],
-                                                     GG: Functor[G]): Functor[λ[α => Tuple2K[F, G, α]]] =
+                                                     GG: Functor[G]): Functor[({ type λ[α] = Tuple2K[F, G, α] })#λ] =
     new Tuple2KFunctor[F, G] {
       def F: Functor[F] = FF
       def G: Functor[G] = GG
     }
 }
 
-sealed private[data] trait Tuple2KFunctor[F[_], G[_]] extends Functor[λ[α => Tuple2K[F, G, α]]] {
+sealed private[data] trait Tuple2KFunctor[F[_], G[_]] extends Functor[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
   def F: Functor[F]
   def G: Functor[G]
   override def map[A, B](fa: Tuple2K[F, G, A])(f: A => B): Tuple2K[F, G, B] =
     Tuple2K(F.map(fa.first)(f), G.map(fa.second)(f))
 }
 
-sealed private[data] trait Tuple2KDistributive[F[_], G[_]] extends Distributive[λ[α => Tuple2K[F, G, α]]] {
+sealed private[data] trait Tuple2KDistributive[F[_], G[_]] extends Distributive[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
   def F: Distributive[F]
   def G: Distributive[G]
 
@@ -190,7 +199,8 @@ sealed private[data] trait Tuple2KDistributive[F[_], G[_]] extends Distributive[
     Tuple2K(F.map(fa.first)(f), G.map(fa.second)(f))
 }
 
-sealed private[data] trait Tuple2KContravariant[F[_], G[_]] extends Contravariant[λ[α => Tuple2K[F, G, α]]] {
+sealed private[data] trait Tuple2KContravariant[F[_], G[_]]
+    extends Contravariant[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
   def F: Contravariant[F]
   def G: Contravariant[G]
   override def contramap[A, B](fa: Tuple2K[F, G, A])(f: B => A): Tuple2K[F, G, B] =
@@ -198,7 +208,7 @@ sealed private[data] trait Tuple2KContravariant[F[_], G[_]] extends Contravarian
 }
 
 sealed private[data] trait Tuple2KContravariantMonoidal[F[_], G[_]]
-    extends ContravariantMonoidal[λ[α => Tuple2K[F, G, α]]] {
+    extends ContravariantMonoidal[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
   def F: ContravariantMonoidal[F]
   def G: ContravariantMonoidal[G]
   def unit: Tuple2K[F, G, Unit] = Tuple2K(F.unit, G.unit)
@@ -208,7 +218,9 @@ sealed private[data] trait Tuple2KContravariantMonoidal[F[_], G[_]]
     Tuple2K(F.contramap(fa.first)(f), G.contramap(fa.second)(f))
 }
 
-sealed private[data] trait Tuple2KApply[F[_], G[_]] extends Apply[λ[α => Tuple2K[F, G, α]]] with Tuple2KFunctor[F, G] {
+sealed private[data] trait Tuple2KApply[F[_], G[_]]
+    extends Apply[({ type λ[α] = Tuple2K[F, G, α] })#λ]
+    with Tuple2KFunctor[F, G] {
   def F: Apply[F]
   def G: Apply[G]
   override def ap[A, B](f: Tuple2K[F, G, A => B])(fa: Tuple2K[F, G, A]): Tuple2K[F, G, B] =
@@ -226,14 +238,14 @@ sealed private[data] trait Tuple2KApply[F[_], G[_]] extends Apply[λ[α => Tuple
 }
 
 sealed private[data] trait Tuple2KApplicative[F[_], G[_]]
-    extends Applicative[λ[α => Tuple2K[F, G, α]]]
+    extends Applicative[({ type λ[α] = Tuple2K[F, G, α] })#λ]
     with Tuple2KApply[F, G] {
   def F: Applicative[F]
   def G: Applicative[G]
   def pure[A](a: A): Tuple2K[F, G, A] = Tuple2K(F.pure(a), G.pure(a))
 }
 
-sealed private[data] trait Tuple2KSemigroupK[F[_], G[_]] extends SemigroupK[λ[α => Tuple2K[F, G, α]]] {
+sealed private[data] trait Tuple2KSemigroupK[F[_], G[_]] extends SemigroupK[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
   def F: SemigroupK[F]
   def G: SemigroupK[G]
   override def combineK[A](x: Tuple2K[F, G, A], y: Tuple2K[F, G, A]): Tuple2K[F, G, A] =
@@ -241,7 +253,7 @@ sealed private[data] trait Tuple2KSemigroupK[F[_], G[_]] extends SemigroupK[λ[�
 }
 
 sealed private[data] trait Tuple2KMonoidK[F[_], G[_]]
-    extends MonoidK[λ[α => Tuple2K[F, G, α]]]
+    extends MonoidK[({ type λ[α] = Tuple2K[F, G, α] })#λ]
     with Tuple2KSemigroupK[F, G] {
   def F: MonoidK[F]
   def G: MonoidK[G]
@@ -250,7 +262,7 @@ sealed private[data] trait Tuple2KMonoidK[F[_], G[_]]
 }
 
 sealed private[data] trait Tuple2KAlternative[F[_], G[_]]
-    extends Alternative[λ[α => Tuple2K[F, G, α]]]
+    extends Alternative[({ type λ[α] = Tuple2K[F, G, α] })#λ]
     with Tuple2KApplicative[F, G]
     with Tuple2KMonoidK[F, G] {
   def F: Alternative[F]
@@ -258,7 +270,7 @@ sealed private[data] trait Tuple2KAlternative[F[_], G[_]]
 }
 
 sealed private[data] trait Tuple2KMonad[F[_], G[_]]
-    extends Monad[λ[α => Tuple2K[F, G, α]]]
+    extends Monad[({ type λ[α] = Tuple2K[F, G, α] })#λ]
     with Tuple2KApplicative[F, G] {
   def F: Monad[F]
   def G: Monad[G]
@@ -272,7 +284,7 @@ sealed private[data] trait Tuple2KMonad[F[_], G[_]]
     Tuple2K(F.tailRecM(a)(f(_).first), G.tailRecM(a)(f(_).second))
 }
 
-sealed private[data] trait Tuple2KFoldable[F[_], G[_]] extends Foldable[λ[α => Tuple2K[F, G, α]]] {
+sealed private[data] trait Tuple2KFoldable[F[_], G[_]] extends Foldable[({ type λ[α] = Tuple2K[F, G, α] })#λ] {
   def F: Foldable[F]
   def G: Foldable[G]
 
@@ -284,7 +296,7 @@ sealed private[data] trait Tuple2KFoldable[F[_], G[_]] extends Foldable[λ[α =>
 }
 
 sealed private[data] trait Tuple2KTraverse[F[_], G[_]]
-    extends Traverse[λ[α => Tuple2K[F, G, α]]]
+    extends Traverse[({ type λ[α] = Tuple2K[F, G, α] })#λ]
     with Tuple2KFoldable[F, G] {
   def F: Traverse[F]
   def G: Traverse[G]

@@ -236,7 +236,7 @@ import scala.annotation.implicitNotFound
   def get[A](fa: F[A])(idx: Long): Option[A] =
     if (idx < 0L) None
     else
-      foldM[Either[A, *], A, Long](fa, 0L) { (i, a) =>
+      foldM[({ type λ[α$] = Either[A, α$] })#λ, A, Long](fa, 0L) { (i, a) =>
         if (i == idx) Left(a) else Right(i + 1L)
       } match {
         case Left(a)  => Some(a)
@@ -744,7 +744,7 @@ import scala.annotation.implicitNotFound
     bld.result
   }
 
-  def compose[G[_]: Foldable]: Foldable[λ[α => F[G[α]]]] =
+  def compose[G[_]: Foldable]: Foldable[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedFoldable[F, G] {
       val F = self
       val G = Foldable[G]

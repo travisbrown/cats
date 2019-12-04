@@ -28,8 +28,8 @@ sealed abstract class Free[S[_], A] extends Product with Serializable {
    * effects will be applied by `mapK`.
    */
   final def mapK[T[_]](f: S ~> T): Free[T, A] =
-    foldMap[Free[T, *]] { // this is safe because Free is stack safe
-      λ[FunctionK[S, Free[T, *]]](fa => Suspend(f(fa)))
+    foldMap[({ type λ[α$] = Free[T, α$] })#λ] { // this is safe because Free is stack safe
+      new FunctionK[S, ({ type λ[α$] = Free[T, α$] })#λ] { def apply[A$](fa: S[A$]): Free[T, A$] = Suspend(f(fa)) }
     }
 
   /**
@@ -181,10 +181,12 @@ sealed abstract class Free[S[_], A] extends Product with Serializable {
    *}}}
    */
   final def inject[G[_]](implicit ev: InjectK[S, G]): Free[G, A] =
-    mapK(λ[S ~> G](ev.inj(_)))
+    mapK(new (S ~> G) { def apply[A$](a$ : S[A$]): G[A$] = ev.inj(a$) })
 
   final def toFreeT[G[_]: Applicative]: FreeT[S, G, A] =
-    foldMap[FreeT[S, G, *]](λ[S ~> FreeT[S, G, *]](FreeT.liftF(_)))
+    foldMap[({ type λ[α$] = FreeT[S, G, α$] })#λ](new (S ~> ({ type λ[α$] = FreeT[S, G, α$] })#λ) {
+      def apply[A$](a$ : S[A$]): FreeT[S, G, A$] = FreeT.liftF(a$)
+    })
 
   override def toString: String =
     "Free(...)"
@@ -235,20 +237,26 @@ object Free extends FreeInstances {
   /**
    * a FunctionK, suitable for composition, which calls mapK
    */
-  def mapK[F[_], G[_]](fk: FunctionK[F, G]): FunctionK[Free[F, *], Free[G, *]] =
-    λ[FunctionK[Free[F, *], Free[G, *]]](f => f.mapK(fk))
+  def mapK[F[_], G[_]](
+    fk: FunctionK[F, G]
+  ): FunctionK[({ type λ[α$] = Free[F, α$] })#λ, ({ type λ[α$] = Free[G, α$] })#λ] =
+    new FunctionK[({ type λ[α$] = Free[F, α$] })#λ, ({ type λ[α$] = Free[G, α$] })#λ] {
+      def apply[A$](f: Free[F, A$]): Free[G, A$] = f.mapK(fk)
+    }
 
   /**
    * a FunctionK, suitable for composition, which calls compile
    */
-  def compile[F[_], G[_]](fk: FunctionK[F, G]): FunctionK[Free[F, *], Free[G, *]] =
+  def compile[F[_], G[_]](
+    fk: FunctionK[F, G]
+  ): FunctionK[({ type λ[α$] = Free[F, α$] })#λ, ({ type λ[α$] = Free[G, α$] })#λ] =
     mapK(fk)
 
   /**
    * a FunctionK, suitable for composition, which calls foldMap
    */
-  def foldMap[F[_], M[_]: Monad](fk: FunctionK[F, M]): FunctionK[Free[F, *], M] =
-    λ[FunctionK[Free[F, *], M]](f => f.foldMap(fk))
+  def foldMap[F[_], M[_]: Monad](fk: FunctionK[F, M]): FunctionK[({ type λ[α$] = Free[F, α$] })#λ, M] =
+    new FunctionK[({ type λ[α$] = Free[F, α$] })#λ, M] { def apply[A$](f: Free[F, A$]): M[A$] = f.foldMap(fk) }
 
   /**
    * This method is used to defer the application of an InjectK[F, G]
@@ -295,12 +303,12 @@ object Free extends FreeInstances {
   def match_[F[_], G[_], A](fa: Free[F, A])(implicit F: Functor[F], I: InjectK[G, F]): Option[G[Free[F, A]]] =
     fa.resume.fold(I.prj(_), _ => None)
 
-  implicit def catsFreeMonadForId: Monad[Free[Id, *]] = catsFreeMonadForFree[Id]
+  implicit def catsFreeMonadForId: Monad[({ type λ[α$] = Free[Id, α$] })#λ] = catsFreeMonadForFree[Id]
 
-  implicit def catsFreeDeferForId: Defer[Free[Id, *]] = catsFreeDeferForFree[Id]
+  implicit def catsFreeDeferForId: Defer[({ type λ[α$] = Free[Id, α$] })#λ] = catsFreeDeferForFree[Id]
 }
 
-private trait FreeFoldable[F[_]] extends Foldable[Free[F, *]] {
+private trait FreeFoldable[F[_]] extends Foldable[({ type λ[α$] = Free[F, α$] })#λ] {
 
   implicit def F: Foldable[F]
 
@@ -319,7 +327,7 @@ private trait FreeFoldable[F[_]] extends Foldable[Free[F, *]] {
     )
 }
 
-private trait FreeTraverse[F[_]] extends Traverse[Free[F, *]] with FreeFoldable[F] {
+private trait FreeTraverse[F[_]] extends Traverse[({ type λ[α$] = Free[F, α$] })#λ] with FreeFoldable[F] {
   implicit def TraversableF: Traverse[F]
 
   def F: Foldable[F] = TraversableF
@@ -339,15 +347,15 @@ sealed abstract private[free] class FreeInstances extends FreeInstances1 {
   /**
    * `Free[S, *]` has a monad for any type constructor `S[_]`.
    */
-  implicit def catsFreeMonadForFree[S[_]]: Monad[Free[S, *]] =
-    new Monad[Free[S, *]] with StackSafeMonad[Free[S, *]] {
+  implicit def catsFreeMonadForFree[S[_]]: Monad[({ type λ[α$] = Free[S, α$] })#λ] =
+    new Monad[({ type λ[α$] = Free[S, α$] })#λ] with StackSafeMonad[({ type λ[α$] = Free[S, α$] })#λ] {
       def pure[A](a: A): Free[S, A] = Free.pure(a)
       override def map[A, B](fa: Free[S, A])(f: A => B): Free[S, B] = fa.map(f)
       def flatMap[A, B](a: Free[S, A])(f: A => Free[S, B]): Free[S, B] = a.flatMap(f)
     }
 
-  implicit def catsFreeDeferForFree[S[_]]: Defer[Free[S, *]] =
-    new Defer[Free[S, *]] {
+  implicit def catsFreeDeferForFree[S[_]]: Defer[({ type λ[α$] = Free[S, α$] })#λ] =
+    new Defer[({ type λ[α$] = Free[S, α$] })#λ] {
       def defer[A](fa: => Free[S, A]): Free[S, A] =
         Free.defer(fa)
     }
@@ -358,7 +366,7 @@ sealed abstract private[free] class FreeInstances1 {
   implicit def catsFreeFoldableForFree[F[_]](
     implicit
     foldableF: Foldable[F]
-  ): Foldable[Free[F, *]] =
+  ): Foldable[({ type λ[α$] = Free[F, α$] })#λ] =
     new FreeFoldable[F] {
       val F = foldableF
     }
@@ -366,7 +374,7 @@ sealed abstract private[free] class FreeInstances1 {
   implicit def catsFreeTraverseForFree[F[_]](
     implicit
     traversableF: Traverse[F]
-  ): Traverse[Free[F, *]] =
+  ): Traverse[({ type λ[α$] = Free[F, α$] })#λ] =
     new FreeTraverse[F] {
       val TraversableF = traversableF
     }

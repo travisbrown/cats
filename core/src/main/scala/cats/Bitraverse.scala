@@ -55,7 +55,7 @@ import scala.annotation.implicitNotFound
     bitraverse(fab)(identity, identity)
 
   /** If F and G are both [[cats.Bitraverse]] then so is their composition F[G[_, _], G[_, _]] */
-  def compose[G[_, _]](implicit ev: Bitraverse[G]): Bitraverse[λ[(α, β) => F[G[α, β], G[α, β]]]] =
+  def compose[G[_, _]](implicit ev: Bitraverse[G]): Bitraverse[({ type λ[α, β] = F[G[α, β], G[α, β]] })#λ] =
     new ComposedBitraverse[F, G] {
       val F = self
       val G = ev
@@ -155,7 +155,7 @@ object Bitraverse {
 }
 
 private[cats] trait ComposedBitraverse[F[_, _], G[_, _]]
-    extends Bitraverse[λ[(α, β) => F[G[α, β], G[α, β]]]]
+    extends Bitraverse[({ type λ[α, β] = F[G[α, β], G[α, β]] })#λ]
     with ComposedBifoldable[F, G]
     with ComposedBifunctor[F, G] {
   def F: Bitraverse[F]

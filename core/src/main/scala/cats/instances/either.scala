@@ -34,9 +34,12 @@ trait EitherInstances extends cats.kernel.instances.EitherInstances {
     }
 
   // scalastyle:off method.length
-  implicit def catsStdInstancesForEither[A]
-    : MonadError[Either[A, *], A] with Traverse[Either[A, *]] with Align[Either[A, *]] =
-    new MonadError[Either[A, *], A] with Traverse[Either[A, *]] with Align[Either[A, *]] {
+  implicit def catsStdInstancesForEither[A]: MonadError[({ type λ[α$] = Either[A, α$] })#λ, A]
+    with Traverse[({ type λ[α$] = Either[A, α$] })#λ]
+    with Align[({ type λ[α$] = Either[A, α$] })#λ] =
+    new MonadError[({ type λ[α$] = Either[A, α$] })#λ, A]
+      with Traverse[({ type λ[α$] = Either[A, α$] })#λ]
+      with Align[({ type λ[α$] = Either[A, α$] })#λ] {
       def pure[B](b: B): Either[A, B] = Right(b)
 
       def flatMap[B, C](fa: Either[A, B])(f: B => Either[A, C]): Either[A, C] =
@@ -152,7 +155,7 @@ trait EitherInstances extends cats.kernel.instances.EitherInstances {
       override def isEmpty[B](fab: Either[A, B]): Boolean =
         fab.isLeft
 
-      def functor: Functor[Either[A, *]] = this
+      def functor: Functor[({ type λ[α$] = Either[A, α$] })#λ] = this
 
       def align[B, C](fa: Either[A, B], fb: Either[A, C]): Either[A, Ior[B, C]] =
         alignWith(fa, fb)(identity)
@@ -173,8 +176,8 @@ trait EitherInstances extends cats.kernel.instances.EitherInstances {
     }
   // scalastyle:on method.length
 
-  implicit def catsStdSemigroupKForEither[L]: SemigroupK[Either[L, *]] =
-    new SemigroupK[Either[L, *]] {
+  implicit def catsStdSemigroupKForEither[L]: SemigroupK[({ type λ[α$] = Either[L, α$] })#λ] =
+    new SemigroupK[({ type λ[α$] = Either[L, α$] })#λ] {
       def combineK[A](x: Either[L, A], y: Either[L, A]): Either[L, A] = x match {
         case Left(_)  => y
         case Right(_) => x
@@ -190,17 +193,23 @@ trait EitherInstances extends cats.kernel.instances.EitherInstances {
         }
     }
 
-  implicit def catsParallelForEitherAndValidated[E: Semigroup]: Parallel.Aux[Either[E, *], Validated[E, *]] =
-    new Parallel[Either[E, *]] {
+  implicit def catsParallelForEitherAndValidated[E: Semigroup]
+    : Parallel.Aux[({ type λ[α$] = Either[E, α$] })#λ, ({ type λ[α$] = Validated[E, α$] })#λ] =
+    new Parallel[({ type λ[α$] = Either[E, α$] })#λ] {
       type F[x] = Validated[E, x]
 
-      def applicative: Applicative[Validated[E, *]] = Validated.catsDataApplicativeErrorForValidated
-      def monad: Monad[Either[E, *]] = cats.instances.either.catsStdInstancesForEither
+      def applicative: Applicative[({ type λ[α$] = Validated[E, α$] })#λ] =
+        Validated.catsDataApplicativeErrorForValidated
+      def monad: Monad[({ type λ[α$] = Either[E, α$] })#λ] = cats.instances.either.catsStdInstancesForEither
 
-      def sequential: Validated[E, *] ~> Either[E, *] =
-        λ[Validated[E, *] ~> Either[E, *]](_.toEither)
+      def sequential: ({ type λ[α$] = Validated[E, α$] })#λ ~> ({ type λ[α$] = Either[E, α$] })#λ =
+        new (({ type λ[α$] = Validated[E, α$] })#λ ~> ({ type λ[α$] = Either[E, α$] })#λ) {
+          def apply[A$](a$ : Validated[E, A$]): Either[E, A$] = a$.toEither
+        }
 
-      def parallel: Either[E, *] ~> Validated[E, *] =
-        λ[Either[E, *] ~> Validated[E, *]](_.toValidated)
+      def parallel: ({ type λ[α$] = Either[E, α$] })#λ ~> ({ type λ[α$] = Validated[E, α$] })#λ =
+        new (({ type λ[α$] = Either[E, α$] })#λ ~> ({ type λ[α$] = Validated[E, α$] })#λ) {
+          def apply[A$](a$ : Either[E, A$]): Validated[E, A$] = a$.toValidated
+        }
     }
 }

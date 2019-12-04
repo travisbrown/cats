@@ -107,18 +107,22 @@ sealed abstract private[data] class OneAndInstances extends OneAndLowPriority0 {
 
   implicit def catsDataParallelForOneAnd[A, M[_]: Alternative, F0[_]: Alternative](
     implicit P: Parallel.Aux[M, F0]
-  ): Parallel.Aux[OneAnd[M, *], OneAnd[F0, *]] =
-    new Parallel[OneAnd[M, *]] {
+  ): Parallel.Aux[({ type λ[α$] = OneAnd[M, α$] })#λ, ({ type λ[α$] = OneAnd[F0, α$] })#λ] =
+    new Parallel[({ type λ[α$] = OneAnd[M, α$] })#λ] {
       type F[x] = OneAnd[F0, x]
-      def monad: Monad[OneAnd[M, *]] = catsDataMonadForOneAnd(P.monad, Alternative[M])
+      def monad: Monad[({ type λ[α$] = OneAnd[M, α$] })#λ] = catsDataMonadForOneAnd(P.monad, Alternative[M])
 
-      def applicative: Applicative[OneAnd[F0, *]] = catsDataApplicativeForOneAnd(Alternative[F0])
+      def applicative: Applicative[({ type λ[α$] = OneAnd[F0, α$] })#λ] = catsDataApplicativeForOneAnd(Alternative[F0])
 
-      def sequential: OneAnd[F0, *] ~> OneAnd[M, *] =
-        λ[OneAnd[F0, *] ~> OneAnd[M, *]](ofa => OneAnd(ofa.head, P.sequential(ofa.tail)))
+      def sequential: ({ type λ[α$] = OneAnd[F0, α$] })#λ ~> ({ type λ[α$] = OneAnd[M, α$] })#λ =
+        new (({ type λ[α$] = OneAnd[F0, α$] })#λ ~> ({ type λ[α$] = OneAnd[M, α$] })#λ) {
+          def apply[A$](ofa: OneAnd[F0, A$]): OneAnd[M, A$] = OneAnd(ofa.head, P.sequential(ofa.tail))
+        }
 
-      def parallel: OneAnd[M, *] ~> OneAnd[F0, *] =
-        λ[OneAnd[M, *] ~> OneAnd[F0, *]](ofa => OneAnd(ofa.head, P.parallel(ofa.tail)))
+      def parallel: ({ type λ[α$] = OneAnd[M, α$] })#λ ~> ({ type λ[α$] = OneAnd[F0, α$] })#λ =
+        new (({ type λ[α$] = OneAnd[M, α$] })#λ ~> ({ type λ[α$] = OneAnd[F0, α$] })#λ) {
+          def apply[A$](ofa: OneAnd[M, A$]): OneAnd[F0, A$] = OneAnd(ofa.head, P.parallel(ofa.tail))
+        }
 
     }
 
@@ -130,8 +134,8 @@ sealed abstract private[data] class OneAndInstances extends OneAndLowPriority0 {
   implicit def catsDataShowForOneAnd[A, F[_]](implicit A: Show[A], FA: Show[F[A]]): Show[OneAnd[F, A]] =
     Show.show[OneAnd[F, A]](_.show)
 
-  implicit def catsDataSemigroupKForOneAnd[F[_]: Alternative]: SemigroupK[OneAnd[F, *]] =
-    new SemigroupK[OneAnd[F, *]] {
+  implicit def catsDataSemigroupKForOneAnd[F[_]: Alternative]: SemigroupK[({ type λ[α$] = OneAnd[F, α$] })#λ] =
+    new SemigroupK[({ type λ[α$] = OneAnd[F, α$] })#λ] {
       def combineK[A](a: OneAnd[F, A], b: OneAnd[F, A]): OneAnd[F, A] =
         a.combine(b)
     }
@@ -140,8 +144,8 @@ sealed abstract private[data] class OneAndInstances extends OneAndLowPriority0 {
     catsDataSemigroupKForOneAnd[F].algebra
 
   implicit def catsDataMonadForOneAnd[F[_]](implicit monad: Monad[F],
-                                            alternative: Alternative[F]): Monad[OneAnd[F, *]] =
-    new Monad[OneAnd[F, *]] {
+                                            alternative: Alternative[F]): Monad[({ type λ[α$] = OneAnd[F, α$] })#λ] =
+    new Monad[({ type λ[α$] = OneAnd[F, α$] })#λ] {
       override def map[A, B](fa: OneAnd[F, A])(f: A => B): OneAnd[F, B] =
         fa.map(f)(monad)
 
@@ -193,8 +197,8 @@ sealed abstract private[data] class OneAndInstances extends OneAndLowPriority0 {
 
 sealed abstract private[data] class OneAndLowPriority3 extends OneAndLowPriority4 {
 
-  implicit def catsDataFunctorForOneAnd[F[_]](implicit F: Functor[F]): Functor[OneAnd[F, *]] =
-    new Functor[OneAnd[F, *]] {
+  implicit def catsDataFunctorForOneAnd[F[_]](implicit F: Functor[F]): Functor[({ type λ[α$] = OneAnd[F, α$] })#λ] =
+    new Functor[({ type λ[α$] = OneAnd[F, α$] })#λ] {
       def map[A, B](fa: OneAnd[F, A])(f: A => B): OneAnd[F, B] =
         fa.map(f)
     }
@@ -203,8 +207,10 @@ sealed abstract private[data] class OneAndLowPriority3 extends OneAndLowPriority
 
 sealed abstract private[data] class OneAndLowPriority2 extends OneAndLowPriority3 {
 
-  implicit def catsDataApplicativeForOneAnd[F[_]](implicit F: Alternative[F]): Applicative[OneAnd[F, *]] =
-    new Applicative[OneAnd[F, *]] {
+  implicit def catsDataApplicativeForOneAnd[F[_]](
+    implicit F: Alternative[F]
+  ): Applicative[({ type λ[α$] = OneAnd[F, α$] })#λ] =
+    new Applicative[({ type λ[α$] = OneAnd[F, α$] })#λ] {
       override def map[A, B](fa: OneAnd[F, A])(f: A => B): OneAnd[F, B] =
         fa.map(f)
 
@@ -223,8 +229,8 @@ sealed abstract private[data] class OneAndLowPriority2 extends OneAndLowPriority
 
 sealed abstract private[data] class OneAndLowPriority1 extends OneAndLowPriority2 {
 
-  implicit def catsDataTraverseForOneAnd[F[_]](implicit F: Traverse[F]): Traverse[OneAnd[F, *]] =
-    new Traverse[OneAnd[F, *]] {
+  implicit def catsDataTraverseForOneAnd[F[_]](implicit F: Traverse[F]): Traverse[({ type λ[α$] = OneAnd[F, α$] })#λ] =
+    new Traverse[({ type λ[α$] = OneAnd[F, α$] })#λ] {
       def traverse[G[_], A, B](fa: OneAnd[F, A])(f: (A) => G[B])(implicit G: Applicative[G]): G[OneAnd[F, B]] =
         G.map2Eval(f(fa.head), Always(F.traverse(fa.tail)(f)))(OneAnd(_, _)).value
 
@@ -237,8 +243,10 @@ sealed abstract private[data] class OneAndLowPriority1 extends OneAndLowPriority
 }
 
 sealed abstract private[data] class OneAndLowPriority0_5 extends OneAndLowPriority1 {
-  implicit def catsDataReducibleForOneAnd[F[_]](implicit F: Foldable[F]): Reducible[OneAnd[F, *]] =
-    new NonEmptyReducible[OneAnd[F, *], F] {
+  implicit def catsDataReducibleForOneAnd[F[_]](
+    implicit F: Foldable[F]
+  ): Reducible[({ type λ[α$] = OneAnd[F, α$] })#λ] =
+    new NonEmptyReducible[({ type λ[α$] = OneAnd[F, α$] })#λ, F] {
       override def split[A](fa: OneAnd[F, A]): (A, F[A]) = (fa.head, fa.tail)
 
       override def get[A](fa: OneAnd[F, A])(idx: Long): Option[A] =
@@ -249,9 +257,12 @@ sealed abstract private[data] class OneAndLowPriority0_5 extends OneAndLowPriori
 }
 
 sealed abstract private[data] class OneAndLowPriority0 extends OneAndLowPriority0_5 {
-  implicit def catsDataNonEmptyTraverseForOneAnd[F[_]](implicit F: Traverse[F],
-                                                       F2: Alternative[F]): NonEmptyTraverse[OneAnd[F, *]] =
-    new NonEmptyReducible[OneAnd[F, *], F] with NonEmptyTraverse[OneAnd[F, *]] {
+  implicit def catsDataNonEmptyTraverseForOneAnd[F[_]](
+    implicit F: Traverse[F],
+    F2: Alternative[F]
+  ): NonEmptyTraverse[({ type λ[α$] = OneAnd[F, α$] })#λ] =
+    new NonEmptyReducible[({ type λ[α$] = OneAnd[F, α$] })#λ, F]
+      with NonEmptyTraverse[({ type λ[α$] = OneAnd[F, α$] })#λ] {
       def nonEmptyTraverse[G[_], A, B](fa: OneAnd[F, A])(f: (A) => G[B])(implicit G: Apply[G]): G[OneAnd[F, B]] = {
         import cats.syntax.apply._
 

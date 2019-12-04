@@ -66,7 +66,7 @@ import scala.annotation.implicitNotFound
    * res0: List[Option[Int]] = List(Some(1), None, Some(2), Some(3), None)
    * }}}
    */
-  def compose[G[_]]: SemigroupK[λ[α => F[G[α]]]] =
+  def compose[G[_]]: SemigroupK[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedSemigroupK[F, G] {
       val F = self
     }

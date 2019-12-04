@@ -721,8 +721,8 @@ sealed abstract private[data] class IorInstances extends IorInstances0 {
     def combine(x: Ior[A, B], y: Ior[A, B]) = x.combine(y)
   }
 
-  implicit def catsDataMonadErrorForIor[A: Semigroup]: MonadError[Ior[A, *], A] =
-    new MonadError[Ior[A, *], A] {
+  implicit def catsDataMonadErrorForIor[A: Semigroup]: MonadError[({ type λ[α$] = Ior[A, α$] })#λ, A] =
+    new MonadError[({ type λ[α$] = Ior[A, α$] })#λ, A] {
 
       def raiseError[B](e: A): Ior[A, B] = Ior.left(e)
 
@@ -769,16 +769,18 @@ sealed abstract private[data] class IorInstances extends IorInstances0 {
     }
 
   // scalastyle:off cyclomatic.complexity
-  implicit def catsDataParallelForIor[E](implicit E: Semigroup[E]): Parallel.Aux[Ior[E, *], Ior[E, *]] =
-    new Parallel[Ior[E, *]] {
+  implicit def catsDataParallelForIor[E](
+    implicit E: Semigroup[E]
+  ): Parallel.Aux[({ type λ[α$] = Ior[E, α$] })#λ, ({ type λ[α$] = Ior[E, α$] })#λ] =
+    new Parallel[({ type λ[α$] = Ior[E, α$] })#λ] {
       type F[x] = Ior[E, x]
 
-      private[this] val identityK: Ior[E, *] ~> Ior[E, *] = FunctionK.id
+      private[this] val identityK: ({ type λ[α$] = Ior[E, α$] })#λ ~> ({ type λ[α$] = Ior[E, α$] })#λ = FunctionK.id
 
-      def parallel: Ior[E, *] ~> Ior[E, *] = identityK
-      def sequential: Ior[E, *] ~> Ior[E, *] = identityK
+      def parallel: ({ type λ[α$] = Ior[E, α$] })#λ ~> ({ type λ[α$] = Ior[E, α$] })#λ = identityK
+      def sequential: ({ type λ[α$] = Ior[E, α$] })#λ ~> ({ type λ[α$] = Ior[E, α$] })#λ = identityK
 
-      val applicative: Applicative[Ior[E, *]] = new Applicative[Ior[E, *]] {
+      val applicative: Applicative[({ type λ[α$] = Ior[E, α$] })#λ] = new Applicative[({ type λ[α$] = Ior[E, α$] })#λ] {
         def pure[A](a: A): Ior[E, A] = Ior.right(a)
         def ap[A, B](ff: Ior[E, A => B])(fa: Ior[E, A]): Ior[E, B] =
           fa match {
@@ -803,7 +805,7 @@ sealed abstract private[data] class IorInstances extends IorInstances0 {
           }
       }
 
-      lazy val monad: Monad[Ior[E, *]] = Monad[Ior[E, *]]
+      lazy val monad: Monad[({ type λ[α$] = Ior[E, α$] })#λ] = Monad[({ type λ[α$] = Ior[E, α$] })#λ]
     }
   // scalastyle:on cyclomatic.complexity
 
@@ -811,26 +813,27 @@ sealed abstract private[data] class IorInstances extends IorInstances0 {
 
 sealed abstract private[data] class IorInstances0 {
 
-  implicit def catsDataTraverseFunctorForIor[A]: Traverse[A Ior *] = new Traverse[A Ior *] {
-    def traverse[F[_]: Applicative, B, C](fa: A Ior B)(f: B => F[C]): F[A Ior C] =
-      fa.traverse(f)
-    def foldLeft[B, C](fa: A Ior B, b: C)(f: (C, B) => C): C =
-      fa.foldLeft(b)(f)
-    def foldRight[B, C](fa: A Ior B, lc: Eval[C])(f: (B, Eval[C]) => Eval[C]): Eval[C] =
-      fa.foldRight(lc)(f)
+  implicit def catsDataTraverseFunctorForIor[A]: Traverse[({ type λ[α$] = A Ior α$ })#λ] =
+    new Traverse[({ type λ[α$] = A Ior α$ })#λ] {
+      def traverse[F[_]: Applicative, B, C](fa: A Ior B)(f: B => F[C]): F[A Ior C] =
+        fa.traverse(f)
+      def foldLeft[B, C](fa: A Ior B, b: C)(f: (C, B) => C): C =
+        fa.foldLeft(b)(f)
+      def foldRight[B, C](fa: A Ior B, lc: Eval[C])(f: (B, Eval[C]) => Eval[C]): Eval[C] =
+        fa.foldRight(lc)(f)
 
-    override def size[B](fa: A Ior B): Long = fa.fold(_ => 0L, _ => 1L, (_, _) => 1L)
+      override def size[B](fa: A Ior B): Long = fa.fold(_ => 0L, _ => 1L, (_, _) => 1L)
 
-    override def get[B](fa: A Ior B)(idx: Long): Option[B] =
-      if (idx == 0L) fa.toOption else None
+      override def get[B](fa: A Ior B)(idx: Long): Option[B] =
+        if (idx == 0L) fa.toOption else None
 
-    override def forall[B](fa: Ior[A, B])(p: (B) => Boolean): Boolean = fa.forall(p)
+      override def forall[B](fa: Ior[A, B])(p: (B) => Boolean): Boolean = fa.forall(p)
 
-    override def exists[B](fa: Ior[A, B])(p: (B) => Boolean): Boolean = fa.exists(p)
+      override def exists[B](fa: Ior[A, B])(p: (B) => Boolean): Boolean = fa.exists(p)
 
-    override def map[B, C](fa: A Ior B)(f: B => C): A Ior C =
-      fa.map(f)
-  }
+      override def map[B, C](fa: A Ior B)(f: B => C): A Ior C =
+        fa.map(f)
+    }
 }
 
 sealed private[data] trait IorFunctions {

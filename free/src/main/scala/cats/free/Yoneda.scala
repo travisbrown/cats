@@ -43,8 +43,8 @@ object Yoneda {
   /**
    * `Yoneda[F, _]` is a functor for any `F`.
    */
-  implicit def catsFreeFunctorForYoneda[F[_]]: Functor[Yoneda[F, *]] =
-    new Functor[Yoneda[F, *]] {
+  implicit def catsFreeFunctorForYoneda[F[_]]: Functor[({ type λ[α$] = Yoneda[F, α$] })#λ] =
+    new Functor[({ type λ[α$] = Yoneda[F, α$] })#λ] {
       def map[A, B](ya: Yoneda[F, A])(f: A => B): Yoneda[F, B] = ya.map(f)
     }
 

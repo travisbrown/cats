@@ -9,13 +9,15 @@ import cats.{NonEmptyParallel, Parallel}
 trait ParallelInstances extends ParallelInstances1 {
 
   @deprecated("Use cats.instances.either.catsParallelForEitherAndValidated", "2.1.0")
-  def catsParallelForEitherValidated[E: Semigroup]: Parallel.Aux[Either[E, *], Validated[E, *]] =
+  def catsParallelForEitherValidated[E: Semigroup]
+    : Parallel.Aux[({ type λ[α$] = Either[E, α$] })#λ, ({ type λ[α$] = Validated[E, α$] })#λ] =
     cats.instances.either.catsParallelForEitherAndValidated[E]
 
   @deprecated("Use OptionT.catsDataParallelForOptionT", "2.0.0")
   def catsParallelForOptionTNestedOption[M[_]](
     implicit P: Parallel[M]
-  ): Parallel.Aux[OptionT[M, *], Nested[P.F, Option, *]] = OptionT.catsDataParallelForOptionT[M]
+  ): Parallel.Aux[({ type λ[α$] = OptionT[M, α$] })#λ, ({ type λ[α$] = Nested[P.F, Option, α$] })#λ] =
+    OptionT.catsDataParallelForOptionT[M]
 
   @deprecated("Use cats.instances.list.catsStdNonEmptyParallelForListZipList", "2.1.0")
   def catsStdNonEmptyParallelForZipList: NonEmptyParallel.Aux[List, ZipList] =
@@ -36,6 +38,7 @@ trait ParallelInstances extends ParallelInstances1 {
   @deprecated("Use EitherT.catsDataParallelForEitherTWithParallelEffect", "2.0.0")
   def catsParallelForEitherTNestedParallelValidated[M[_], E: Semigroup](
     implicit P: Parallel[M]
-  ): Parallel.Aux[EitherT[M, E, *], Nested[P.F, Validated[E, *], *]] =
+  ): Parallel.Aux[({ type λ[α$] = EitherT[M, E, α$] })#λ,
+                  ({ type λ[α$] = Nested[P.F, ({ type λ[α$$] = Validated[E, α$$] })#λ, α$] })#λ] =
     EitherT.catsDataParallelForEitherTWithParallelEffect[M, E]
 }

@@ -140,27 +140,27 @@ sealed abstract class FreeApplicative[F[_], A] extends Product with Serializable
    * Stack-safe.
    */
   final def compile[G[_]](f: F ~> G): FA[G, A] =
-    foldMap[FA[G, *]] {
-      λ[FunctionK[F, FA[G, *]]](fa => lift(f(fa)))
+    foldMap[({ type λ[α$] = FA[G, α$] })#λ] {
+      new FunctionK[F, ({ type λ[α$] = FA[G, α$] })#λ] { def apply[A$](fa: F[A$]): FA[G, A$] = lift(f(fa)) }
     }
 
   /**
    * Interpret this algebra into a FreeApplicative over another algebra.
    * Stack-safe.
    */
-  def flatCompile[G[_]](f: F ~> FA[G, *]): FA[G, A] =
+  def flatCompile[G[_]](f: F ~> ({ type λ[α$] = FA[G, α$] })#λ): FA[G, A] =
     foldMap(f)
 
   /** Interpret this algebra into a Monoid. */
-  final def analyze[M: Monoid](f: FunctionK[F, λ[α => M]]): M =
-    foldMap[Const[M, *]](
-      λ[FunctionK[F, Const[M, *]]](x => Const(f(x)))
+  final def analyze[M: Monoid](f: FunctionK[F, ({ type λ[α] = M })#λ]): M =
+    foldMap[({ type λ[α$] = Const[M, α$] })#λ](
+      new FunctionK[F, ({ type λ[α$] = Const[M, α$] })#λ] { def apply[A$](x: F[A$]): Const[M, A$] = Const(f(x)) }
     ).getConst
 
   /** Compile this FreeApplicative algebra into a Free algebra. */
   final def monad: Free[F, A] =
-    foldMap[Free[F, *]] {
-      λ[FunctionK[F, Free[F, *]]](fa => Free.liftF(fa))
+    foldMap[({ type λ[α$] = Free[F, α$] })#λ] {
+      new FunctionK[F, ({ type λ[α$] = Free[F, α$] })#λ] { def apply[A$](fa: F[A$]): Free[F, A$] = Free.liftF(fa) }
     }
 
   override def toString: String = "FreeApplicative(...)"
@@ -198,8 +198,8 @@ object FreeApplicative {
   final def lift[F[_], A](fa: F[A]): FA[F, A] =
     Lift(fa)
 
-  implicit final def freeApplicative[S[_]]: Applicative[FA[S, *]] =
-    new Applicative[FA[S, *]] {
+  implicit final def freeApplicative[S[_]]: Applicative[({ type λ[α$] = FA[S, α$] })#λ] =
+    new Applicative[({ type λ[α$] = FA[S, α$] })#λ] {
       override def product[A, B](fa: FA[S, A], fb: FA[S, B]): FA[S, (A, B)] =
         map2(fa, fb)((_, _))
 

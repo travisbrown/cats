@@ -10,7 +10,7 @@ import scala.annotation.implicitNotFound
   def contramap[A, B](fa: F[A])(f: B => A): F[B]
   override def imap[A, B](fa: F[A])(f: A => B)(fi: B => A): F[B] = contramap(fa)(fi)
 
-  def compose[G[_]: Contravariant]: Functor[λ[α => F[G[α]]]] =
+  def compose[G[_]: Contravariant]: Functor[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedContravariant[F, G] {
       val F = self
       val G = Contravariant[G]
@@ -24,7 +24,7 @@ import scala.annotation.implicitNotFound
 
   def liftContravariant[A, B](f: A => B): F[B] => F[A] = contramap(_: F[B])(f)
 
-  override def composeFunctor[G[_]: Functor]: Contravariant[λ[α => F[G[α]]]] =
+  override def composeFunctor[G[_]: Functor]: Contravariant[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedContravariantCovariant[F, G] {
       val F = self
       val G = Functor[G]

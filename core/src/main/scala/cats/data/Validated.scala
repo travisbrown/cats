@@ -825,8 +825,10 @@ object Validated extends ValidatedInstances with ValidatedFunctions with Validat
 
 sealed abstract private[data] class ValidatedInstances extends ValidatedInstances1 {
 
-  implicit def catsDataSemigroupKForValidated[A](implicit A: Semigroup[A]): SemigroupK[Validated[A, *]] =
-    new SemigroupK[Validated[A, *]] {
+  implicit def catsDataSemigroupKForValidated[A](
+    implicit A: Semigroup[A]
+  ): SemigroupK[({ type λ[α$] = Validated[A, α$] })#λ] =
+    new SemigroupK[({ type λ[α$] = Validated[A, α$] })#λ] {
       def combineK[B](x: Validated[A, B], y: Validated[A, B]): Validated[A, B] = x match {
         case v @ Valid(_) => v
         case Invalid(ix) =>
@@ -837,9 +839,9 @@ sealed abstract private[data] class ValidatedInstances extends ValidatedInstance
       }
     }
 
-  implicit def catsDataAlignForValidated[E: Semigroup]: Align[Validated[E, *]] =
-    new Align[Validated[E, *]] {
-      def functor: Functor[Validated[E, *]] = catsDataTraverseFunctorForValidated
+  implicit def catsDataAlignForValidated[E: Semigroup]: Align[({ type λ[α$] = Validated[E, α$] })#λ] =
+    new Align[({ type λ[α$] = Validated[E, α$] })#λ] {
+      def functor: Functor[({ type λ[α$] = Validated[E, α$] })#λ] = catsDataTraverseFunctorForValidated
       def align[A, B](fa: Validated[E, A], fb: Validated[E, B]): Validated[E, Ior[A, B]] =
         alignWith(fa, fb)(identity)
 
@@ -905,8 +907,10 @@ sealed abstract private[data] class ValidatedInstances extends ValidatedInstance
         fab.leftMap(f)
     }
 
-  implicit def catsDataApplicativeErrorForValidated[E](implicit E: Semigroup[E]): ApplicativeError[Validated[E, *], E] =
-    new ValidatedApplicative[E] with ApplicativeError[Validated[E, *], E] {
+  implicit def catsDataApplicativeErrorForValidated[E](
+    implicit E: Semigroup[E]
+  ): ApplicativeError[({ type λ[α$] = Validated[E, α$] })#λ, E] =
+    new ValidatedApplicative[E] with ApplicativeError[({ type λ[α$] = Validated[E, α$] })#λ, E] {
 
       def handleErrorWith[A](fa: Validated[E, A])(f: E => Validated[E, A]): Validated[E, A] =
         fa match {
@@ -926,8 +930,8 @@ sealed abstract private[data] class ValidatedInstances1 extends ValidatedInstanc
     }
 
   implicit def catsDataCommutativeApplicativeForValidated[E: CommutativeSemigroup]
-    : CommutativeApplicative[Validated[E, *]] =
-    new ValidatedApplicative[E] with CommutativeApplicative[Validated[E, *]]
+    : CommutativeApplicative[({ type λ[α$] = Validated[E, α$] })#λ] =
+    new ValidatedApplicative[E] with CommutativeApplicative[({ type λ[α$] = Validated[E, α$] })#λ]
 
   implicit def catsDataPartialOrderForValidated[A: PartialOrder, B: PartialOrder]: PartialOrder[Validated[A, B]] =
     new PartialOrder[Validated[A, B]] {
@@ -943,8 +947,8 @@ sealed abstract private[data] class ValidatedInstances2 {
     }
 
   // scalastyle:off method.length
-  implicit def catsDataTraverseFunctorForValidated[E]: Traverse[Validated[E, *]] =
-    new Traverse[Validated[E, *]] {
+  implicit def catsDataTraverseFunctorForValidated[E]: Traverse[({ type λ[α$] = Validated[E, α$] })#λ] =
+    new Traverse[({ type λ[α$] = Validated[E, α$] })#λ] {
 
       override def traverse[G[_]: Applicative, A, B](fa: Validated[E, A])(f: (A) => G[B]): G[Validated[E, B]] =
         fa.traverse(f)
@@ -1004,7 +1008,8 @@ sealed abstract private[data] class ValidatedInstances2 {
   // scalastyle:off method.length
 }
 
-private[data] class ValidatedApplicative[E: Semigroup] extends CommutativeApplicative[Validated[E, *]] {
+private[data] class ValidatedApplicative[E: Semigroup]
+    extends CommutativeApplicative[({ type λ[α$] = Validated[E, α$] })#λ] {
   override def map[A, B](fa: Validated[E, A])(f: A => B): Validated[E, B] =
     fa.map(f)
 

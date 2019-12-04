@@ -31,10 +31,12 @@ trait BinestedInstances extends BinestedInstances0 {
   ): Eq[Binested[F, G, H, A, B]] =
     Eq.by(_.value)
 
-  implicit def catsDataProfunctorForBinested[F[_, _], G[_], H[_]](implicit F: Profunctor[F],
-                                                                  G: Functor[G],
-                                                                  H: Functor[H]): Profunctor[Binested[F, G, H, *, *]] =
-    new Profunctor[Binested[F, G, H, *, *]] {
+  implicit def catsDataProfunctorForBinested[F[_, _], G[_], H[_]](
+    implicit F: Profunctor[F],
+    G: Functor[G],
+    H: Functor[H]
+  ): Profunctor[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] =
+    new Profunctor[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] {
       def dimap[A, B, C, D](fab: Binested[F, G, H, A, B])(f: C => A)(g: B => D): Binested[F, G, H, C, D] =
         Binested(F.dimap(fab.value)(G.map(_: G[C])(f))(H.map(_)(g)))
     }
@@ -43,7 +45,7 @@ trait BinestedInstances extends BinestedInstances0 {
     implicit F0: Bitraverse[F],
     H0: Traverse[H],
     G0: Traverse[G]
-  ): Bitraverse[Binested[F, G, H, *, *]] =
+  ): Bitraverse[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] =
     new BinestedBitraverse[F, G, H] {
       implicit override def F: Bitraverse[F] = F0
       implicit override def G: Traverse[G] = G0
@@ -56,23 +58,26 @@ private[data] trait BinestedInstances0 {
     implicit F0: Bifoldable[F],
     G0: Foldable[G],
     H0: Foldable[H]
-  ): Bifoldable[Binested[F, G, H, *, *]] =
+  ): Bifoldable[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] =
     new BinestedBifoldable[F, G, H] {
       implicit override def F: Bifoldable[F] = F0
       implicit override def G: Foldable[G] = G0
       implicit override def H: Foldable[H] = H0
     }
 
-  implicit def catsDataBifunctorForBinested[F[_, _], G[_], H[_]](implicit F: Bifunctor[F],
-                                                                 G: Functor[G],
-                                                                 H: Functor[H]): Bifunctor[Binested[F, G, H, *, *]] =
-    new Bifunctor[Binested[F, G, H, *, *]] {
+  implicit def catsDataBifunctorForBinested[F[_, _], G[_], H[_]](
+    implicit F: Bifunctor[F],
+    G: Functor[G],
+    H: Functor[H]
+  ): Bifunctor[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] =
+    new Bifunctor[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] {
       def bimap[A, B, C, D](fab: Binested[F, G, H, A, B])(f: A => C, g: B => D): Binested[F, G, H, C, D] =
         Binested(F.bimap(fab.value)(G.map(_)(f), H.map(_)(g)))
     }
 }
 
-sealed abstract class BinestedBifoldable[F[_, _], G[_], H[_]] extends Bifoldable[Binested[F, G, H, *, *]] {
+sealed abstract class BinestedBifoldable[F[_, _], G[_], H[_]]
+    extends Bifoldable[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] {
   implicit def F: Bifoldable[F]
   implicit def G: Foldable[G]
   implicit def H: Foldable[H]
@@ -93,7 +98,7 @@ sealed abstract class BinestedBifoldable[F[_, _], G[_], H[_]] extends Bifoldable
 
 sealed abstract class BinestedBitraverse[F[_, _], G[_], H[_]]
     extends BinestedBifoldable[F, G, H]
-    with Bitraverse[Binested[F, G, H, *, *]] {
+    with Bitraverse[({ type λ[α$, β$] = Binested[F, G, H, α$, β$] })#λ] {
   implicit override def F: Bitraverse[F]
   implicit override def G: Traverse[G]
   implicit override def H: Traverse[H]

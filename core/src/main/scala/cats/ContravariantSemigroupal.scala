@@ -9,7 +9,7 @@ import scala.annotation.implicitNotFound
  */
 @implicitNotFound("Could not find an instance of ContravariantSemigroupal for ${F}")
 @typeclass trait ContravariantSemigroupal[F[_]] extends InvariantSemigroupal[F] with Contravariant[F] { self =>
-  override def composeFunctor[G[_]: Functor]: ContravariantSemigroupal[λ[α => F[G[α]]]] =
+  override def composeFunctor[G[_]: Functor]: ContravariantSemigroupal[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedSemigroupal[F, G] {
       def F = self
       def G = Functor[G]

@@ -77,10 +77,10 @@ package object data extends ScalaVersionSpecificPackage {
   type RWS[E, L, S, A] = ReaderWriterState[E, L, S, A]
   val RWS = ReaderWriterState
 
-  type Store[S, A] = RepresentableStore[S => *, S, A]
+  type Store[S, A] = RepresentableStore[({ type λ[α$] = S => α$ })#λ, S, A]
   object Store {
     import cats.instances.function._
     def apply[S, A](f: S => A, s: S): Store[S, A] =
-      RepresentableStore[S => *, S, A](f, s)
+      RepresentableStore[({ type λ[α$] = S => α$ })#λ, S, A](f, s)
   }
 }

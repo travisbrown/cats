@@ -27,19 +27,19 @@ import scala.annotation.implicitNotFound
    */
   def imap[A, B](fa: F[A])(f: A => B)(g: B => A): F[B]
 
-  def compose[G[_]: Invariant]: Invariant[λ[α => F[G[α]]]] =
+  def compose[G[_]: Invariant]: Invariant[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedInvariant[F, G] {
       val F = self
       val G = Invariant[G]
     }
 
-  def composeFunctor[G[_]: Functor]: Invariant[λ[α => F[G[α]]]] =
+  def composeFunctor[G[_]: Functor]: Invariant[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedInvariantCovariant[F, G] {
       val F = self
       val G = Functor[G]
     }
 
-  def composeContravariant[G[_]: Contravariant]: Invariant[λ[α => F[G[α]]]] =
+  def composeContravariant[G[_]: Contravariant]: Invariant[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedInvariantContravariant[F, G] {
       val F = self
       val G = Contravariant[G]

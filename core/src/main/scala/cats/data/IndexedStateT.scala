@@ -189,8 +189,10 @@ private[data] trait CommonStateTConstructors {
    * res0: (String, Option[Int]) = ("",Some(1))
    * }}}
    */
-  def liftK[F[_], S](implicit F: Applicative[F]): F ~> IndexedStateT[F, S, S, *] =
-    λ[F ~> IndexedStateT[F, S, S, *]](IndexedStateT.liftF(_))
+  def liftK[F[_], S](implicit F: Applicative[F]): F ~> ({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ =
+    new (F ~> ({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ) {
+      def apply[A$](a$ : F[A$]): IndexedStateT[F, S, S, A$] = IndexedStateT.liftF(a$)
+    }
 
   @deprecated("Use liftF instead", "1.0.0-RC2")
   def lift[F[_], S, A](fa: F[A])(implicit F: Applicative[F]): IndexedStateT[F, S, S, A] =
@@ -255,11 +257,14 @@ sealed abstract private[data] class IndexedStateTInstances extends IndexedStateT
   implicit def catsDataAlternativeForIndexedStateT[F[_], S](
     implicit FM: Monad[F],
     FA: Alternative[F]
-  ): Alternative[IndexedStateT[F, S, S, *]] with Monad[IndexedStateT[F, S, S, *]] =
+  ): Alternative[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ]
+    with Monad[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ] =
     new IndexedStateTAlternative[F, S] { implicit def F = FM; implicit def G = FA }
 
-  implicit def catsDataDeferForIndexedStateT[F[_], SA, SB](implicit F: Defer[F]): Defer[IndexedStateT[F, SA, SB, *]] =
-    new Defer[IndexedStateT[F, SA, SB, *]] {
+  implicit def catsDataDeferForIndexedStateT[F[_], SA, SB](
+    implicit F: Defer[F]
+  ): Defer[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] =
+    new Defer[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] {
       def defer[A](fa: => IndexedStateT[F, SA, SB, A]): IndexedStateT[F, SA, SB, A] =
         IndexedStateT.applyF(F.defer(fa.runF))
     }
@@ -268,7 +273,7 @@ sealed abstract private[data] class IndexedStateTInstances extends IndexedStateT
     implicit
     ev1: Monad[F],
     ev2: FunctorFilter[F]
-  ): FunctorFilter[IndexedStateT[F, SA, SB, *]] =
+  ): FunctorFilter[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] =
     new IndexedStateTFunctorFilter[F, SA, SB] {
       val F0 = ev1
       val FF = ev2
@@ -278,45 +283,49 @@ sealed abstract private[data] class IndexedStateTInstances extends IndexedStateT
 sealed abstract private[data] class IndexedStateTInstances1 extends IndexedStateTInstances2 {
   implicit def catsDataMonadErrorForIndexedStateT[F[_], S, E](
     implicit F0: MonadError[F, E]
-  ): MonadError[IndexedStateT[F, S, S, *], E] =
+  ): MonadError[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ, E] =
     new IndexedStateTMonadError[F, S, E] { implicit def F = F0 }
 
   implicit def catsDataSemigroupKForIndexedStateT[F[_], SA, SB](
     implicit F0: Monad[F],
     G0: SemigroupK[F]
-  ): SemigroupK[IndexedStateT[F, SA, SB, *]] =
+  ): SemigroupK[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] =
     new IndexedStateTSemigroupK[F, SA, SB] { implicit def F = F0; implicit def G = G0 }
 }
 
 sealed abstract private[data] class IndexedStateTInstances2 extends IndexedStateTInstances3 {
-  implicit def catsDataMonadForIndexedStateT[F[_], S](implicit F0: Monad[F]): Monad[IndexedStateT[F, S, S, *]] =
+  implicit def catsDataMonadForIndexedStateT[F[_], S](
+    implicit F0: Monad[F]
+  ): Monad[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ] =
     new IndexedStateTMonad[F, S] { implicit def F = F0 }
 }
 
 sealed abstract private[data] class IndexedStateTInstances3 extends IndexedStateTInstances4 {
   implicit def catsDataFunctorForIndexedStateT[F[_], SA, SB](
     implicit F0: Functor[F]
-  ): Functor[IndexedStateT[F, SA, SB, *]] =
+  ): Functor[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] =
     new IndexedStateTFunctor[F, SA, SB] { implicit def F = F0 }
 
   implicit def catsDataContravariantForIndexedStateT[F[_], SB, V](
     implicit F0: Functor[F]
-  ): Contravariant[IndexedStateT[F, *, SB, V]] =
+  ): Contravariant[({ type λ[α$] = IndexedStateT[F, α$, SB, V] })#λ] =
     new IndexedStateTContravariant[F, SB, V] { implicit def F = F0 }
 
   implicit def catsDataProfunctorForIndexedStateT[F[_], V](
     implicit F0: Functor[F]
-  ): Profunctor[IndexedStateT[F, *, *, V]] =
+  ): Profunctor[({ type λ[α$, β$] = IndexedStateT[F, α$, β$, V] })#λ] =
     new IndexedStateTProfunctor[F, V] { implicit def F = F0 }
 
   implicit def catsDataBifunctorForIndexedStateT[F[_], SA](
     implicit F0: Functor[F]
-  ): Bifunctor[IndexedStateT[F, SA, *, *]] =
+  ): Bifunctor[({ type λ[α$, β$] = IndexedStateT[F, SA, α$, β$] })#λ] =
     new IndexedStateTBifunctor[F, SA] { implicit def F = F0 }
 }
 
 sealed abstract private[data] class IndexedStateTInstances4 {
-  implicit def catsDataStrongForIndexedStateT[F[_], V](implicit F0: Monad[F]): Strong[IndexedStateT[F, *, *, V]] =
+  implicit def catsDataStrongForIndexedStateT[F[_], V](
+    implicit F0: Monad[F]
+  ): Strong[({ type λ[α$, β$] = IndexedStateT[F, α$, β$, V] })#λ] =
     new IndexedStateTStrong[F, V] { implicit def F = F0 }
 }
 
@@ -376,7 +385,8 @@ abstract private[data] class StateFunctions {
   def set[S](s: S): State[S, Unit] = State(_ => (s, ()))
 }
 
-sealed abstract private[data] class IndexedStateTFunctor[F[_], SA, SB] extends Functor[IndexedStateT[F, SA, SB, *]] {
+sealed abstract private[data] class IndexedStateTFunctor[F[_], SA, SB]
+    extends Functor[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] {
   implicit def F: Functor[F]
 
   override def map[A, B](fa: IndexedStateT[F, SA, SB, A])(f: A => B): IndexedStateT[F, SA, SB, B] =
@@ -384,21 +394,23 @@ sealed abstract private[data] class IndexedStateTFunctor[F[_], SA, SB] extends F
 }
 
 sealed abstract private[data] class IndexedStateTContravariant[F[_], SB, V]
-    extends Contravariant[IndexedStateT[F, *, SB, V]] {
+    extends Contravariant[({ type λ[α$] = IndexedStateT[F, α$, SB, V] })#λ] {
   implicit def F: Functor[F]
 
   override def contramap[A, B](fa: IndexedStateT[F, A, SB, V])(f: B => A): IndexedStateT[F, B, SB, V] =
     fa.contramap(f)
 }
 
-sealed abstract private[data] class IndexedStateTBifunctor[F[_], SA] extends Bifunctor[IndexedStateT[F, SA, *, *]] {
+sealed abstract private[data] class IndexedStateTBifunctor[F[_], SA]
+    extends Bifunctor[({ type λ[α$, β$] = IndexedStateT[F, SA, α$, β$] })#λ] {
   implicit def F: Functor[F]
 
   def bimap[A, B, C, D](fab: IndexedStateT[F, SA, A, B])(f: A => C, g: B => D): IndexedStateT[F, SA, C, D] =
     fab.bimap(f, g)
 }
 
-sealed abstract private[data] class IndexedStateTProfunctor[F[_], V] extends Profunctor[IndexedStateT[F, *, *, V]] {
+sealed abstract private[data] class IndexedStateTProfunctor[F[_], V]
+    extends Profunctor[({ type λ[α$, β$] = IndexedStateT[F, α$, β$, V] })#λ] {
   implicit def F: Functor[F]
 
   def dimap[A, B, C, D](fab: IndexedStateT[F, A, B, V])(f: C => A)(g: B => D): IndexedStateT[F, C, D, V] =
@@ -407,7 +419,7 @@ sealed abstract private[data] class IndexedStateTProfunctor[F[_], V] extends Pro
 
 sealed abstract private[data] class IndexedStateTStrong[F[_], V]
     extends IndexedStateTProfunctor[F, V]
-    with Strong[IndexedStateT[F, *, *, V]] {
+    with Strong[({ type λ[α$, β$] = IndexedStateT[F, α$, β$, V] })#λ] {
   implicit def F: Monad[F]
 
   def first[A, B, C](fa: IndexedStateT[F, A, B, V]): IndexedStateT[F, (A, C), (B, C), V] =
@@ -425,7 +437,7 @@ sealed abstract private[data] class IndexedStateTStrong[F[_], V]
 
 sealed abstract private[data] class IndexedStateTMonad[F[_], S]
     extends IndexedStateTFunctor[F, S, S]
-    with Monad[IndexedStateT[F, S, S, *]] {
+    with Monad[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ] {
   implicit def F: Monad[F]
 
   def pure[A](a: A): IndexedStateT[F, S, S, A] =
@@ -444,7 +456,7 @@ sealed abstract private[data] class IndexedStateTMonad[F[_], S]
 }
 
 sealed abstract private[data] class IndexedStateTSemigroupK[F[_], SA, SB]
-    extends SemigroupK[IndexedStateT[F, SA, SB, *]] {
+    extends SemigroupK[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] {
   implicit def F: Monad[F]
   implicit def G: SemigroupK[F]
 
@@ -453,7 +465,7 @@ sealed abstract private[data] class IndexedStateTSemigroupK[F[_], SA, SB]
 }
 
 sealed abstract private[data] class IndexedStateTContravariantMonoidal[F[_], S]
-    extends ContravariantMonoidal[IndexedStateT[F, S, S, *]] {
+    extends ContravariantMonoidal[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ] {
   implicit def F: ContravariantMonoidal[F]
   implicit def G: Applicative[F]
 
@@ -484,7 +496,7 @@ sealed abstract private[data] class IndexedStateTContravariantMonoidal[F[_], S]
 
 sealed abstract private[data] class IndexedStateTAlternative[F[_], S]
     extends IndexedStateTMonad[F, S]
-    with Alternative[IndexedStateT[F, S, S, *]] {
+    with Alternative[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ] {
   def G: Alternative[F]
 
   def combineK[A](x: IndexedStateT[F, S, S, A], y: IndexedStateT[F, S, S, A]): IndexedStateT[F, S, S, A] =
@@ -496,7 +508,7 @@ sealed abstract private[data] class IndexedStateTAlternative[F[_], S]
 
 sealed abstract private[data] class IndexedStateTMonadError[F[_], S, E]
     extends IndexedStateTMonad[F, S]
-    with MonadError[IndexedStateT[F, S, S, *], E] {
+    with MonadError[({ type λ[α$] = IndexedStateT[F, S, S, α$] })#λ, E] {
   implicit def F: MonadError[F, E]
 
   def raiseError[A](e: E): IndexedStateT[F, S, S, A] = IndexedStateT.liftF(F.raiseError(e))
@@ -505,12 +517,13 @@ sealed abstract private[data] class IndexedStateTMonadError[F[_], S, E]
     IndexedStateT(s => F.handleErrorWith(fa.run(s))(e => f(e).run(s)))
 }
 
-private[this] trait IndexedStateTFunctorFilter[F[_], SA, SB] extends FunctorFilter[IndexedStateT[F, SA, SB, *]] {
+private[this] trait IndexedStateTFunctorFilter[F[_], SA, SB]
+    extends FunctorFilter[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] {
 
   implicit def F0: Monad[F]
   def FF: FunctorFilter[F]
 
-  def functor: Functor[IndexedStateT[F, SA, SB, *]] =
+  def functor: Functor[({ type λ[α$] = IndexedStateT[F, SA, SB, α$] })#λ] =
     IndexedStateT.catsDataFunctorForIndexedStateT(FF.functor)
 
   def mapFilter[A, B](fa: IndexedStateT[F, SA, SB, A])(f: A => Option[B]): IndexedStateT[F, SA, SB, B] =

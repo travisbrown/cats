@@ -13,10 +13,10 @@ private[instances] trait Tuple2InstancesBinCompat0 {
    * Witness for: (A, A) <-> Boolean => A
    */
   implicit def catsDataRepresentableForPair(
-    implicit PF: Functor[λ[P => (P, P)]]
-  ): Representable.Aux[λ[P => (P, P)], Boolean] = new Representable[λ[P => (P, P)]] {
+    implicit PF: Functor[({ type λ[P] = (P, P) })#λ]
+  ): Representable.Aux[({ type λ[P] = (P, P) })#λ, Boolean] = new Representable[({ type λ[P] = (P, P) })#λ] {
     override type Representation = Boolean
-    override val F: Functor[λ[P => (P, P)]] = PF
+    override val F: Functor[({ type λ[P] = (P, P) })#λ] = PF
 
     override def tabulate[A](f: Boolean => A): (A, A) = (f(true), f(false))
 
@@ -26,7 +26,7 @@ private[instances] trait Tuple2InstancesBinCompat0 {
     }
   }
 
-  implicit val catsDataFunctorForPair: Functor[λ[P => (P, P)]] = new Functor[λ[P => (P, P)]] {
+  implicit val catsDataFunctorForPair: Functor[({ type λ[P] = (P, P) })#λ] = new Functor[({ type λ[P] = (P, P) })#λ] {
     override def map[A, B](fa: (A, A))(f: A => B): (B, B) = (f(fa._1), f(fa._2))
   }
 }
@@ -50,8 +50,12 @@ sealed private[instances] trait Tuple2Instances extends Tuple2Instances1 {
       s"(${aShow.show(f._1)},${bShow.show(f._2)})"
   }
 
-  implicit def catsStdInstancesForTuple2[X]: Traverse[(X, *)] with Comonad[(X, *)] with Reducible[(X, *)] =
-    new Traverse[(X, *)] with Comonad[(X, *)] with Reducible[(X, *)] {
+  implicit def catsStdInstancesForTuple2[X]: Traverse[({ type λ[α$] = (X, α$) })#λ]
+    with Comonad[({ type λ[α$] = (X, α$) })#λ]
+    with Reducible[({ type λ[α$] = (X, α$) })#λ] =
+    new Traverse[({ type λ[α$] = (X, α$) })#λ]
+      with Comonad[({ type λ[α$] = (X, α$) })#λ]
+      with Reducible[({ type λ[α$] = (X, α$) })#λ] {
       def traverse[G[_], A, B](fa: (X, A))(f: A => G[B])(implicit G: Applicative[G]): G[(X, B)] =
         G.map(f(fa._2))((fa._1, _))
 
@@ -104,30 +108,34 @@ sealed private[instances] trait Tuple2Instances extends Tuple2Instances1 {
 }
 
 sealed private[instances] trait Tuple2Instances1 extends Tuple2Instances2 {
-  implicit def catsStdCommutativeMonadForTuple2[X](implicit MX: CommutativeMonoid[X]): CommutativeMonad[(X, *)] =
-    new FlatMapTuple2[X](MX) with CommutativeMonad[(X, *)] {
+  implicit def catsStdCommutativeMonadForTuple2[X](
+    implicit MX: CommutativeMonoid[X]
+  ): CommutativeMonad[({ type λ[α$] = (X, α$) })#λ] =
+    new FlatMapTuple2[X](MX) with CommutativeMonad[({ type λ[α$] = (X, α$) })#λ] {
       def pure[A](a: A): (X, A) = (MX.empty, a)
     }
 }
 
 sealed private[instances] trait Tuple2Instances2 extends Tuple2Instances3 {
-  implicit def catsStdCommutativeFlatMapForTuple2[X](implicit MX: CommutativeSemigroup[X]): CommutativeFlatMap[(X, *)] =
-    new FlatMapTuple2[X](MX) with CommutativeFlatMap[(X, *)]
+  implicit def catsStdCommutativeFlatMapForTuple2[X](
+    implicit MX: CommutativeSemigroup[X]
+  ): CommutativeFlatMap[({ type λ[α$] = (X, α$) })#λ] =
+    new FlatMapTuple2[X](MX) with CommutativeFlatMap[({ type λ[α$] = (X, α$) })#λ]
 }
 
 sealed private[instances] trait Tuple2Instances3 extends Tuple2Instances4 {
-  implicit def catsStdMonadForTuple2[X](implicit MX: Monoid[X]): Monad[(X, *)] =
-    new FlatMapTuple2[X](MX) with Monad[(X, *)] {
+  implicit def catsStdMonadForTuple2[X](implicit MX: Monoid[X]): Monad[({ type λ[α$] = (X, α$) })#λ] =
+    new FlatMapTuple2[X](MX) with Monad[({ type λ[α$] = (X, α$) })#λ] {
       def pure[A](a: A): (X, A) = (MX.empty, a)
     }
 }
 
 sealed private[instances] trait Tuple2Instances4 {
-  implicit def catsStdFlatMapForTuple2[X](implicit SX: Semigroup[X]): FlatMap[(X, *)] =
+  implicit def catsStdFlatMapForTuple2[X](implicit SX: Semigroup[X]): FlatMap[({ type λ[α$] = (X, α$) })#λ] =
     new FlatMapTuple2[X](SX)
 }
 
-private[instances] class FlatMapTuple2[X](s: Semigroup[X]) extends FlatMap[(X, *)] {
+private[instances] class FlatMapTuple2[X](s: Semigroup[X]) extends FlatMap[({ type λ[α$] = (X, α$) })#λ] {
   override def ap[A, B](ff: (X, A => B))(fa: (X, A)): (X, B) = {
     val x = s.combine(ff._1, fa._1)
     val b = ff._2(fa._2)

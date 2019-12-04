@@ -28,9 +28,12 @@ trait SortedMapInstances extends SortedMapInstances2 {
     }
 
   // scalastyle:off method.length
-  implicit def catsStdInstancesForSortedMap[K: Order]
-    : Traverse[SortedMap[K, *]] with FlatMap[SortedMap[K, *]] with Align[SortedMap[K, *]] =
-    new Traverse[SortedMap[K, *]] with FlatMap[SortedMap[K, *]] with Align[SortedMap[K, *]] {
+  implicit def catsStdInstancesForSortedMap[K: Order]: Traverse[({ type λ[α$] = SortedMap[K, α$] })#λ]
+    with FlatMap[({ type λ[α$] = SortedMap[K, α$] })#λ]
+    with Align[({ type λ[α$] = SortedMap[K, α$] })#λ] =
+    new Traverse[({ type λ[α$] = SortedMap[K, α$] })#λ]
+      with FlatMap[({ type λ[α$] = SortedMap[K, α$] })#λ]
+      with Align[({ type λ[α$] = SortedMap[K, α$] })#λ] {
 
       implicit val orderingK: Ordering[K] = Order[K].toOrdering
 
@@ -114,7 +117,7 @@ trait SortedMapInstances extends SortedMapInstances2 {
       override def collectFirstSome[A, B](fa: SortedMap[K, A])(f: A => Option[B]): Option[B] =
         collectFirst(fa)(Function.unlift(f))
 
-      def functor: Functor[SortedMap[K, *]] = this
+      def functor: Functor[({ type λ[α$] = SortedMap[K, α$] })#λ] = this
 
       def align[A, B](fa: SortedMap[K, A], fb: SortedMap[K, B]): SortedMap[K, Ior[A, B]] =
         alignWith(fa, fb)(identity)
@@ -173,12 +176,13 @@ class SortedMapCommutativeMonoid[K, V](implicit V: CommutativeSemigroup[V], O: O
 class SortedMapMonoid[K, V](implicit V: Semigroup[V], O: Order[K]) extends cats.kernel.instances.SortedMapMonoid[K, V]
 
 private[instances] trait SortedMapInstancesBinCompat0 {
-  implicit def catsStdTraverseFilterForSortedMap[K: Order]: TraverseFilter[SortedMap[K, *]] =
-    new TraverseFilter[SortedMap[K, *]] {
+  implicit def catsStdTraverseFilterForSortedMap[K: Order]: TraverseFilter[({ type λ[α$] = SortedMap[K, α$] })#λ] =
+    new TraverseFilter[({ type λ[α$] = SortedMap[K, α$] })#λ] {
 
       implicit val ordering: Ordering[K] = Order[K].toOrdering
 
-      val traverse: Traverse[SortedMap[K, *]] = cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
+      val traverse: Traverse[({ type λ[α$] = SortedMap[K, α$] })#λ] =
+        cats.instances.sortedMap.catsStdInstancesForSortedMap[K]
 
       override def traverseFilter[G[_], A, B](
         fa: SortedMap[K, A]
@@ -213,11 +217,12 @@ private[instances] trait SortedMapInstancesBinCompat0 {
 }
 
 private[instances] trait SortedMapInstancesBinCompat1 {
-  implicit def catsStdMonoidKForSortedMap[K: Order]: MonoidK[SortedMap[K, *]] = new MonoidK[SortedMap[K, *]] {
-    override def empty[A]: SortedMap[K, A] = SortedMap.empty[K, A](Order[K].toOrdering)
+  implicit def catsStdMonoidKForSortedMap[K: Order]: MonoidK[({ type λ[α$] = SortedMap[K, α$] })#λ] =
+    new MonoidK[({ type λ[α$] = SortedMap[K, α$] })#λ] {
+      override def empty[A]: SortedMap[K, A] = SortedMap.empty[K, A](Order[K].toOrdering)
 
-    override def combineK[A](x: SortedMap[K, A], y: SortedMap[K, A]): SortedMap[K, A] = x ++ y
-  }
+      override def combineK[A](x: SortedMap[K, A], y: SortedMap[K, A]): SortedMap[K, A] = x ++ y
+    }
 }
 
 private[instances] trait SortedMapInstancesBinCompat2 extends cats.kernel.instances.SortedMapInstances

@@ -6,8 +6,8 @@ import scala.collection.mutable.Builder
 
 abstract private[data] class OneAndLowPriority4 {
   @deprecated("Use catsDataComonadForNonEmptyLazyList", "2.0.0-RC2")
-  implicit def catsDataComonadForNonEmptyStream: Comonad[OneAnd[Stream, *]] =
-    new Comonad[OneAnd[Stream, *]] {
+  implicit def catsDataComonadForNonEmptyStream: Comonad[({ type λ[α$] = OneAnd[Stream, α$] })#λ] =
+    new Comonad[({ type λ[α$] = OneAnd[Stream, α$] })#λ] {
       def coflatMap[A, B](fa: OneAnd[Stream, A])(f: OneAnd[Stream, A] => B): OneAnd[Stream, B] = {
         @tailrec def consume(as: Stream[A], buf: Builder[B, Stream[B]]): Stream[B] =
           if (as.isEmpty) buf.result
@@ -25,8 +25,8 @@ abstract private[data] class OneAndLowPriority4 {
         fa.map(f)(cats.instances.stream.catsStdInstancesForStream)
     }
 
-  implicit val catsDataComonadForNonEmptyLazyList: Comonad[OneAnd[LazyList, *]] =
-    new Comonad[OneAnd[LazyList, *]] {
+  implicit val catsDataComonadForNonEmptyLazyList: Comonad[({ type λ[α$] = OneAnd[LazyList, α$] })#λ] =
+    new Comonad[({ type λ[α$] = OneAnd[LazyList, α$] })#λ] {
       def coflatMap[A, B](fa: OneAnd[LazyList, A])(f: OneAnd[LazyList, A] => B): OneAnd[LazyList, B] = {
         @tailrec def consume(as: LazyList[A], buf: Builder[B, LazyList[B]]): LazyList[B] =
           if (as.isEmpty) buf.result

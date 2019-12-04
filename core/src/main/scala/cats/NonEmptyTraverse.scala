@@ -84,7 +84,7 @@ import scala.annotation.implicitNotFound
   override def traverse[G[_]: Applicative, A, B](fa: F[A])(f: (A) => G[B]): G[F[B]] =
     nonEmptyTraverse(fa)(f)
 
-  def compose[G[_]: NonEmptyTraverse]: NonEmptyTraverse[λ[α => F[G[α]]]] =
+  def compose[G[_]: NonEmptyTraverse]: NonEmptyTraverse[({ type λ[α] = F[G[α]] })#λ] =
     new ComposedNonEmptyTraverse[F, G] {
       val F = self
       val G = NonEmptyTraverse[G]
