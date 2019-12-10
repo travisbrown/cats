@@ -70,7 +70,7 @@ object KernelCheck {
 
   // Copied from cats-laws.
   implicit def cogenSortedMap[K: Order: Cogen, V: Cogen]: Cogen[SortedMap[K, V]] = {
-    implicit val orderingK = Order[K].toOrdering
+    implicit val orderingK: Ordering[K] = Order[K].toOrdering
 
     implicitly[Cogen[Map[K, V]]].contramap(_.toMap)
   }
@@ -81,7 +81,7 @@ object KernelCheck {
 
   // Copied from cats-laws.
   implicit def cogenSortedSet[A: Order: Cogen]: Cogen[SortedSet[A]] = {
-    implicit val orderingA = Order[A].toOrdering
+    implicit val orderingA: Ordering[A] = Order[A].toOrdering
 
     implicitly[Cogen[Set[A]]].contramap(_.toSet)
   }
@@ -431,7 +431,7 @@ class Tests extends AnyFunSuiteLike with Discipline with ScalaVersionSpecificTes
     // The `Eq[Order[N]]` instance enumerates all possible `N` values in a
     // `Vector` and considers two `Order[N]` instances to be equal if they
     // result in the same sorting of that vector.
-    implicit val NOrderEq: Eq[Order[N]] = Eq.by { order: Order[N] =>
+    implicit val NOrderEq: Eq[Order[N]] = Eq.by { (order: Order[N]) =>
       Vector.tabulate(nMax)(N).sorted(order.toOrdering)
     }
     implicit val NEqEq: Eq[Eq[N]] = new Eq[Eq[N]] {

@@ -474,7 +474,7 @@ sealed abstract class Chain[+A] {
    * Remove duplicates. Duplicates are checked using `Order[_]` instance.
    */
   def distinct[AA >: A](implicit O: Order[AA]): Chain[AA] = {
-    implicit val ord = O.toOrdering
+    implicit val ord: Ordering[AA] = O.toOrdering
 
     var alreadyIn = TreeSet.empty[AA]
 
@@ -535,7 +535,7 @@ object Chain extends ChainInstances {
 
   private val sentinel: Function1[Any, Any] = new scala.runtime.AbstractFunction1[Any, Any] { def apply(a: Any) = this }
 
-  final private[data] case object Empty extends Chain[Nothing] {
+  private[data] case object Empty extends Chain[Nothing] {
     def isEmpty: Boolean = true
   }
   final private[data] case class Singleton[A](a: A) extends Chain[A] {
@@ -687,7 +687,10 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
         fa.foldLeft(b)(f)
       def foldRight[A, B](fa: Chain[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = {
         def loop(as: Chain[A]): Eval[B] =
-          as match {
+          // In Scala 2 the compiler silently ignores the fact that it can't
+          // prove that this match is exhaustive, but Dotty warns, so we
+          // explicitly mark it as unchecked.
+          (as: @unchecked) match {
             case Chain.nil => lb
             case h ==: t   => f(h, Eval.defer(loop(t)))
           }
@@ -798,6 +801,8 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
     def traverse: Traverse[Chain] = Chain.catsDataInstancesForChain
 
     override def filter[A](fa: Chain[A])(f: A => Boolean): Chain[A] = fa.filter(f)
+
+    override def filterNot[A](fa: Chain[A])(f: A => Boolean): Chain[A] = fa.filterNot(f)
 
     override def collect[A, B](fa: Chain[A])(f: PartialFunction[A, B]): Chain[B] = fa.collect(f)
 

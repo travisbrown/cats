@@ -45,30 +45,19 @@ class VectorSuite extends CatsSuite {
 
     Vector.empty[Int].show should ===("Vector()")
 
-    forAll { vec: Vector[String] =>
+    forAll { (vec: Vector[String]) =>
       vec.show should ===(vec.toString)
     }
   }
 
   test("nev => vector => nev returns original nev")(
-    forAll { fa: NonEmptyVector[Int] =>
+    forAll { (fa: NonEmptyVector[Int]) =>
       assert(fa.toVector.toNev == Some(fa))
     }
   )
 
   test("toNev on empty vector returns None") {
     assert(Vector.empty[Int].toNev == None)
-  }
-
-  test("the instance for `Eq[Vector[A]]` is not ambiguous when A has a Hash and a PartialOrder") {
-
-    import cats.kernel.{Hash, PartialOrder}
-
-    trait A
-    implicit def po: PartialOrder[A] = ???
-    implicit def ho: Hash[A] = ???
-
-    lazy val _ = implicitly[Eq[Vector[A]]]
   }
 }
 

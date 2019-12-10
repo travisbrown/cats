@@ -1,11 +1,12 @@
 
 ### ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) Community Announcements ![#f03c15](https://placehold.it/15/f03c15/000000?text=+)
+* **Nov 26 2019** [Cats 2.1.0-RC2 is released](https://github.com/typelevel/cats/releases/tag/v2.1.0-RC2)
 * **Nov 15 2019** [Cats 2.1.0-RC1 is released](https://github.com/typelevel/cats/releases/tag/v2.1.0-RC1)
 * **Sep 9 2019** [Cats 2.0.0 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0)
 * **Sep 7 2019** [Cats 2.0.0-RC3 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0-RC3)
 * **Aug 26 2019** [Cats 2.0.0-RC2 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0-RC2)
 * **Aug 2 2019** [Cats 2.0.0-RC1 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0-RC1)
-* **Jun 11 2019** [Cats 2.0.0-M4 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0-M4) with support for Scala 2.13.0
+* **Jun 11 2019** [Cats 2.0.0-M4 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0-M4) with support for Scala 2.13
 * **Jun 3 2019** [Cats 1.6.1 is released](https://github.com/typelevel/cats/releases/tag/v1.6.1) with backported bug fixes
 * **Jun 1 2019** [Cats 2.0.0-M3 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0-M3) with support for Scala 2.13.0-RC3
 * **May 25 2019** [Cats 2.0.0-M2 is released](https://github.com/typelevel/cats/releases/tag/v2.0.0-M2) with support for Scala 2.13.0-RC2
@@ -14,17 +15,14 @@
 * **Feb 15 2019** [Cats 2019 roadmap](https://github.com/typelevel/cats/blob/master/ROADMAP_2019.md) is published.
 
 ## Cats
-<a href="https://donorbox.org/typelevel-sustainability-program-2019?default_interval=m" target="_blank"><img src="https://typelevel.org/cats/img/donate-button.png" /></a>
-
 
 ![cats image](http://plastic-idolatry.com/erik/cats2.png)
 
 [![Build Status](https://api.travis-ci.org/typelevel/cats.svg)](https://travis-ci.org/typelevel/cats)
-[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/typelevel/cats)
+[![Financial Contributors on Open Collective](https://opencollective.com/typelevel/all/badge.svg?label=financial+contributors)](https://opencollective.com/typelevel) [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/typelevel/cats)
 [![codecov.io](http://codecov.io/github/typelevel/cats/coverage.svg?branch=master)](http://codecov.io/github/typelevel/cats?branch=master)
 [![Latest version](https://index.scala-lang.org/typelevel/cats/cats-core/latest.svg?color=orange&v=1)](https://index.scala-lang.org/typelevel/cats/cats-core)
 [![Scala.js](http://scala-js.org/assets/badges/scalajs-0.6.14.svg)](http://scala-js.org)
-
 
 
 ### Overview
@@ -37,14 +35,19 @@ standard library. Cats strives to provide functional programming abstractions th
 
 For more detail about Cats' motivations, go [here](http://typelevel.org/cats/motivations).
 
+## Contributors
 
-### Support Cats
+### Code Contributors
 
-We welcome contributions to Cats and would love for you to help build
+This project exists thanks to [all the people who contribute](https://github.com/typelevel/cats/graphs/contributors). We welcome contributions to Cats and would love for you to help build
 Cats. See our [contributor guide](https://typelevel.org/cats/contributing.html) for more
-information about how you can get involved as a developer. 
+information about how you can get involved as a developer. If you are looking for something to start with, [here is a beginner friendly list](https://github.com/typelevel/cats/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22). 
 
-We also have a [sustainability program](https://donorbox.org/typelevel-sustainability-program-2019?default_interval=m) for our user community to support Cats through donations. Donations directly support office hour for maintainers, better documentation and strategic initiatives. 
+### Financial Contributors
+
+[Become a financial contributor](https://opencollective.com/typelevel) and help us sustain our community. Donations directly support office hour for maintainers, better documentation and strategic initiatives. 
+
+
 
 ### Gold Sponsors 
 
@@ -55,7 +58,7 @@ Gold Sponsors are those who have pledged $5,000 to $10,000.
 <a href="https://triplequote.com/"><img src="http://typelevel.org/cats/img/sponsors/triplequote.png" style="margin-bottom:9px; margin-right: 10px" /></a>
 <a href="http://underscore.io"><img src="http://typelevel.org/cats/img/sponsors/underscore.png" style="margin-bottom:5px;margin-left: 10px; margin-right: 10px"/></a>
 
-<a class="dbox-donation-button" href="https://donorbox.org/typelevel-sustainability-program-2019?default_interval=m" style="background:#eee; color: #5B5988; text-decoration: none;font-family: Verdana,sans-serif;display: inline-block;font-size: 13px;padding: 10px 20px 10px 20px; -webkit-border-radius: 3px; -moz-border-radius: 2px; border-radius: 20px; border: 1px solid#5B5988;"  >BECOME A SPONSOR</a>
+
 
 ### Silver Sponsors
 
@@ -65,11 +68,32 @@ Silver Sponsors are those who have pledged $2,000 to $5,000.
 <a href="https://www.inner-product.com/"><img src="http://typelevel.org/cats/img/sponsors/inner-product.png" style="margin-bottom:10px; margin-right: 10px"/></a>
 <a href="https://evolutiongaming.com/"><img src="http://typelevel.org/cats/img/sponsors/evolution_gaming_engineering.png" style="margin-bottom:10px; margin-right: 10px"/></a>
 
-<a class="dbox-donation-button" href="https://donorbox.org/typelevel-sustainability-program-2019?default_interval=m" style="background:#eee; color: #5B5988; text-decoration: none;font-family: Verdana,sans-serif;display: inline-block;font-size: 13px;padding: 10px 20px 10px 20px; -webkit-border-radius: 3px; -moz-border-radius: 2px; border-radius: 20px; border: 1px solid#5B5988;"  >BECOME A SPONSOR</a>
+
+#### Other Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/typelevel/contribute)]
+
+<a href="https://opencollective.com/typelevel/organization/0/website"><img src="https://opencollective.com/typelevel/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/1/website"><img src="https://opencollective.com/typelevel/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/2/website"><img src="https://opencollective.com/typelevel/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/3/website"><img src="https://opencollective.com/typelevel/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/4/website"><img src="https://opencollective.com/typelevel/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/5/website"><img src="https://opencollective.com/typelevel/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/6/website"><img src="https://opencollective.com/typelevel/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/7/website"><img src="https://opencollective.com/typelevel/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/8/website"><img src="https://opencollective.com/typelevel/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/typelevel/organization/9/website"><img src="https://opencollective.com/typelevel/organization/9/avatar.svg"></a>
+
+
+#### Individuals
+
+<a href="https://opencollective.com/typelevel"><img src="https://opencollective.com/typelevel/individuals.svg?width=890"></a>
+
+
 
 ### Getting Started
 
-Cats is currently available for Scala 2.10 (up to 1.2.x), 2.11, 2.12, 2.13.0, and [Scala.js](http://www.scala-js.org/).
+Cats is currently available for Scala 2.10 (up to 1.2.x), 2.11, 2.12, 2.13, and [Scala.js](http://www.scala-js.org/).
 
 Cats relies on improved type inference via the fix for [SI-2712](https://github.com/scala/bug/issues/2712), which is not enabled by default. For **Scala 2.11.9+ or 2.12** you should add the following to your `build.sbt`:
 
@@ -310,6 +334,7 @@ Here's a (non-exhaustive) list of companies that use Cats in production. Don't s
 - [NCR Edinburgh](https://ncredinburgh.com/)
 - [Ocado Technology](https://ocadotechnology.com)
 - [Packlink](https://packlink.com/)
+- [Permutive](https://permutive.com/)
 - [Raiffeisenbank Russia](https://www.raiffeisen.ru/)
 - [Rakuten](https://www.rakuten.com)
 - [REA Group](https://www.realestate.com.au/)
@@ -360,6 +385,8 @@ We are currently following a practice of requiring at least two
 sign-offs to merge code PRs (and for large or contentious issues we may
 wait for more). For typos, documentation improvements or minor build fix we
 relax this to a single sign-off. More detail in the [process document](https://github.com/typelevel/cats/blob/master/PROCESS.md).
+
+
 
 
 ### Copyright and License

@@ -97,7 +97,7 @@ final case class IorT[F[_], A, B](value: F[Ior[A, B]]) {
     })
 
   def flatMapF[AA >: A, D](f: B => F[Ior[AA, D]])(implicit F: Monad[F], AA: Semigroup[AA]): IorT[F, AA, D] =
-    flatMap(f.andThen(IorT.apply))
+    flatMap(b => IorT(f(b)))
 
   def subflatMap[AA >: A, D](f: B => Ior[AA, D])(implicit F: Functor[F], AA: Semigroup[AA]): IorT[F, AA, D] =
     IorT(F.map(value)(_.flatMap(f)))
@@ -472,7 +472,7 @@ abstract private[data] class IorTInstances1 extends IorTInstances2 {
     type F[x] = IorT[F0, E, x]
     private[this] val identityK: IorT[F0, E, *] ~> IorT[F0, E, *] = FunctionK.id
     private[this] val underlyingParallel: Parallel.Aux[Ior[E, *], Ior[E, *]] =
-      Parallel[Ior[E, *], Ior[E, *]]
+      Ior.catsDataParallelForIor[E]
 
     def parallel: IorT[F0, E, *] ~> IorT[F0, E, *] = identityK
     def sequential: IorT[F0, E, *] ~> IorT[F0, E, *] = identityK
