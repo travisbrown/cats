@@ -456,6 +456,27 @@ class FoldableSuiteAdditional extends CatsSuite with ScalaVersionSpecificFoldabl
       Foldable[Stream].foldRight(fa, lb)(f)
   }
 
+  test(".foldA successful case") {
+    implicit val F = foldableStreamWithDefaultImpl
+    val ns = Stream.apply[Either[String, Int]](1.asRight, 2.asRight, 7.asRight)
+
+    assert(F.foldA(ns) == 10.asRight[String])
+  }
+
+  test(".foldA failed case") {
+    implicit val F = foldableStreamWithDefaultImpl
+    val ns = Stream.apply[Either[String, Int]](1.asRight, "boom!!!".asLeft, 7.asRight)
+
+    assert(ns.foldA == "boom!!!".asLeft[Int])
+  }
+
+  test(".foldA short-circuiting") {
+    implicit val F = foldableStreamWithDefaultImpl
+    val ns = Stream.from(1).map(n => if (n >= 100000) Left(n) else Right(n))
+
+    assert(F.foldA(ns) === Left(100000))
+  }
+
   test(".foldLeftM short-circuiting") {
     implicit val F = foldableStreamWithDefaultImpl
     val ns = Stream.continually(1)

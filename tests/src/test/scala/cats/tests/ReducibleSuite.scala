@@ -99,6 +99,20 @@ class ReducibleSuiteAdditional extends CatsSuite {
 
     assert(xs.reduceMapM(i => if (i < n) Right(i) else Left(i)) === Left(n))
   }
+
+  test("reduceMapA should be stack-safe and short-circuiting if reduceRightTo is sufficiently lazy") {
+    val n = 100000
+    val xs = NES(0, Stream.from(1))
+
+    assert(xs.reduceMapA(i => if (i < n) Right(i) else Left(i)) === Left(n))
+  }
+
+  test("reduceA should be stack-safe and short-circuiting if reduceRightTo is sufficiently lazy") {
+    val n = 100000
+    val xs = NES(Right(0), Stream.from(1).map(i => if (i < n) Right(i) else Left(i)))
+
+    assert(xs.reduceA === Left(n))
+  }
 }
 
 abstract class ReducibleSuite[F[_]: Reducible](name: String)(implicit ArbFInt: Arbitrary[F[Int]],
@@ -106,6 +120,7 @@ abstract class ReducibleSuite[F[_]: Reducible](name: String)(implicit ArbFInt: A
     extends FoldableSuite[F](name) {
 
   def range(start: Long, endInclusive: Long): F[Long]
+  def fromValues[A](el: A, els: A*): F[A]
 
   test(s"Reducible[$name].reduceLeftM stack safety") {
     def nonzero(acc: Long, x: Long): Option[Long] =
@@ -117,8 +132,35 @@ abstract class ReducibleSuite[F[_]: Reducible](name: String)(implicit ArbFInt: A
     actual should ===(Some(expected))
   }
 
+  test(s"Reducible[$name].reduceA successful case") {
+    val expected = 6
+    val actual = fromValues(1.asRight[String], 2.asRight[String], 3.asRight[String]).reduceA
+    actual should ===(expected.asRight[String])
+  }
+
+  test(s"Reducible[$name].reduceA failure case") {
+    val expected = "boom!!!"
+    val actual = fromValues(1.asRight, "boom!!!".asLeft, 3.asRight).reduceA
+    actual should ===(expected.asLeft[Int])
+  }
+
+  test(s"Reducible[$name].reduceMapA successful case") {
+    val expected = "123"
+    val actual = range(1, 3).reduceMapA(_.toString.some)
+
+    actual should ===(expected.some)
+  }
+
+  test(s"Reducible[$name].reduceMapA failure case") {
+    def intToString(i: Long): Either[String, Int] = if (i == 2) i.toInt.asRight else "boom!!!".asLeft
+
+    val expected = "boom!!!"
+    val actual = range(1, 3).reduceMapA(intToString)
+    actual should ===(expected.asLeft[Int])
+  }
+
   test(s"Reducible[$name].toNonEmptyList/toList consistency") {
-    forAll { fa: F[Int] =>
+    forAll { (fa: F[Int]) =>
       fa.toList.toNel should ===(Some(fa.toNonEmptyList))
     }
   }

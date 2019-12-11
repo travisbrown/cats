@@ -166,4 +166,6 @@ class ReducibleNonEmptyStreamSuite extends ReducibleSuite[NonEmptyStream]("NonEm
     val tailStart: Long = start + 1L
     NonEmptyStream(start, tailStart.to(endInclusive).toStream)
   }
+
+  def fromValues[A](el: A, els: A*): NonEmptyStream[A] = NonEmptyStream(el, els: _*)
 }

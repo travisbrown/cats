@@ -254,7 +254,7 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * Remove duplicates. Duplicates are checked using `Order[_]` instance.
    */
   def distinct[AA >: A](implicit O: Order[AA]): NonEmptyList[AA] = {
-    implicit val ord = O.toOrdering
+    implicit val ord: Ordering[AA] = O.toOrdering
 
     val buf = ListBuffer.empty[AA]
     tail.foldLeft(TreeSet(head: AA)) { (elementsSoFar, b) =>
@@ -294,7 +294,7 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * scala> import cats.data.NonEmptyList
    * scala> val as = NonEmptyList.of(1, 2, 3)
    * scala> val bs = NonEmptyList.of("A", "B", "C")
-   * scala> as.zipWith(bs)(_ + _)
+   * scala> as.zipWith(bs)(_.toString + _)
    * res0: cats.data.NonEmptyList[String] = NonEmptyList(1A, 2B, 3C)
    * }}}
    */
@@ -368,10 +368,12 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * {{{
    * scala> import scala.collection.immutable.SortedMap
    * scala> import cats.data.NonEmptyList
-   * scala> import cats.instances.boolean._
+   * scala> import cats.implicits._
    * scala> val nel = NonEmptyList.of(12, -2, 3, -5)
-   * scala> nel.groupBy(_ >= 0)
-   * res0: SortedMap[Boolean, cats.data.NonEmptyList[Int]] = Map(false -> NonEmptyList(-2, -5), true -> NonEmptyList(12, 3))
+   * scala> val expectedResult = SortedMap(false -> NonEmptyList.of(-2, -5), true -> NonEmptyList.of(12, 3))
+   * scala> val result = nel.groupBy(_ >= 0)
+   * scala> result === expectedResult
+   * res0: Boolean = true
    * }}}
    */
   def groupBy[B](f: A => B)(implicit B: Order[B]): SortedMap[B, NonEmptyList[A]] = {
@@ -397,11 +399,13 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * of the keys produced by the given mapping function.
    *
    * {{{
-   * scala> import cats.data._
-   * scala> import cats.instances.boolean._
+   * scala> import cats.data.{NonEmptyList, NonEmptyMap}
+   * scala> import cats.implicits._
    * scala> val nel = NonEmptyList.of(12, -2, 3, -5)
-   * scala> nel.groupByNem(_ >= 0)
-   * res0: NonEmptyMap[Boolean, NonEmptyList[Int]] = Map(false -> NonEmptyList(-2, -5), true -> NonEmptyList(12, 3))
+   * scala> val expectedResult = NonEmptyMap.of(false -> NonEmptyList.of(-2, -5), true -> NonEmptyList.of(12, 3))
+   * scala> val result = nel.groupByNem(_ >= 0)
+   * scala> result === expectedResult
+   * res0: Boolean = true
    * }}}
    */
   def groupByNem[B](f: A => B)(implicit B: Order[B]): NonEmptyMap[B, NonEmptyList[A]] =
@@ -410,11 +414,13 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
   /**
    * Creates new `NonEmptyMap`, similarly to List#toMap from scala standard library.
    *{{{
-   * scala> import cats.data._
-   * scala> import cats.instances.int._
+   * scala> import cats.data.{NonEmptyList, NonEmptyMap}
+   * scala> import cats.implicits._
    * scala> val nel = NonEmptyList((0, "a"), List((1, "b"),(0, "c"), (2, "d")))
-   * scala> nel.toNem
-   * res0: NonEmptyMap[Int,String] = Map(0 -> c, 1 -> b, 2 -> d)
+   * scala> val expectedResult = NonEmptyMap.of(0 -> "c", 1 -> "b", 2 -> "d")
+   * scala> val result = nel.toNem
+   * scala> result === expectedResult
+   * res0: Boolean = true
    *}}}
    *
    */

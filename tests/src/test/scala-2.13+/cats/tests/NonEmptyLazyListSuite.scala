@@ -137,4 +137,6 @@ class ReducibleNonEmptyLazyListSuite extends ReducibleSuite[NonEmptyLazyList]("N
 
   def range(start: Long, endInclusive: Long): NonEmptyLazyList[Long] =
     NonEmptyLazyList(start, (start + 1L).to(endInclusive): _*)
+
+  def fromValues[A](el: A, els: A*): NonEmptyLazyList[A] = NonEmptyLazyList(el, els: _*)
 }

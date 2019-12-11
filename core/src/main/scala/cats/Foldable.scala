@@ -340,7 +340,7 @@ import Foldable.sentinel
     )
 
   /**
-   * Fold implemented using the given Monoid[A] instance.
+   * Fold implemented using the given `Monoid[A]` instance.
    */
   def fold[A](fa: F[A])(implicit A: Monoid[A]): A =
     A.combineAll(toIterable(fa))
@@ -394,6 +394,25 @@ import Foldable.sentinel
   }
 
   /**
+   * Fold implemented using the given `Applicative[G]` and `Monoid[A]` instance.
+   *
+   * This method is similar to [[fold]], but may short-circuit.
+   *
+   * For example:
+   *
+   * {{{
+   * scala> import cats.implicits._
+   * scala> val F = Foldable[List]
+   * scala> F.foldA(List(Either.right[String, Int](1), Either.right[String, Int](2)))
+   * res0: Either[String, Int] = Right(3)
+   * }}}
+   *
+   * See [[https://github.com/typelevel/simulacrum/issues/162 this issue]] for an explanation of `@noop` usage.
+   */
+  @noop def foldA[G[_], A](fga: F[G[A]])(implicit G: Applicative[G], A: Monoid[A]): G[A] =
+    foldMapA(fga)(identity)
+
+  /**
    * Fold implemented by mapping `A` values into `B` in a context `G` and then
    * combining them using the `MonoidK[G]` instance.
    *
@@ -419,7 +438,7 @@ import Foldable.sentinel
    * Monadic folding on `F` by mapping `A` values to `G[B]`, combining the `B`
    * values using the given `Monoid[B]` instance.
    *
-   * Similar to [[foldM]], but using a `Monoid[B]`.
+   * Similar to [[foldM]], but using a `Monoid[B]`. Will typically be more efficient than [[foldMapA]].
    *
    * {{{
    * scala> import cats.Foldable
@@ -437,9 +456,22 @@ import Foldable.sentinel
     foldM(fa, B.empty)((b, a) => G.map(f(a))(B.combine(b, _)))
 
   /**
-   * Equivalent to foldMapM.
-   * The difference is that foldMapA only requires G to be an Applicative
-   * rather than a Monad. It is also slower due to use of Eval.
+   * Fold in an [[Applicative]] context by mapping the `A` values to `G[B]`. combining
+   * the `B` values using the given `Monoid[B]` instance.
+   *
+   * Similar to [[foldMapM]], but will typically be less efficient.
+   *
+   * {{{
+   * scala> import cats.Foldable
+   * scala> import cats.implicits._
+   * scala> val evenNumbers = List(2,4,6,8,10)
+   * scala> val evenOpt: Int => Option[Int] =
+   *      |   i => if (i % 2 == 0) Some(i) else None
+   * scala> Foldable[List].foldMapA(evenNumbers)(evenOpt)
+   * res0: Option[Int] = Some(30)
+   * scala> Foldable[List].foldMapA(evenNumbers :+ 11)(evenOpt)
+   * res1: Option[Int] = None
+   * }}}
    */
   def foldMapA[G[_], A, B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G], B: Monoid[B]): G[B] =
     foldRight(fa, Eval.now(G.pure(B.empty)))((a, egb) => G.map2Eval(f(a), egb)(B.combine)).value
