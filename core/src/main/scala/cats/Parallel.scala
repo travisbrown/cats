@@ -38,7 +38,7 @@ trait NonEmptyParallel[M[_]] extends Serializable {
     Parallel.parMap2(ma, mb)((_, b) => b)(this)
 
   @deprecated("Use parProductR instead.", "1.0.0-RC2")
-  @inline def parFollowedBy[A, B](ma: M[A])(mb: M[B]): M[B] = parProductR(ma)(mb)
+  @inline private[cats] def parFollowedBy[A, B](ma: M[A])(mb: M[B]): M[B] = parProductR(ma)(mb)
 
   /**
    * Like [[Apply.productL]], but uses the apply instance
@@ -48,7 +48,7 @@ trait NonEmptyParallel[M[_]] extends Serializable {
     Parallel.parMap2(ma, mb)((a, _) => a)(this)
 
   @deprecated("Use parProductL instead.", "1.0.0-RC2")
-  @inline def parForEffect[A, B](ma: M[A])(mb: M[B]): M[A] = parProductL(ma)(mb)
+  @inline private[cats] def parForEffect[A, B](ma: M[A])(mb: M[B]): M[A] = parProductL(ma)(mb)
 
 }
 
@@ -83,8 +83,8 @@ trait Parallel[M[_]] extends NonEmptyParallel[M] {
     def raiseError[A](e: E): F[A] =
       parallel(MonadError[M, E].raiseError(e))
 
-    def handleErrorWith[A](fa: F[A])(f: (E) => F[A]): F[A] = {
-      val ma = MonadError[M, E].handleErrorWith(sequential(fa))(f.andThen(sequential.apply))
+    def handleErrorWith[A](fa: F[A])(f: E => F[A]): F[A] = {
+      val ma = E.handleErrorWith(sequential(fa))(e => sequential.apply(f(e)))
       parallel(ma)
     }
 
@@ -114,13 +114,13 @@ object NonEmptyParallel extends ScalaVersionSpecificParallelInstances {
   def apply[M[_]](implicit P: NonEmptyParallel[M], D: DummyImplicit): NonEmptyParallel.Aux[M, P.F] = P
 
   implicit def catsParallelForEitherValidated[E: Semigroup]: Parallel.Aux[Either[E, *], Validated[E, *]] =
-    cats.instances.parallel.catsParallelForEitherValidated[E]
+    cats.instances.either.catsParallelForEitherAndValidated[E]
 
   implicit def catsStdNonEmptyParallelForZipList: NonEmptyParallel.Aux[List, ZipList] =
-    cats.instances.parallel.catsStdNonEmptyParallelForZipList
+    cats.instances.list.catsStdNonEmptyParallelForListZipList
 
   implicit def catsStdNonEmptyParallelForZipVector: NonEmptyParallel.Aux[Vector, ZipVector] =
-    cats.instances.parallel.catsStdNonEmptyParallelForZipVector
+    cats.instances.vector.catsStdNonEmptyParallelForVectorZipVector
 }
 
 object Parallel extends ParallelArityFunctions2 {
@@ -143,7 +143,7 @@ object Parallel extends ParallelArityFunctions2 {
    * corresponding to the Parallel instance instead.
    */
   def parTraverse[T[_]: Traverse, M[_], A, B](ta: T[A])(f: A => M[B])(implicit P: Parallel[M]): M[T[B]] = {
-    val gtb: P.F[T[B]] = Traverse[T].traverse(ta)(f.andThen(P.parallel.apply(_)))(P.applicative)
+    val gtb: P.F[T[B]] = Traverse[T].traverse(ta)(a => P.parallel(f(a)))(P.applicative)
     P.sequential(gtb)
   }
 
@@ -154,7 +154,7 @@ object Parallel extends ParallelArityFunctions2 {
   def parFlatTraverse[T[_]: Traverse: FlatMap, M[_], A, B](
     ta: T[A]
   )(f: A => M[T[B]])(implicit P: Parallel[M]): M[T[B]] = {
-    val gtb: P.F[T[B]] = Traverse[T].flatTraverse(ta)(f.andThen(P.parallel.apply(_)))(P.applicative, FlatMap[T])
+    val gtb: P.F[T[B]] = Traverse[T].flatTraverse(ta)(a => P.parallel(f(a)))(P.applicative, FlatMap[T])
     P.sequential(gtb)
   }
 
@@ -185,7 +185,7 @@ object Parallel extends ParallelArityFunctions2 {
   def parTraverse_[T[_]: Foldable, M[_], A, B](
     ta: T[A]
   )(f: A => M[B])(implicit P: Parallel[M]): M[Unit] = {
-    val gtb: P.F[Unit] = Foldable[T].traverse_(ta)(f.andThen(P.parallel.apply(_)))(P.applicative)
+    val gtb: P.F[Unit] = Foldable[T].traverse_(ta)(a => P.parallel(f(a)))(P.applicative)
     P.sequential(gtb)
   }
 
@@ -227,7 +227,7 @@ object Parallel extends ParallelArityFunctions2 {
   def parNonEmptyTraverse[T[_]: NonEmptyTraverse, M[_], A, B](
     ta: T[A]
   )(f: A => M[B])(implicit P: NonEmptyParallel[M]): M[T[B]] = {
-    val gtb: P.F[T[B]] = NonEmptyTraverse[T].nonEmptyTraverse(ta)(f.andThen(P.parallel.apply(_)))(P.apply)
+    val gtb: P.F[T[B]] = NonEmptyTraverse[T].nonEmptyTraverse(ta)(a => P.parallel(f(a)))(P.apply)
     P.sequential(gtb)
   }
 
@@ -239,7 +239,7 @@ object Parallel extends ParallelArityFunctions2 {
     ta: T[A]
   )(f: A => M[T[B]])(implicit P: NonEmptyParallel[M]): M[T[B]] = {
     val gtb: P.F[T[B]] =
-      NonEmptyTraverse[T].nonEmptyFlatTraverse(ta)(f.andThen(P.parallel.apply(_)))(P.apply, FlatMap[T])
+      NonEmptyTraverse[T].nonEmptyFlatTraverse(ta)(a => P.parallel(f(a)))(P.apply, FlatMap[T])
     P.sequential(gtb)
   }
 
@@ -272,7 +272,7 @@ object Parallel extends ParallelArityFunctions2 {
   def parNonEmptyTraverse_[T[_]: Reducible, M[_], A, B](
     ta: T[A]
   )(f: A => M[B])(implicit P: NonEmptyParallel[M]): M[Unit] = {
-    val gtb: P.F[Unit] = Reducible[T].nonEmptyTraverse_(ta)(f.andThen(P.parallel.apply(_)))(P.apply)
+    val gtb: P.F[Unit] = Reducible[T].nonEmptyTraverse_(ta)(a => P.parallel(f(a)))(P.apply)
     P.sequential(gtb)
   }
 
@@ -284,7 +284,7 @@ object Parallel extends ParallelArityFunctions2 {
     tab: T[A, B]
   )(f: A => M[C], g: B => M[D])(implicit P: Parallel[M]): M[T[C, D]] = {
     val ftcd: P.F[T[C, D]] =
-      Bitraverse[T].bitraverse(tab)(f.andThen(P.parallel.apply(_)), g.andThen(P.parallel.apply(_)))(P.applicative)
+      Bitraverse[T].bitraverse(tab)(a => P.parallel(f(a)), b => P.parallel(g(b)))(P.applicative)
     P.sequential(ftcd)
   }
 
@@ -307,7 +307,7 @@ object Parallel extends ParallelArityFunctions2 {
     tab: T[A, B]
   )(f: A => M[C])(implicit P: Parallel[M]): M[T[C, B]] = {
     val ftcb: P.F[T[C, B]] =
-      Bitraverse[T].bitraverse(tab)(f.andThen(P.parallel.apply(_)), P.applicative.pure(_))(P.applicative)
+      Bitraverse[T].bitraverse(tab)(a => P.parallel.apply(f(a)), P.applicative.pure(_))(P.applicative)
     P.sequential(ftcb)
   }
 
@@ -320,6 +320,18 @@ object Parallel extends ParallelArityFunctions2 {
   )(implicit P: Parallel[M]): M[T[A, B]] = {
     val ftab: P.F[T[A, B]] = Bitraverse[T].bitraverse(tmab)(P.parallel.apply(_), P.applicative.pure(_))(P.applicative)
     P.sequential(ftab)
+  }
+
+  /**
+   * Like `Foldable[A].foldMapA`, but uses the applicative instance
+   * corresponding to the Parallel instance instead.
+   */
+  def parFoldMapA[T[_], M[_], A, B](
+    ta: T[A]
+  )(f: A => M[B])(implicit T: Foldable[T], P: Parallel[M], B: Monoid[B]): M[B] = {
+    val fb: P.F[B] =
+      Foldable[T].foldMapA(ta)(a => P.parallel(f(a)))(P.applicative, B)
+    P.sequential(fb)
   }
 
   /**

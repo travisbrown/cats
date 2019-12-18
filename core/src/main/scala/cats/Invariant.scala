@@ -6,6 +6,7 @@ import simulacrum.typeclass
 import cats.kernel.compat.scalaVersionSpecific._
 import scala.collection.immutable.{Queue, SortedMap}
 import scala.util.Try
+import scala.util.control.TailCalls.TailRec
 
 /**
  * Must obey the laws defined in cats.laws.InvariantLaws.
@@ -62,6 +63,7 @@ object Invariant extends ScalaVersionSpecificInvariantInstances with InvariantIn
     cats.instances.vector.catsStdInstancesForVector
   implicit def catsInstancesForQueue: Monad[Queue] with Alternative[Queue] with CoflatMap[Queue] =
     cats.instances.queue.catsStdInstancesForQueue
+  implicit def catsMonadForTailRec: Monad[TailRec] = cats.instances.tailRec.catsInstancesForTailRec
 
   implicit def catsFlatMapForMap[K]: FlatMap[Map[K, *]] = cats.instances.map.catsStdInstancesForMap[K]
   implicit def catsFlatMapForSortedMap[K: Order]: FlatMap[SortedMap[K, *]] =

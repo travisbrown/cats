@@ -32,6 +32,9 @@ class ConstSuite extends CatsSuite {
   checkAll("Const[String, Int]", TraverseFilterTests[Const[String, *]].traverseFilter[Int, Int, Int])
   checkAll("TraverseFilter[Const[String, *]]", SerializableTests.serializable(TraverseFilter[Const[String, *]]))
 
+  checkAll("Const[String, Int]", AlignTests[Const[String, *]].align[Int, Int, Int, Int])
+  checkAll("Align[Const[String, *]]", SerializableTests.serializable(Align[Const[String, *]]))
+
   // Get Apply[Const[C : Semigroup, *]], not Applicative[Const[C : Monoid, *]]
   {
     implicit def nonEmptyListSemigroup[A]: Semigroup[NonEmptyList[A]] = SemigroupK[NonEmptyList].algebra
@@ -83,7 +86,7 @@ class ConstSuite extends CatsSuite {
 
     Const(1).show should ===("Const(1)")
 
-    forAll { const: Const[Int, String] =>
+    forAll { (const: Const[Int, String]) =>
       const.show.startsWith("Const(") should ===(true)
       const.show.contains(const.getConst.show)
       const.show should ===(implicitly[Show[Const[Int, String]]].show(const))

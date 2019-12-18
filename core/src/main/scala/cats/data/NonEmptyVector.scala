@@ -194,7 +194,7 @@ final class NonEmptyVector[+A] private (val toVector: Vector[A]) extends AnyVal 
    * Remove duplicates. Duplicates are checked using `Order[_]` instance.
    */
   def distinct[AA >: A](implicit O: Order[AA]): NonEmptyVector[AA] = {
-    implicit val ord = O.toOrdering
+    implicit val ord: Ordering[AA] = O.toOrdering
 
     val buf = Vector.newBuilder[AA]
     tail.foldLeft(TreeSet(head: AA)) { (elementsSoFar, a) =>
@@ -214,7 +214,7 @@ final class NonEmptyVector[+A] private (val toVector: Vector[A]) extends AnyVal 
    * scala> import cats.data.NonEmptyVector
    * scala> val as = NonEmptyVector.of(1, 2, 3)
    * scala> val bs = NonEmptyVector.of("A", "B", "C")
-   * scala> as.zipWith(bs)(_ + _)
+   * scala> as.zipWith(bs)(_.toString + _)
    * res0: cats.data.NonEmptyVector[String] = NonEmptyVector(1A, 2B, 3C)
    * }}}
    */
@@ -237,10 +237,15 @@ final class NonEmptyVector[+A] private (val toVector: Vector[A]) extends AnyVal 
 @suppressUnusedImportWarningForScalaVersionSpecific
 sealed abstract private[data] class NonEmptyVectorInstances {
 
-  implicit val catsDataInstancesForNonEmptyVector
-    : SemigroupK[NonEmptyVector] with Bimonad[NonEmptyVector] with NonEmptyTraverse[NonEmptyVector] =
-    new NonEmptyReducible[NonEmptyVector, Vector] with SemigroupK[NonEmptyVector] with Bimonad[NonEmptyVector]
-    with NonEmptyTraverse[NonEmptyVector] {
+  implicit val catsDataInstancesForNonEmptyVector: SemigroupK[NonEmptyVector]
+    with Bimonad[NonEmptyVector]
+    with NonEmptyTraverse[NonEmptyVector]
+    with Align[NonEmptyVector] =
+    new NonEmptyReducible[NonEmptyVector, Vector]
+      with SemigroupK[NonEmptyVector]
+      with Bimonad[NonEmptyVector]
+      with NonEmptyTraverse[NonEmptyVector]
+      with Align[NonEmptyVector] {
 
       def combineK[A](a: NonEmptyVector[A], b: NonEmptyVector[A]): NonEmptyVector[A] =
         a.concatNev(b)
@@ -357,6 +362,15 @@ sealed abstract private[data] class NonEmptyVectorInstances {
 
       override def toNonEmptyList[A](fa: NonEmptyVector[A]): NonEmptyList[A] =
         NonEmptyList(fa.head, fa.tail.toList)
+
+      def functor: Functor[NonEmptyVector] = this
+
+      def align[A, B](fa: NonEmptyVector[A], fb: NonEmptyVector[B]): NonEmptyVector[Ior[A, B]] =
+        NonEmptyVector.fromVectorUnsafe(Align[Vector].align(fa.toVector, fb.toVector))
+
+      override def alignWith[A, B, C](fa: NonEmptyVector[A],
+                                      fb: NonEmptyVector[B])(f: Ior[A, B] => C): NonEmptyVector[C] =
+        NonEmptyVector.fromVectorUnsafe(Align[Vector].alignWith(fa.toVector, fb.toVector)(f))
     }
 
   implicit def catsDataEqForNonEmptyVector[A](implicit A: Eq[A]): Eq[NonEmptyVector[A]] =

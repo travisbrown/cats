@@ -1,9 +1,10 @@
 package cats
 
+import cats.instances.long._
 import cats.kernel.CommutativeMonoid
 import scala.collection.immutable.{Queue, SortedMap, SortedSet}
 import scala.util.Try
-import simulacrum.typeclass
+import simulacrum.{noop, typeclass}
 
 /**
  * `UnorderedFoldable` is like a `Foldable` for unordered containers.
@@ -49,6 +50,27 @@ import simulacrum.typeclass
    * Note: will not terminate for infinite-sized collections.
    */
   def size[A](fa: F[A]): Long = unorderedFoldMap(fa)(_ => 1L)
+
+  /**
+   * Count the number of elements in the structure that satisfy the given predicate.
+   *
+   * For example:
+   * {{{
+   * scala> import cats.implicits._
+   * scala> val map1 = Map[Int, String]()
+   * scala> val p1: String => Boolean = _.length > 0
+   * scala> UnorderedFoldable[Map[Int, *]].count(map1)(p1)
+   * res0: Long = 0
+   *
+   * scala> val map2 = Map(1 -> "hello", 2 -> "world", 3 -> "!")
+   * scala> val p2: String => Boolean = _.length > 1
+   * scala> UnorderedFoldable[Map[Int, *]].count(map2)(p2)
+   * res1: Long = 2
+   * }}}
+   */
+  @noop
+  def count[A](fa: F[A])(p: A => Boolean): Long =
+    unorderedFoldMap(fa)(a => if (p(a)) 1L else 0L)
 }
 
 object UnorderedFoldable extends ScalaVersionSpecificTraverseInstances {

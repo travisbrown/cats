@@ -21,9 +21,7 @@ import NonEmptyChainImpl.create
 import cats.{Order, Semigroup}
 import cats.kernel._
 
-import scala.collection.immutable._
-
-private[data] object NonEmptyChainImpl extends NonEmptyChainInstances {
+private[data] object NonEmptyChainImpl extends NonEmptyChainInstances with ScalaVersionSpecificNonEmptyChainImpl {
   // The following 3 types are components of a technique to
   // create a no-boxing newtype. It's coped from the
   // newtypes lib by @alexknvl
@@ -52,7 +50,7 @@ private[data] object NonEmptyChainImpl extends NonEmptyChainInstances {
   def fromNonEmptyVector[A](as: NonEmptyVector[A]): NonEmptyChain[A] =
     create(Chain.fromSeq(as.toVector))
 
-  def fromSeq[A](as: Seq[A]): Option[NonEmptyChain[A]] =
+  def fromSeq[A](as: scala.collection.immutable.Seq[A]): Option[NonEmptyChain[A]] =
     if (as.nonEmpty) Option(create(Chain.fromSeq(as))) else None
 
   def fromChainPrepend[A](a: A, ca: Chain[A]): NonEmptyChain[A] =
@@ -372,7 +370,7 @@ class NonEmptyChainOps[A](private val value: NonEmptyChain[A]) extends AnyVal {
    * Applies the supplied function to each element and returns a new NonEmptyChain from the concatenated results
    */
   final def flatMap[B](f: A => NonEmptyChain[B]): NonEmptyChain[B] =
-    create(toChain.flatMap(f.andThen(_.toChain)))
+    create(toChain.flatMap(a => f(a).toChain))
 
   /**
    * Returns the number of elements in this chain.
@@ -386,7 +384,7 @@ class NonEmptyChainOps[A](private val value: NonEmptyChain[A]) extends AnyVal {
    * scala> import cats.data.NonEmptyChain
    * scala> val as = NonEmptyChain(1, 2, 3)
    * scala> val bs = NonEmptyChain("A", "B", "C")
-   * scala> as.zipWith(bs)(_ + _)
+   * scala> as.zipWith(bs)(_.toString + _)
    * res0: cats.data.NonEmptyChain[String] = Chain(1A, 2B, 3C)
    * }}}
    */
@@ -418,9 +416,11 @@ class NonEmptyChainOps[A](private val value: NonEmptyChain[A]) extends AnyVal {
 
 sealed abstract private[data] class NonEmptyChainInstances extends NonEmptyChainInstances1 {
 
-  implicit val catsDataInstancesForNonEmptyChain
-    : SemigroupK[NonEmptyChain] with NonEmptyTraverse[NonEmptyChain] with Bimonad[NonEmptyChain] =
-    new AbstractNonEmptyInstances[Chain, NonEmptyChain] {
+  implicit val catsDataInstancesForNonEmptyChain: SemigroupK[NonEmptyChain]
+    with NonEmptyTraverse[NonEmptyChain]
+    with Bimonad[NonEmptyChain]
+    with Align[NonEmptyChain] =
+    new AbstractNonEmptyInstances[Chain, NonEmptyChain] with Align[NonEmptyChain] {
       def extract[A](fa: NonEmptyChain[A]): A = fa.head
 
       def nonEmptyTraverse[G[_]: Apply, A, B](fa: NonEmptyChain[A])(f: A => G[B]): G[NonEmptyChain[B]] =
@@ -451,6 +451,16 @@ sealed abstract private[data] class NonEmptyChainInstances extends NonEmptyChain
 
       override def get[A](fa: NonEmptyChain[A])(idx: Long): Option[A] =
         if (idx == 0) Some(fa.head) else fa.tail.get(idx - 1)
+
+      private val alignInstance = Align[Chain].asInstanceOf[Align[NonEmptyChain]]
+
+      def functor: Functor[NonEmptyChain] = alignInstance.functor
+
+      def align[A, B](fa: NonEmptyChain[A], fb: NonEmptyChain[B]): NonEmptyChain[Ior[A, B]] =
+        alignInstance.align(fa, fb)
+
+      override def alignWith[A, B, C](fa: NonEmptyChain[A], fb: NonEmptyChain[B])(f: Ior[A, B] => C): NonEmptyChain[C] =
+        alignInstance.alignWith(fa, fb)(f)
     }
 
   implicit def catsDataOrderForNonEmptyChain[A: Order]: Order[NonEmptyChain[A]] =

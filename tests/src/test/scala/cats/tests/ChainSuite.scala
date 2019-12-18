@@ -5,6 +5,7 @@ import cats.data.Chain
 import cats.data.Chain.==:
 import cats.data.Chain.`:==`
 import cats.laws.discipline.{
+  AlignTests,
   AlternativeTests,
   CoflatMapTests,
   MonadTests,
@@ -34,6 +35,9 @@ class ChainSuite extends CatsSuite {
   checkAll("Chain[Int]", OrderTests[Chain[Int]].order)
   checkAll("Order[Chain]", SerializableTests.serializable(Order[Chain[Int]]))
 
+  checkAll("Chain[Int]", AlignTests[Chain].align[Int, Int, Int, Int])
+  checkAll("Align[Chain]", SerializableTests.serializable(Align[Chain]))
+
   checkAll("Chain[Int]", TraverseFilterTests[Chain].traverseFilter[Int, Int, Int])
   checkAll("TraverseFilter[Chain]", SerializableTests.serializable(TraverseFilter[Chain]))
 
@@ -59,7 +63,7 @@ class ChainSuite extends CatsSuite {
   test("show") {
     Show[Chain[Int]].show(Chain(1, 2, 3)) should ===("Chain(1, 2, 3)")
     Chain.empty[Int].show should ===("Chain()")
-    forAll { l: Chain[String] =>
+    forAll { (l: Chain[String]) =>
       l.show should ===(l.toString)
     }
   }
@@ -211,7 +215,7 @@ class ChainSuite extends CatsSuite {
   }
 
   test("Chain#distinct is consistent with List#distinct") {
-    forAll { a: Chain[Int] =>
+    forAll { (a: Chain[Int]) =>
       a.distinct.toList should ===(a.toList.distinct)
     }
   }
@@ -256,7 +260,7 @@ class ChainSuite extends CatsSuite {
 
   test("Chain#get is consistent with List#lift") {
     forAll { (x: Chain[Int], idx: Int) =>
-      x.get(idx) should ===(x.toList.lift(idx))
+      x.get(idx.toLong) should ===(x.toList.lift(idx))
     }
   }
 

@@ -474,7 +474,7 @@ sealed abstract class Chain[+A] {
    * Remove duplicates. Duplicates are checked using `Order[_]` instance.
    */
   def distinct[AA >: A](implicit O: Order[AA]): Chain[AA] = {
-    implicit val ord = O.toOrdering
+    implicit val ord: Ordering[AA] = O.toOrdering
 
     var alreadyIn = TreeSet.empty[AA]
 
@@ -535,7 +535,7 @@ object Chain extends ChainInstances {
 
   private val sentinel: Function1[Any, Any] = new scala.runtime.AbstractFunction1[Any, Any] { def apply(a: Any) = this }
 
-  final private[data] case object Empty extends Chain[Nothing] {
+  private[data] case object Empty extends Chain[Nothing] {
     def isEmpty: Boolean = true
   }
   final private[data] case class Singleton[A](a: A) extends Chain[A] {
@@ -681,14 +681,21 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
   }
 
   implicit val catsDataInstancesForChain
-    : Traverse[Chain] with Alternative[Chain] with Monad[Chain] with CoflatMap[Chain] =
-    new Traverse[Chain] with Alternative[Chain] with Monad[Chain] with CoflatMap[Chain] {
+    : Traverse[Chain] with Alternative[Chain] with Monad[Chain] with CoflatMap[Chain] with Align[Chain] =
+    new Traverse[Chain] with Alternative[Chain] with Monad[Chain] with CoflatMap[Chain] with Align[Chain] {
       def foldLeft[A, B](fa: Chain[A], b: B)(f: (B, A) => B): B =
         fa.foldLeft(b)(f)
-      def foldRight[A, B](fa: Chain[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] =
-        Eval.defer(fa.foldRight(lb) { (a, lb) =>
-          Eval.defer(f(a, lb))
-        })
+      def foldRight[A, B](fa: Chain[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = {
+        def loop(as: Chain[A]): Eval[B] =
+          // In Scala 2 the compiler silently ignores the fact that it can't
+          // prove that this match is exhaustive, but Dotty warns, so we
+          // explicitly mark it as unchecked.
+          (as: @unchecked) match {
+            case Chain.nil => lb
+            case h ==: t   => f(h, Eval.defer(loop(t)))
+          }
+        Eval.defer(loop(fa))
+      }
 
       override def map[A, B](fa: Chain[A])(f: A => B): Chain[B] = fa.map(f)
       override def toList[A](fa: Chain[A]): List[A] = fa.toList
@@ -711,9 +718,9 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
       }
 
       def traverse[G[_], A, B](fa: Chain[A])(f: A => G[B])(implicit G: Applicative[G]): G[Chain[B]] =
-        fa.foldRight[G[Chain[B]]](G.pure(nil)) { (a, gcatb) =>
-          G.map2(f(a), gcatb)(_ +: _)
-        }
+        foldRight[A, G[Chain[B]]](fa, Always(G.pure(nil))) { (a, lglb) =>
+          G.map2Eval(f(a), lglb)(_ +: _)
+        }.value
       def empty[A]: Chain[A] = Chain.nil
       def combineK[A](c: Chain[A], c2: Chain[A]): Chain[A] = Chain.concat(c, c2)
       def pure[A](a: A): Chain[A] = Chain.one(a)
@@ -743,6 +750,27 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
       }
 
       override def get[A](fa: Chain[A])(idx: Long): Option[A] = fa.get(idx)
+
+      def functor: Functor[Chain] = this
+
+      def align[A, B](fa: Chain[A], fb: Chain[B]): Chain[Ior[A, B]] =
+        alignWith(fa, fb)(identity)
+
+      override def alignWith[A, B, C](fa: Chain[A], fb: Chain[B])(f: Ior[A, B] => C): Chain[C] = {
+        val iterA = fa.iterator
+        val iterB = fb.iterator
+
+        var result: Chain[C] = Chain.empty
+
+        while (iterA.hasNext || iterB.hasNext) {
+          val ior =
+            if (iterA.hasNext && iterB.hasNext) Ior.both(iterA.next(), iterB.next())
+            else if (iterA.hasNext) Ior.left(iterA.next())
+            else Ior.right(iterB.next())
+          result = result :+ f(ior)
+        }
+        result
+      }
     }
 
   implicit def catsDataShowForChain[A](implicit A: Show[A]): Show[Chain[A]] =
@@ -774,6 +802,8 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
 
     override def filter[A](fa: Chain[A])(f: A => Boolean): Chain[A] = fa.filter(f)
 
+    override def filterNot[A](fa: Chain[A])(f: A => Boolean): Chain[A] = fa.filterNot(f)
+
     override def collect[A, B](fa: Chain[A])(f: PartialFunction[A, B]): Chain[B] = fa.collect(f)
 
     override def mapFilter[A, B](fa: Chain[A])(f: A => Option[B]): Chain[B] = fa.collect(Function.unlift(f))
@@ -781,12 +811,18 @@ sealed abstract private[data] class ChainInstances extends ChainInstances1 {
     override def flattenOption[A](fa: Chain[Option[A]]): Chain[A] = fa.collect { case Some(a) => a }
 
     def traverseFilter[G[_], A, B](fa: Chain[A])(f: A => G[Option[B]])(implicit G: Applicative[G]): G[Chain[B]] =
-      fa.foldRight(G.pure(Chain.empty[B]))(
-        (a, gcb) => G.map2(f(a), gcb)((ob, cb) => ob.fold(cb)(_ +: cb))
-      )
+      traverse
+        .foldRight(fa, Eval.now(G.pure(Chain.empty[B])))(
+          (x, xse) => G.map2Eval(f(x), xse)((i, o) => i.fold(o)(_ +: o))
+        )
+        .value
 
     override def filterA[G[_], A](fa: Chain[A])(f: A => G[Boolean])(implicit G: Applicative[G]): G[Chain[A]] =
-      fa.foldRight(G.pure(Chain.empty[A]))((a, gca) => G.map2(f(a), gca)((b, chain) => if (b) a +: chain else chain))
+      traverse
+        .foldRight(fa, Eval.now(G.pure(Chain.empty[A])))(
+          (x, xse) => G.map2Eval(f(x), xse)((b, chain) => if (b) x +: chain else chain)
+        )
+        .value
 
   }
 

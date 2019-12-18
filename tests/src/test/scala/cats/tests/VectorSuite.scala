@@ -3,6 +3,7 @@ package tests
 
 import cats.data.{NonEmptyVector, ZipVector}
 import cats.laws.discipline.{
+  AlignTests,
   AlternativeTests,
   CoflatMapTests,
   CommutativeApplyTests,
@@ -13,6 +14,7 @@ import cats.laws.discipline.{
   TraverseTests
 }
 import cats.laws.discipline.arbitrary._
+import org.scalatest.funsuite.AnyFunSuiteLike
 
 class VectorSuite extends CatsSuite {
   checkAll("Vector[Int]", SemigroupalTests[Vector].semigroupal[Int, Int, Int])
@@ -33,6 +35,9 @@ class VectorSuite extends CatsSuite {
   checkAll("Vector[Int]", TraverseFilterTests[Vector].traverseFilter[Int, Int, Int])
   checkAll("TraverseFilter[Vector]", SerializableTests.serializable(TraverseFilter[Vector]))
 
+  checkAll("Vector[Int]", AlignTests[Vector].align[Int, Int, Int, Int])
+  checkAll("Align[Vector]", SerializableTests.serializable(Align[Vector]))
+
   checkAll("ZipVector[Int]", CommutativeApplyTests[ZipVector].commutativeApply[Int, Int, Int])
 
   test("show") {
@@ -40,18 +45,28 @@ class VectorSuite extends CatsSuite {
 
     Vector.empty[Int].show should ===("Vector()")
 
-    forAll { vec: Vector[String] =>
+    forAll { (vec: Vector[String]) =>
       vec.show should ===(vec.toString)
     }
   }
 
   test("nev => vector => nev returns original nev")(
-    forAll { fa: NonEmptyVector[Int] =>
+    forAll { (fa: NonEmptyVector[Int]) =>
       assert(fa.toVector.toNev == Some(fa))
     }
   )
 
   test("toNev on empty vector returns None") {
     assert(Vector.empty[Int].toNev == None)
+  }
+}
+
+final class VectorInstancesSuite extends AnyFunSuiteLike {
+
+  test("NonEmptyParallel instance in cats.instances.vector") {
+    import cats.instances.vector._
+    import cats.syntax.parallel._
+
+    (Vector(1, 2, 3), Vector("A", "B", "C")).parTupled
   }
 }

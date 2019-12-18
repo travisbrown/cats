@@ -74,6 +74,12 @@ sealed abstract private[data] class ConstInstances extends ConstInstances0 {
       x.compare(y)
   }
 
+  implicit def catsDataAlignForConst[A: Semigroup]: Align[Const[A, *]] = new Align[Const[A, *]] {
+    def align[B, C](fa: Const[A, B], fb: Const[A, C]): Const[A, Ior[B, C]] =
+      Const(Semigroup[A].combine(fa.getConst, fb.getConst))
+    def functor: Functor[Const[A, *]] = catsDataFunctorForConst
+  }
+
   implicit def catsDataShowForConst[A: Show, B]: Show[Const[A, B]] = new Show[Const[A, B]] {
     def show(f: Const[A, B]): String = f.show
   }
@@ -100,6 +106,8 @@ sealed abstract private[data] class ConstInstances extends ConstInstances0 {
     override def flattenOption[A](fa: Const[C, Option[A]]): Const[C, A] = fa.retag
 
     override def filter[A](fa: Const[C, A])(f: (A) => Boolean): Const[C, A] = fa.retag
+
+    override def filterNot[A](fa: Const[C, A])(f: A => Boolean): Const[C, A] = fa.retag
 
     def traverseFilter[G[_], A, B](
       fa: Const[C, A]

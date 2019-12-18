@@ -4,6 +4,9 @@ package tests
 import cats.data.{EitherT, NonEmptyChain, NonEmptyList, NonEmptySet, Validated}
 import cats.laws.discipline._
 import cats.kernel.laws.discipline.{EqTests, MonoidTests, OrderTests, PartialOrderTests, SemigroupTests}
+import org.scalatest.funsuite.AnyFunSuiteLike
+import cats.laws.discipline.arbitrary._
+
 import scala.util.Try
 
 class EitherSuite extends CatsSuite {
@@ -14,6 +17,9 @@ class EitherSuite extends CatsSuite {
 
   checkAll("Either[Int, Int]", SemigroupalTests[Either[Int, *]].semigroupal[Int, Int, Int])
   checkAll("Semigroupal[Either[Int, *]]", SerializableTests.serializable(Semigroupal[Either[Int, *]]))
+
+  checkAll("Either[Int, Int]", AlignTests[Either[Int, *]].align[Int, Int, Int, Int])
+  checkAll("Align[Either[Int, *]]", SerializableTests.serializable(Align[Either[Int, *]]))
 
   implicit val eq0 = EitherT.catsDataEqForEitherT[Either[Int, *], Int, Int]
 
@@ -102,7 +108,7 @@ class EitherSuite extends CatsSuite {
   }
 
   test("fromTry is left for failed Try") {
-    forAll { t: Try[Int] =>
+    forAll { (t: Try[Int]) =>
       t.isFailure should ===(Either.fromTry(t).isLeft)
     }
   }
@@ -114,13 +120,13 @@ class EitherSuite extends CatsSuite {
   }
 
   test("leftNel is consistent with left(NEL)") {
-    forAll { s: String =>
+    forAll { (s: String) =>
       Either.leftNel[String, Int](s) should ===(Either.left[NonEmptyList[String], Int](NonEmptyList.one(s)))
     }
   }
 
   test("rightNel is consistent with right") {
-    forAll { i: Int =>
+    forAll { (i: Int) =>
       Either.rightNel[String, Int](i) should ===(Either.right[NonEmptyList[String], Int](i))
     }
   }
@@ -132,23 +138,23 @@ class EitherSuite extends CatsSuite {
   }
 
   test("leftNec is consistent with left(NEC)") {
-    forAll { s: String =>
+    forAll { (s: String) =>
       Either.leftNec[String, Int](s) should ===(Either.left[NonEmptyChain[String], Int](NonEmptyChain.one(s)))
     }
   }
   test("rightNec is consistent with right") {
-    forAll { i: Int =>
+    forAll { (i: Int) =>
       Either.rightNec[String, Int](i) should ===(Either.right[NonEmptyChain[String], Int](i))
     }
   }
 
   test("leftNes is consistent with left(NES)") {
-    forAll { s: String =>
+    forAll { (s: String) =>
       Either.leftNes[String, Int](s) should ===(Either.left[NonEmptySet[String], Int](NonEmptySet.one(s)))
     }
   }
   test("rightNes is consistent with right") {
-    forAll { i: Int =>
+    forAll { (i: Int) =>
       Either.rightNes[String, Int](i) should ===(Either.right[NonEmptySet[String], Int](i))
     }
   }
@@ -343,10 +349,10 @@ class EitherSuite extends CatsSuite {
     }
   }
 
-  test("raiseOrPure syntax consistent with fromEither") {
+  test("liftTo syntax consistent with fromEither") {
     val ev = ApplicativeError[Validated[String, *], String]
     forAll { (fa: Either[String, Int]) =>
-      fa.raiseOrPure[Validated[String, *]] should ===(ev.fromEither(fa))
+      fa.liftTo[Validated[String, *]] should ===(ev.fromEither(fa))
     }
   }
 
@@ -361,5 +367,26 @@ class EitherSuite extends CatsSuite {
       either.leftFlatMap(f) should ===(either.swap.flatMap(a => f(a).swap).swap)
     }
   }
+}
 
+final class EitherInstancesSuite extends AnyFunSuiteLike {
+
+  test("parallel instance in cats.instances.either") {
+    import cats.instances.either._
+    import cats.instances.string._
+    import cats.syntax.parallel._
+
+    def either: Either[String, Int] = Left("Test")
+    (either, either).parTupled
+  }
+}
+
+@deprecated("To test deprecated methods", "2.1.0")
+class DeprecatedEitherSuite extends CatsSuite {
+  test("raiseOrPure syntax consistent with fromEither") {
+    val ev = ApplicativeError[Validated[String, *], String]
+    forAll { (fa: Either[String, Int]) =>
+      fa.raiseOrPure[Validated[String, *]] should ===(ev.fromEither(fa))
+    }
+  }
 }

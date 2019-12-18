@@ -1,6 +1,6 @@
 package cats
 
-import scala.collection.immutable.SortedMap
+import scala.collection.immutable.{Queue, SortedMap}
 import simulacrum.typeclass
 
 /**
@@ -67,6 +67,13 @@ trait FunctorFilter[F[_]] extends Serializable {
    */
   def filter[A](fa: F[A])(f: A => Boolean): F[A] =
     mapFilter(fa)(a => if (f(a)) Some(a) else None)
+
+  /**
+   * Apply a filter to a structure such that the output structure contains all
+   * `A` elements in the input structure that do not satisfy the predicate `f`.
+   */
+  def filterNot[A](fa: F[A])(f: A => Boolean): F[A] =
+    mapFilter(fa)(Some(_).filterNot(f))
 }
 
 object FunctorFilter extends ScalaVersionSpecificTraverseFilterInstances {
@@ -79,4 +86,6 @@ object FunctorFilter extends ScalaVersionSpecificTraverseFilterInstances {
     cats.instances.map.catsStdFunctorFilterForMap[K]
   implicit def catsTraverseFilterForSortedMap[K: Order]: TraverseFilter[SortedMap[K, *]] =
     cats.instances.sortedMap.catsStdTraverseFilterForSortedMap[K]
+  implicit def catsTraverseFilterForQueue: TraverseFilter[Queue] =
+    cats.instances.queue.catsStdTraverseFilterForQueue
 }

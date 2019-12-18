@@ -82,7 +82,7 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
     NonEmptyList(head, tail ::: other)
 
   @deprecated("Use concatNel", since = "1.0.0-RC1")
-  def concat[AA >: A](other: NonEmptyList[AA]): NonEmptyList[AA] =
+  private[data] def concat[AA >: A](other: NonEmptyList[AA]): NonEmptyList[AA] =
     concatNel(other)
 
   /**
@@ -92,7 +92,7 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
     NonEmptyList(head, tail ::: other.toList)
 
   def flatMap[B](f: A => NonEmptyList[B]): NonEmptyList[B] =
-    f(head) ++ tail.flatMap(f.andThen(_.toList))
+    f(head) ++ tail.flatMap(a => f(a).toList)
 
   def ::[AA >: A](a: AA): NonEmptyList[AA] =
     prepend(a)
@@ -254,7 +254,7 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * Remove duplicates. Duplicates are checked using `Order[_]` instance.
    */
   def distinct[AA >: A](implicit O: Order[AA]): NonEmptyList[AA] = {
-    implicit val ord = O.toOrdering
+    implicit val ord: Ordering[AA] = O.toOrdering
 
     val buf = ListBuffer.empty[AA]
     tail.foldLeft(TreeSet(head: AA)) { (elementsSoFar, b) =>
@@ -294,7 +294,7 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * scala> import cats.data.NonEmptyList
    * scala> val as = NonEmptyList.of(1, 2, 3)
    * scala> val bs = NonEmptyList.of("A", "B", "C")
-   * scala> as.zipWith(bs)(_ + _)
+   * scala> as.zipWith(bs)(_.toString + _)
    * res0: cats.data.NonEmptyList[String] = NonEmptyList(1A, 2B, 3C)
    * }}}
    */
@@ -368,10 +368,12 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * {{{
    * scala> import scala.collection.immutable.SortedMap
    * scala> import cats.data.NonEmptyList
-   * scala> import cats.instances.boolean._
+   * scala> import cats.implicits._
    * scala> val nel = NonEmptyList.of(12, -2, 3, -5)
-   * scala> nel.groupBy(_ >= 0)
-   * res0: SortedMap[Boolean, cats.data.NonEmptyList[Int]] = Map(false -> NonEmptyList(-2, -5), true -> NonEmptyList(12, 3))
+   * scala> val expectedResult = SortedMap(false -> NonEmptyList.of(-2, -5), true -> NonEmptyList.of(12, 3))
+   * scala> val result = nel.groupBy(_ >= 0)
+   * scala> result === expectedResult
+   * res0: Boolean = true
    * }}}
    */
   def groupBy[B](f: A => B)(implicit B: Order[B]): SortedMap[B, NonEmptyList[A]] = {
@@ -397,11 +399,13 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
    * of the keys produced by the given mapping function.
    *
    * {{{
-   * scala> import cats.data._
-   * scala> import cats.instances.boolean._
+   * scala> import cats.data.{NonEmptyList, NonEmptyMap}
+   * scala> import cats.implicits._
    * scala> val nel = NonEmptyList.of(12, -2, 3, -5)
-   * scala> nel.groupByNem(_ >= 0)
-   * res0: NonEmptyMap[Boolean, NonEmptyList[Int]] = Map(false -> NonEmptyList(-2, -5), true -> NonEmptyList(12, 3))
+   * scala> val expectedResult = NonEmptyMap.of(false -> NonEmptyList.of(-2, -5), true -> NonEmptyList.of(12, 3))
+   * scala> val result = nel.groupByNem(_ >= 0)
+   * scala> result === expectedResult
+   * res0: Boolean = true
    * }}}
    */
   def groupByNem[B](f: A => B)(implicit B: Order[B]): NonEmptyMap[B, NonEmptyList[A]] =
@@ -410,11 +414,13 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
   /**
    * Creates new `NonEmptyMap`, similarly to List#toMap from scala standard library.
    *{{{
-   * scala> import cats.data._
-   * scala> import cats.instances.int._
+   * scala> import cats.data.{NonEmptyList, NonEmptyMap}
+   * scala> import cats.implicits._
    * scala> val nel = NonEmptyList((0, "a"), List((1, "b"),(0, "c"), (2, "d")))
-   * scala> nel.toNem
-   * res0: NonEmptyMap[Int,String] = Map(0 -> c, 1 -> b, 2 -> d)
+   * scala> val expectedResult = NonEmptyMap.of(0 -> "c", 1 -> "b", 2 -> "d")
+   * scala> val result = nel.toNem
+   * scala> result === expectedResult
+   * res0: Boolean = true
    *}}}
    *
    */
@@ -509,9 +515,12 @@ object NonEmptyList extends NonEmptyListInstances {
 sealed abstract private[data] class NonEmptyListInstances extends NonEmptyListInstances0 {
 
   implicit val catsDataInstancesForNonEmptyList
-    : SemigroupK[NonEmptyList] with Bimonad[NonEmptyList] with NonEmptyTraverse[NonEmptyList] =
-    new NonEmptyReducible[NonEmptyList, List] with SemigroupK[NonEmptyList] with Bimonad[NonEmptyList]
-    with NonEmptyTraverse[NonEmptyList] {
+    : SemigroupK[NonEmptyList] with Bimonad[NonEmptyList] with NonEmptyTraverse[NonEmptyList] with Align[NonEmptyList] =
+    new NonEmptyReducible[NonEmptyList, List]
+      with SemigroupK[NonEmptyList]
+      with Bimonad[NonEmptyList]
+      with NonEmptyTraverse[NonEmptyList]
+      with Align[NonEmptyList] {
 
       def combineK[A](a: NonEmptyList[A], b: NonEmptyList[A]): NonEmptyList[A] =
         a.concatNel(b)
@@ -616,6 +625,25 @@ sealed abstract private[data] class NonEmptyListInstances extends NonEmptyListIn
 
       override def get[A](fa: NonEmptyList[A])(idx: Long): Option[A] =
         if (idx == 0) Some(fa.head) else Foldable[List].get(fa.tail)(idx - 1)
+
+      def functor: Functor[NonEmptyList] = this
+
+      def align[A, B](fa: NonEmptyList[A], fb: NonEmptyList[B]): NonEmptyList[Ior[A, B]] =
+        alignWith(fa, fb)(identity)
+
+      override def alignWith[A, B, C](fa: NonEmptyList[A], fb: NonEmptyList[B])(f: Ior[A, B] => C): NonEmptyList[C] = {
+
+        @tailrec
+        def go(as: List[A], bs: List[B], acc: List[C]): List[C] = (as, bs) match {
+          case (Nil, Nil)         => acc
+          case (Nil, y :: ys)     => go(Nil, ys, f(Ior.right(y)) :: acc)
+          case (x :: xs, Nil)     => go(xs, Nil, f(Ior.left(x)) :: acc)
+          case (x :: xs, y :: ys) => go(xs, ys, f(Ior.both(x, y)) :: acc)
+        }
+
+        NonEmptyList(f(Ior.both(fa.head, fb.head)), go(fa.tail, fb.tail, Nil).reverse)
+      }
+
     }
 
   implicit def catsDataShowForNonEmptyList[A](implicit A: Show[A]): Show[NonEmptyList[A]] =

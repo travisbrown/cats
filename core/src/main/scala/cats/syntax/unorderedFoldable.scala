@@ -26,5 +26,5 @@ final class UnorderedFoldableOps[F[_], A](private val fa: F[A]) extends AnyVal {
    * }}}
    */
   def count(p: A => Boolean)(implicit F: UnorderedFoldable[F]): Long =
-    F.unorderedFoldMap(fa)(a => if (p(a)) 1L else 0L)
+    F.count(fa)(p)
 }

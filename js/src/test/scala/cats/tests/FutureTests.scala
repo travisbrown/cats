@@ -2,6 +2,7 @@ package cats
 package js
 package tests
 
+import cats.instances.FutureInstances
 import cats.kernel.laws.discipline.{MonoidTests => MonoidLawTests, SemigroupTests => SemigroupLawTests}
 import cats.laws.discipline._
 import cats.js.instances.Await
@@ -23,7 +24,7 @@ class DeprecatedForwarder {
 object DeprecatedForwarder extends DeprecatedForwarder
 import DeprecatedForwarder.runNow
 
-class FutureTests extends CatsSuite {
+class FutureTests extends CatsSuite with FutureInstances {
   val timeout = 3.seconds
 
   def futureEither[A](f: Future[A]): Future[Either[Throwable, A]] =
