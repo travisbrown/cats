@@ -53,7 +53,10 @@ jobs:
 
     - stage: test
       env: TEST="docs"
-      install: gem install jekyll -v 2.5
+      install:
+        - rvm use 2.6.5 --install --fuzzy
+        - yes | gem update --system --force
+        - gem install jekyll -v 3.8.5
       script: sbt docs/makeMicrosite
 
     - stage: test
