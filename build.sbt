@@ -17,11 +17,11 @@ val isTravisBuild = settingKey[Boolean]("Flag indicating whether the current bui
 val crossScalaVersionsFromTravis = settingKey[Seq[String]]("Scala versions set in .travis.yml as scala_version_XXX")
 isTravisBuild in Global := sys.env.get("TRAVIS").isDefined
 
-val scalaCheckVersion = "1.14.2"
+val scalaCheckVersion = "1.14.3"
 
 val scalatestplusScalaCheckVersion = "3.1.0.0-RC2"
 
-val disciplineVersion = "1.0.1"
+val disciplineVersion = "1.0.2"
 
 val disciplineScalatestVersion = "1.0.0-RC1"
 
@@ -186,6 +186,7 @@ lazy val docSettings = Seq(
     )
   ),
   micrositeGithubRepo := "cats",
+  micrositeTheme := "pattern",
   micrositePalette := Map(
     "brand-primary" -> "#5B5988",
     "brand-secondary" -> "#292E53",
@@ -196,6 +197,7 @@ lazy val docSettings = Seq(
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"
   ),
+  micrositeCompilingDocsTool := WithTut,
   autoAPIMappings := true,
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(kernel.jvm, core.jvm, free.jvm),
   docsMappingsAPIDir := "api",
@@ -633,7 +635,8 @@ lazy val binCompatTest = project
     useCoursier := false,
     commonScalaVersionSettings,
     addCompilerPlugin(("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)),
-    libraryDependencies += mimaPrevious("cats-core", scalaVersion.value, version.value).last % Provided
+    libraryDependencies += mimaPrevious("cats-core", scalaVersion.value, version.value).last % Provided,
+    scalacOptions ++= (if (priorTo2_13(scalaVersion.value)) Seq("-Ypartial-unification") else Nil)
   )
   .settings(testingDependencies)
   .dependsOn(core.jvm % Test)
@@ -802,6 +805,7 @@ def commonScalacOptions(scalaVersion: String) =
   ) ++ (if (priorTo2_13(scalaVersion))
           Seq(
             "-Yno-adapted-args",
+            "-Ypartial-unification",
             "-Xfuture"
           )
         else
