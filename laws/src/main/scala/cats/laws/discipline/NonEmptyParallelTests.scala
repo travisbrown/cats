@@ -30,9 +30,9 @@ trait NonEmptyParallelTests[M[_]] extends Laws {
 object NonEmptyParallelTests {
   type Aux[M[_], F0[_]] = NonEmptyParallelTests[M] { type F[A] = F0[A]; val laws: NonEmptyParallelLaws.Aux[M, F0] }
 
-  def apply[M[_]](implicit ev: NonEmptyParallel[M]): NonEmptyParallelTests.Aux[M, ev.F] =
+  def apply[M[_]](implicit ev: NonEmptyParallel[M]): NonEmptyParallelTests[M] { type F[A] = ev.F[A] } =
     apply[M, ev.F](ev, implicitly)
 
-  def apply[M[_], F[_]](implicit ev: NonEmptyParallel.Aux[M, F], D: DummyImplicit): NonEmptyParallelTests.Aux[M, F] =
-    new NonEmptyParallelTests[M] { val laws = NonEmptyParallelLaws[M] }
+  def apply[M[_], F0[_]](implicit ev: NonEmptyParallel.Aux[M, F0], D: DummyImplicit): NonEmptyParallelTests.Aux[M, F0] =
+    new NonEmptyParallelTests[M] { val laws: NonEmptyParallelLaws.Aux[M, F0] = NonEmptyParallelLaws[M](ev) }
 }

@@ -5,13 +5,13 @@ package discipline
 import cats.data.RepresentableStore
 import cats.Eq
 import cats.data.AndThen
-import cats.instances.boolean._
-import cats.instances.int._
-import cats.instances.string._
-import cats.instances.tuple._
+import cats.instances.boolean.{eq => _, _}
+import cats.instances.int.{eq => _, _}
+import cats.instances.string.{eq => _, _}
+import cats.instances.tuple.{eq => _, _}
 import cats.kernel._
 import cats.platform.Platform
-import cats.syntax.eq._
+import cats.syntax.eq.{eq => _, _}
 import org.scalacheck.Arbitrary
 
 object eq {
@@ -132,7 +132,7 @@ object eq {
    * and comparing the application of the two functions.
    */
   implicit def catsLawsEqForFn2[A, B, C](implicit A: Arbitrary[A], B: Arbitrary[B], C: Eq[C]): Eq[(A, B) => C] =
-    Eq.by((_: (A, B) => C).tupled)(catsLawsEqForFn1)
+    Eq.by((_: (A, B) => C).tupled)(catsLawsEqForFn1[(A, B), C])
 
   /** `Eq[AndThen]` instance, built by piggybacking on [[catsLawsEqForFn1]]. */
   implicit def catsLawsEqForAndThen[A, B](implicit A: Arbitrary[A], B: Eq[B]): Eq[AndThen[A, B]] =
