@@ -426,9 +426,13 @@ abstract private[data] class IorTInstances extends IorTInstances1 {
     type Dummy // fix to make this one more specific than the catsDataParallelForIorTWithSequentialEffect, see https://github.com/typelevel/cats/pull/2335#issuecomment-408249775
 
     val parallel: IorT[M, E, *] ~> IorT[P.F, E, *] =
-      λ[IorT[M, E, *] ~> IorT[P.F, E, *]](fm => IorT(P.parallel(fm.value)))
+      new (({ type λ[α$] = IorT[M, E, α$] })#λ ~> ({ type λ[α$] = IorT[P.F, E, α$] })#λ) {
+        def apply[A$](fm: IorT[M, E, A$]): IorT[P.F, E, A$] = IorT(P.parallel(fm.value))
+      }
     val sequential: IorT[P.F, E, *] ~> IorT[M, E, *] =
-      λ[IorT[P.F, E, *] ~> IorT[M, E, *]](ff => IorT(P.sequential(ff.value)))
+      new (({ type λ[α$] = IorT[P.F, E, α$] })#λ ~> ({ type λ[α$] = IorT[M, E, α$] })#λ) {
+        def apply[A$](ff: IorT[P.F, E, A$]): IorT[M, E, A$] = IorT(P.sequential(ff.value))
+      }
 
     private[this] val FA: Applicative[P.F] = P.applicative
     private[this] val IorA: Applicative[Ior[E, *]] = Parallel[Ior[E, *], Ior[E, *]].applicative

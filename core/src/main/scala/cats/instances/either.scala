@@ -198,9 +198,13 @@ trait EitherInstances extends cats.kernel.instances.EitherInstances {
       def monad: Monad[Either[E, *]] = cats.instances.either.catsStdInstancesForEither
 
       def sequential: Validated[E, *] ~> Either[E, *] =
-        λ[Validated[E, *] ~> Either[E, *]](_.toEither)
+        new (({ type λ[α$] = Validated[E, α$] })#λ ~> ({ type λ[α$] = Either[E, α$] })#λ) {
+          def apply[A$](a$ : Validated[E, A$]): Either[E, A$] = a$.toEither
+        }
 
       def parallel: Either[E, *] ~> Validated[E, *] =
-        λ[Either[E, *] ~> Validated[E, *]](_.toValidated)
+        new (({ type λ[α$] = Either[E, α$] })#λ ~> ({ type λ[α$] = Validated[E, α$] })#λ) {
+          def apply[A$](a$ : Either[E, A$]): Validated[E, A$] = a$.toValidated
+        }
     }
 }

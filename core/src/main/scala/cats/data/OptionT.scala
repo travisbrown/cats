@@ -222,7 +222,7 @@ object OptionT extends OptionTInstances {
    * }}}
    */
   def liftK[F[_]](implicit F: Functor[F]): F ~> OptionT[F, *] =
-    λ[F ~> OptionT[F, *]](OptionT.liftF(_))
+    new (F ~> ({ type λ[α$] = OptionT[F, α$] })#λ) { def apply[A$](a$ : F[A$]): OptionT[F, A$] = OptionT.liftF(a$) }
 
   /**
    * Creates a non-empty `OptionT[F, A]` from an `A` value if the given condition is `true`.
@@ -242,7 +242,9 @@ object OptionT extends OptionTInstances {
    * Same as `whenF`, but expressed as a FunctionK for use with mapK.
    */
   def whenK[F[_]](cond: Boolean)(implicit F: Applicative[F]): F ~> OptionT[F, *] =
-    λ[F ~> OptionT[F, *]](OptionT.whenF(cond)(_))
+    new (F ~> ({ type λ[α$] = OptionT[F, α$] })#λ) {
+      def apply[A$](a$ : F[A$]): OptionT[F, A$] = OptionT.whenF(cond)(a$)
+    }
 
   /**
    * Creates a non-empty `OptionT[F, A]` from an `A` if the given condition is `false`.
@@ -262,7 +264,9 @@ object OptionT extends OptionTInstances {
    * Same as `unlessF`, but expressed as a FunctionK for use with mapK.
    */
   def unlessK[F[_]](cond: Boolean)(implicit F: Applicative[F]): F ~> OptionT[F, *] =
-    λ[F ~> OptionT[F, *]](OptionT.unlessF(cond)(_))
+    new (F ~> ({ type λ[α$] = OptionT[F, α$] })#λ) {
+      def apply[A$](a$ : F[A$]): OptionT[F, A$] = OptionT.unlessF(cond)(a$)
+    }
 }
 
 sealed abstract private[data] class OptionTInstances extends OptionTInstances0 {
@@ -325,10 +329,14 @@ sealed abstract private[data] class OptionTInstances extends OptionTInstances0 {
     def monad: Monad[OptionT[M, *]] = cats.data.OptionT.catsDataMonadErrorMonadForOptionT[M]
 
     def sequential: Nested[P.F, Option, *] ~> OptionT[M, *] =
-      λ[Nested[P.F, Option, *] ~> OptionT[M, *]](nested => OptionT(P.sequential(nested.value)))
+      new (({ type λ[α$] = Nested[P.F, Option, α$] })#λ ~> ({ type λ[α$] = OptionT[M, α$] })#λ) {
+        def apply[A$](nested: Nested[P.F, Option, A$]): OptionT[M, A$] = OptionT(P.sequential(nested.value))
+      }
 
     def parallel: OptionT[M, *] ~> Nested[P.F, Option, *] =
-      λ[OptionT[M, *] ~> Nested[P.F, Option, *]](optT => Nested(P.parallel(optT.value)))
+      new (({ type λ[α$] = OptionT[M, α$] })#λ ~> ({ type λ[α$] = Nested[P.F, Option, α$] })#λ) {
+        def apply[A$](optT: OptionT[M, A$]): Nested[P.F, Option, A$] = Nested(P.parallel(optT.value))
+      }
   }
 }
 
