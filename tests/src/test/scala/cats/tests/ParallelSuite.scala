@@ -481,6 +481,7 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
     )
   }
 
+  /*
   test("NonEmptyParallel.apply should return an appropriately typed instance given both type parameters") {
     val p1: NonEmptyParallel.Aux[Either[String, *], Validated[String, *]] =
       NonEmptyParallel[Either[String, *], Validated[String, *]]
@@ -501,6 +502,7 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
     val p1: Parallel.Aux[Either[String, *], Validated[String, *]] = Parallel[Either[String, *], Validated[String, *]]
     val p2: Parallel.Aux[Stream, ZipStream] = Parallel[Stream]
   }
+ */
 }
 
 trait ApplicativeErrorForEitherTest extends AnyFunSuiteLike with FunSuiteDiscipline with Checkers {
