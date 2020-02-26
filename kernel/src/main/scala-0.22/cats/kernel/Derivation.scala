@@ -3,23 +3,24 @@ package cats.kernel
 import scala.deriving.{ArrayProduct, Mirror}
 import scala.compiletime.{erasedValue, summonFrom}
 
+private trait Derivation[F[_]] {
+  inline final def summonInstance[A]: F[A] = summonFrom[F[A]] {
+    case instanceA: F[A] => instanceA
+  }
+
+  inline final def summonInstances[T <: Tuple]: List[F[Any]] =
+    inline erasedValue[T] match {
+      case _: Unit => Nil
+      case _: (t *: ts) => summonInstance[t].asInstanceOf[F[Any]] :: summonInstances[ts]
+    }
+}
+
 private[kernel] trait BandDerivation
 private[kernel] trait BoundedSemilatticeDerivation
 private[kernel] trait CommutativeGroupDerivation
 private[kernel] trait CommutativeMonoidDerivation
 private[kernel] trait CommutativeSemigroupDerivation
-private[kernel] trait EqDerivation {
-  inline final def summonInstance[A]: Eq[A] = summonFrom[Eq[A]] {
-    case instanceA: Eq[A] => instanceA
-    case _: Mirror.Of[A] => derived[A]
-  }
-
-  inline final def summonInstances[T <: Tuple]: List[Eq[_]] =
-    inline erasedValue[T] match {
-      case _: Unit => Nil
-      case _: (t *: ts) => summonInstance[t] :: summonInstances[ts]
-    }
-
+private[kernel] trait EqDerivation extends Derivation[Eq] {
   inline final def derived[A](given inline A: Mirror.Of[A]): Eq[A] =
     new Eq[A] {
       private[this] lazy val instances: List[Eq[_]] = summonInstances[A.MirroredElemTypes]
@@ -58,18 +59,7 @@ private[kernel] trait LowerBoundedDerivation
 private[kernel] trait MonoidDerivation
 private[kernel] trait OrderDerivation
 private[kernel] trait PartialOrderDerivation
-private[kernel] trait SemigroupDerivation {
-  inline final def summonInstance[A]: Semigroup[A] = summonFrom[Semigroup[A]] {
-    case instanceA: Semigroup[A] => instanceA
-    case _: Mirror.Of[A] => derived[A]
-  }
-
-  inline final def summonInstances[T <: Tuple]: List[Semigroup[_]] =
-    inline erasedValue[T] match {
-      case _: Unit => Nil
-      case _: (t *: ts) => summonInstance[t] :: summonInstances[ts]
-    }
-
+private[kernel] trait SemigroupDerivation extends Derivation[Semigroup] {
   inline final def derived[A](given inline A: Mirror.Of[A]): Semigroup[A] =
     new Semigroup[A] {
       private[this] lazy val instances: List[Semigroup[_]] = summonInstances[A.MirroredElemTypes]
