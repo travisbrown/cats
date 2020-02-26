@@ -43,7 +43,7 @@ trait EqToEquivConversion {
 }
 
 @suppressUnusedImportWarningForScalaVersionSpecific
-object Eq extends EqFunctions[Eq] with EqToEquivConversion {
+object Eq extends EqFunctions[Eq] with EqToEquivConversion with EqDerivation {
 
   /**
    * Access an implicit `Eq[A]`.

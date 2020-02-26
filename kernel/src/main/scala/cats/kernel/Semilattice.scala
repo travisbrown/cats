@@ -60,7 +60,7 @@ abstract class SemilatticeFunctions[S[T] <: Semilattice[T]] extends SemigroupFun
     s.asJoinPartialOrder(ev)
 }
 
-object Semilattice extends SemilatticeFunctions[Semilattice] {
+object Semilattice extends SemilatticeFunctions[Semilattice] with SemilatticeDerivation {
 
   /**
    * Access an implicit `Semilattice[A]`.

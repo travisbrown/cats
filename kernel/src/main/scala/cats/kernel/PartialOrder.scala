@@ -126,7 +126,10 @@ abstract class PartialOrderFunctions[P[T] <: PartialOrder[T]] extends EqFunction
 }
 
 @suppressUnusedImportWarningForScalaVersionSpecific
-object PartialOrder extends PartialOrderFunctions[PartialOrder] with PartialOrderToPartialOrderingConversion {
+object PartialOrder
+    extends PartialOrderFunctions[PartialOrder]
+    with PartialOrderToPartialOrderingConversion
+    with PartialOrderDerivation {
 
   /**
    * Access an implicit `PartialOrder[A]`.

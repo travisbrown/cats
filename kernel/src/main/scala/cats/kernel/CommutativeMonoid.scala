@@ -12,7 +12,7 @@ trait CommutativeMonoid[@sp(Int, Long, Float, Double) A] extends Any with Monoid
   override def reverse: CommutativeMonoid[A] = self
 }
 
-object CommutativeMonoid extends MonoidFunctions[CommutativeMonoid] {
+object CommutativeMonoid extends MonoidFunctions[CommutativeMonoid] with CommutativeMonoidDerivation {
 
   /**
    * Access an implicit `CommutativeMonoid[A]`.

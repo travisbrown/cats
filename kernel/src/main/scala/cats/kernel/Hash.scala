@@ -26,7 +26,7 @@ abstract class HashFunctions[H[T] <: Hash[T]] extends EqFunctions[H] {
 
 }
 
-object Hash extends HashFunctions[Hash] {
+object Hash extends HashFunctions[Hash] with HashDerivation {
 
   /** Fetch a `Hash` instance given the specific type. */
   @inline final def apply[A](implicit ev: Hash[A]): Hash[A] = ev

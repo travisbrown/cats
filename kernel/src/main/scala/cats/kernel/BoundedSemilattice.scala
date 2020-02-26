@@ -9,7 +9,7 @@ trait BoundedSemilattice[@sp(Int, Long, Float, Double) A] extends Any with Semil
     else a // combine(a, a) == a for a semilattice
 }
 
-object BoundedSemilattice extends SemilatticeFunctions[BoundedSemilattice] {
+object BoundedSemilattice extends SemilatticeFunctions[BoundedSemilattice] with BoundedSemilatticeDerivation {
 
   /**
    * Access an implicit `BoundedSemilattice[A]`.

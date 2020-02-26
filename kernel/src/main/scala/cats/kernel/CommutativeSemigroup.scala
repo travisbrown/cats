@@ -16,7 +16,7 @@ trait CommutativeSemigroup[@sp(Int, Long, Float, Double) A] extends Any with Sem
     }
 }
 
-object CommutativeSemigroup extends SemigroupFunctions[CommutativeSemigroup] {
+object CommutativeSemigroup extends SemigroupFunctions[CommutativeSemigroup] with CommutativeSemigroupDerivation {
 
   /**
    * Access an implicit `CommutativeSemigroup[A]`.

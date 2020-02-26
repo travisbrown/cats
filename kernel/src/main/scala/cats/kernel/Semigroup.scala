@@ -130,7 +130,7 @@ abstract class SemigroupFunctions[S[T] <: Semigroup[T]] {
     ev.combineAllOption(as)
 }
 
-object Semigroup extends SemigroupFunctions[Semigroup] {
+object Semigroup extends SemigroupFunctions[Semigroup] with SemigroupDerivation {
 
   /**
    * Access an implicit `Semigroup[A]`.

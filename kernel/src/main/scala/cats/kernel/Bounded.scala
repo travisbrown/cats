@@ -18,7 +18,7 @@ trait LowerBoundedFunctions[L[T] <: LowerBounded[T]] {
   def minBound[@sp A](implicit ev: L[A]): A = ev.minBound
 }
 
-object LowerBounded extends LowerBoundedFunctions[LowerBounded] {
+object LowerBounded extends LowerBoundedFunctions[LowerBounded] with LowerBoundedDerivation {
   @inline def apply[A](implicit l: LowerBounded[A]): LowerBounded[A] = l
 }
 
@@ -38,6 +38,6 @@ trait UpperBoundedFunctions[U[T] <: UpperBounded[T]] {
   def maxBound[@sp A](implicit ev: U[A]): A = ev.maxBound
 }
 
-object UpperBounded extends UpperBoundedFunctions[UpperBounded] {
+object UpperBounded extends UpperBoundedFunctions[UpperBounded] with UpperBoundedDerivation {
   @inline def apply[A](implicit u: UpperBounded[A]): UpperBounded[A] = u
 }

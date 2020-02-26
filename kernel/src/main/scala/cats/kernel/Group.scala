@@ -68,7 +68,7 @@ abstract class GroupFunctions[G[T] <: Group[T]] extends MonoidFunctions[Group] {
     ev.remove(x, y)
 }
 
-object Group extends GroupFunctions[Group] {
+object Group extends GroupFunctions[Group] with GroupDerivation {
 
   /**
    * Access an implicit `Group[A]`.

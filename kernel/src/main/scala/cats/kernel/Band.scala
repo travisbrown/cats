@@ -12,7 +12,7 @@ trait Band[@sp(Int, Long, Float, Double) A] extends Any with Semigroup[A] {
     else a // combine(a, a) == a
 }
 
-object Band extends SemigroupFunctions[Band] {
+object Band extends SemigroupFunctions[Band] with BandDerivation {
 
   /**
    * Access an implicit `Band[A]`.
