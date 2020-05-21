@@ -549,7 +549,6 @@ lazy val free = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(core, tests % "test-internal -> test")
   .settings(moduleName := "cats-free", name := "Cats Free")
   .settings(catsSettings)
-  .settings(crossScalaVersions := crossScalaVersions.value.init)
   .jsSettings(commonJsSettings)
   .jvmSettings(commonJvmSettings ++ mimaSettings("cats-free"))
 
