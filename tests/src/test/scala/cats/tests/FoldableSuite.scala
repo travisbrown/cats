@@ -16,6 +16,7 @@ import cats.syntax.semigroupk._
 import org.scalacheck.Arbitrary
 import scala.collection.immutable.{SortedMap, SortedSet}
 import scala.util.Try
+import cats.catsInstancesForId
 
 @suppressUnusedImportWarningForScalaVersionSpecific
 abstract class FoldableSuite[F[_]: Foldable](name: String)(implicit ArbFInt: Arbitrary[F[Int]],
@@ -314,7 +315,7 @@ class FoldableSuiteAdditional extends CatsSuite with ScalaVersionSpecificFoldabl
     val f = (_: String) match {
       case "Calvin" => None
       case "Deirdra" =>
-        fail: Unit // : Unit ascription suppresses unreachable code warning
+        fail(): Unit // : Unit ascription suppresses unreachable code warning
         None
       case x => Some(x)
     }

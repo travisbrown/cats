@@ -6,6 +6,7 @@ import cats.kernel.{Eq, Monoid, Semigroup}
 import cats.kernel.laws.discipline.{EqTests, MonoidTests, SemigroupTests}
 import cats.laws.discipline._
 import cats.laws.discipline.arbitrary._
+import cats.catsInstancesForId
 
 class IorTSuite extends CatsSuite {
 

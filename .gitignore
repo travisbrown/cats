@@ -2,6 +2,7 @@
 .bloop
 .metals
 project/boot
+project/metals.sbt
 target
 .ensime
 .ensime_lucene
@@ -22,6 +23,7 @@ TAGS
 *.sublime-project
 *.sublime-workspace
 tests.iml
+.semanticdb
 # Auto-copied by sbt-microsites
 docs/src/main/tut/contributing.md
 docs/src/main/tut/index.md

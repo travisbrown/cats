@@ -2,12 +2,10 @@ package cats.tests
 
 import cats._
 import cats.data._
-import cats.data.NonEmptyList.ZipNonEmptyList
 import cats.kernel.compat.scalaVersionSpecific._
 import cats.laws.discipline.{ApplicativeErrorTests, MiniInt, NonEmptyParallelTests, ParallelTests, SerializableTests}
 import cats.laws.discipline.eq._
 import cats.laws.discipline.arbitrary._
-import cats.syntax.bifunctor._
 import cats.syntax.bitraverse._
 import cats.syntax.either._
 import cats.syntax.flatMap._
@@ -61,7 +59,9 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
 
   test("ParTraverse_ identity should be equivalent to parSequence_") {
     forAll { (es: SortedSet[Either[String, Int]]) =>
-      Parallel.parTraverse_(es)(identity) should ===(Parallel.parSequence_(es))
+      Parallel.parTraverse_[SortedSet, Either[String, *], Either[String, Int], Int](es)(identity) should ===(
+        Parallel.parSequence_[SortedSet, Either[String, *], Int](es)
+      )
     }
   }
 
@@ -71,11 +71,13 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
     }
   }
 
+  /*
   test("ParSequence_ syntax should be equivalent to Parallel.parSequence_") {
     forAll { (es: SortedSet[Either[String, Int]]) =>
       Parallel.parSequence_(es) should ===(es.parSequence_)
     }
   }
+   */
 
   test("ParNonEmptyTraverse identity should be equivalent to parNonEmptySequence") {
     forAll { (es: NonEmptyVector[Either[String, Int]]) =>
@@ -147,7 +149,7 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
 
   test("ParBisequence Ior should bisequence values") {
     forAll { (es: ListTuple2[Ior[String, Int], Ior[String, Int]]) =>
-      es.parBisequence.right should ===(es.bimap(_.toOption, _.toOption).bisequence)
+      es.parBisequence.right should ===(catsBitraverseForListTuple2.bimap(es)(_.toOption, _.toOption).bisequence)
     }
   }
 
@@ -186,7 +188,7 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
 
   test("ParLeftSequence Ior should leftSequence values") {
     forAll { (es: ListTuple2[Ior[String, Int], Int]) =>
-      es.parLeftSequence.right should ===(es.bimap(_.toOption, identity).leftSequence)
+      es.parLeftSequence.right should ===(catsBitraverseForListTuple2.bimap(es)(_.toOption, identity).leftSequence)
     }
   }
 
@@ -484,6 +486,7 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
     )
   }
 
+  /*
   test("NonEmptyParallel.apply should return an appropriately typed instance given both type parameters") {
     val p1: NonEmptyParallel.Aux[Either[String, *], Validated[String, *]] =
       NonEmptyParallel[Either[String, *], Validated[String, *]]
@@ -504,6 +507,7 @@ class ParallelSuite extends CatsSuite with ApplicativeErrorForEitherTest with Sc
     val p1: Parallel.Aux[Either[String, *], Validated[String, *]] = Parallel[Either[String, *], Validated[String, *]]
     val p2: Parallel.Aux[Stream, ZipStream] = Parallel[Stream]
   }
+ */
 }
 
 trait ApplicativeErrorForEitherTest extends AnyFunSuiteLike with FunSuiteDiscipline with Checkers {

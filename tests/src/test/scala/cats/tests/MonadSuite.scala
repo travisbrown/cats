@@ -5,6 +5,7 @@ import cats.data.{IndexedStateT, StateT}
 import cats.syntax.apply._
 import cats.syntax.monad._
 import org.scalacheck.Gen
+import cats.catsInstancesForId
 
 class MonadSuite extends CatsSuite {
   implicit val testInstance: Monad[StateT[Id, Int, *]] = IndexedStateT.catsDataMonadForIndexedStateT[Id, Int]
@@ -16,14 +17,15 @@ class MonadSuite extends CatsSuite {
 
   test("whileM_") {
     forAll(smallPosInt) { (max: Int) =>
-      val (result, _) = increment.whileM_(StateT.inspect(i => !(i >= max))).run(0)
+      val (result, _) = increment.whileM_(StateT.inspect[Id, Int, Boolean](i => !(i >= max))).run(0)
       result should ===(Math.max(0, max))
     }
   }
 
   test("whileM") {
     forAll(smallPosInt) { (max: Int) =>
-      val (result, aggregation) = incrementAndGet.whileM[Vector](StateT.inspect(i => !(i >= max))).run(0)
+      val (result, aggregation) =
+        incrementAndGet.whileM[Vector](StateT.inspect[Id, Int, Boolean](i => !(i >= max))).run(0)
       result should ===(Math.max(0, max))
       aggregation should ===(if (max > 0) (1 to max).toVector else Vector.empty)
     }
@@ -31,26 +33,26 @@ class MonadSuite extends CatsSuite {
 
   test("untilM_") {
     forAll(smallPosInt) { (max: Int) =>
-      val (result, _) = increment.untilM_(StateT.inspect(_ >= max)).run(-1)
+      val (result, _) = increment.untilM_(StateT.inspect[Id, Int, Boolean](_ >= max)).run(-1)
       result should ===(max)
     }
   }
 
   test("untilM") {
     forAll(smallPosInt) { (max: Int) =>
-      val (result, aggregation) = incrementAndGet.untilM[Vector](StateT.inspect(_ >= max)).run(-1)
+      val (result, aggregation) = incrementAndGet.untilM[Vector](StateT.inspect[Id, Int, Boolean](_ >= max)).run(-1)
       result should ===(max)
       aggregation should ===((0 to max).toVector)
     }
   }
 
   test("whileM_ stack safety") {
-    val (result, _) = increment.whileM_(StateT.inspect(i => !(i >= 50000))).run(0)
+    val (result, _) = increment.whileM_(StateT.inspect[Id, Int, Boolean](i => !(i >= 50000))).run(0)
     result should ===(50000)
   }
 
   test("whileM stack safety") {
-    val (result, _) = incrementAndGet.whileM[Vector](StateT.inspect(i => !(i >= 50000))).run(0)
+    val (result, _) = incrementAndGet.whileM[Vector](StateT.inspect[Id, Int, Boolean](i => !(i >= 50000))).run(0)
     result should ===(50000)
   }
 

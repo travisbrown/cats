@@ -12,6 +12,7 @@ import cats.syntax.apply._
 import cats.syntax.semigroup._
 import cats.syntax.traverse._
 import org.scalacheck.Arbitrary
+import cats.catsInstancesForId
 
 class ReaderWriterStateTSuite extends CatsSuite {
   import ReaderWriterStateTSuite._

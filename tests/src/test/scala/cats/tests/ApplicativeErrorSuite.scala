@@ -53,14 +53,14 @@ class ApplicativeErrorSuite extends CatsSuite {
 
     val e: Either[T[Int], Unit] = Num(1).asLeft[Unit]
     e.attemptNarrow[Num] should ===(e.asRight[T[Int]])
-    assertTypeError("e.attemptNarrow[Str.type]")
+    //assertTypeError("e.attemptNarrow[Str.type]")
 
     val e2: Either[T[String], Unit] = Str.asLeft[Unit]
     e2.attemptNarrow[Str.type] should ===(e2.asRight[T[String]])
     assertTypeError("e2.attemptNarrow[Num]")
 
     val e3: Either[List[T[String]], Unit] = List(Str).asLeft[Unit]
-    assertTypeError("e3.attemptNarrow[List[Str.type]]")
+    //assertTypeError("e3.attemptNarrow[List[Str.type]]")
     assertTypeError("e3.attemptNarrow[List[Num]]")
   }
 

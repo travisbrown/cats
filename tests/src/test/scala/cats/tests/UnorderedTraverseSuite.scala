@@ -2,6 +2,7 @@ package cats.tests
 
 import cats.Id
 import cats.syntax.unorderedTraverse._
+import cats.catsInstancesForId
 
 class UnorderedTraverseSuite extends CatsSuite {
   test("UnorderedTraverse[Set[Int]].unorderedTraverse via syntax") {
