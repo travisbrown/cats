@@ -163,13 +163,20 @@ lazy val testingDependencies = Seq(
     "org.scalatest" %%% "scalatest-funsuite" % scalatestVersion % Test,
     "org.scalatestplus" %%% "scalacheck-1-14" % scalatestplusScalaCheckVersion % Test
   ),
-  libraryDependencies ++= Seq(
-    ("org.typelevel" %%% "discipline-scalatest" % disciplineScalatestVersion % Test)
-  ).map(
-    _.exclude("org.scalatestplus", "scalacheck-1-14_2.13")
-      .exclude("org.scalactic", "scalactic_2.13")
-      .exclude("org.scalatest", "scalatest_2.13")
-      .withDottyCompat(scalaVersion.value)
+  libraryDependencies ++= (
+    if (isDotty.value)
+      Seq(
+        "org.typelevel" %%% "discipline-scalatest" % disciplineScalatestVersion % Test
+      ).map(
+        _.exclude("org.scalatestplus", "scalacheck-1-14_2.13")
+          .exclude("org.scalactic", "scalactic_2.13")
+          .exclude("org.scalatest", "scalatest_2.13")
+          .withDottyCompat(scalaVersion.value)
+      )
+    else
+      Seq(
+        "org.typelevel" %%% "discipline-scalatest" % disciplineScalatestVersion % Test
+      )
   )
 )
 
